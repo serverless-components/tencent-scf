@@ -1,0 +1,33 @@
+{
+  "name": "@serverless/tencent-cloudfunction",
+  "description": "Tencent Serverless Cloud Function",
+  "version": "0.0.1",
+  "main": "./serverless.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --fix --cache"
+  },
+  "author": "Tencent Cloud.",
+  "license": "Apache",
+  "dependencies": {
+    "@serverless/core": "^1.1.1",
+    "archiver": "^3.1.1",
+    "assert": "^2.0.0",
+    "cos-nodejs-sdk-v5": "^2.5.12",
+    "filesize": "^5.0.3",
+    "ignore": "^5.1.4",
+    "lodash": "^4.17.15",
+    "tencentcloud-sdk-nodejs": "^3.0.89"
+  },
+  "devDependencies": {
+    "babel-eslint": "9.0.0",
+    "eslint": "5.6.0",
+    "eslint-config-prettier": "^3.6.0",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "prettier": "^1.18.2"
+  }
+}
