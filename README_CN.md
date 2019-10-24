@@ -87,7 +87,7 @@ myFunction2:
 $ serverless --debug
 ```
 
-### 5. 云函数
+### 5. 移除
 
 通过以下命令移除部署的云函数
 ```console
