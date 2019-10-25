@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  this class function getServiceResource() output the object
  {
@@ -49,113 +47,114 @@
  */
 
 class Provider {
+  constructor(inputs, prefix) {
+    this.inputs = inputs
+    this.prefix = prefix || 'sls-cloudfunction'
+  }
 
-	constructor(inputs, prefix) {
-		this.inputs = inputs;
-		this.prefix = prefix || 'sls-cloudfunction';
-	}
+  getFunctionName(functionName) {
+    return functionName
+  }
 
-	getFunctionName(functionName) {
-		return functionName;
-	}
+  randomString() {
+    const len = 6
+    const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+    const maxPos = chars.length
+    let result = ''
+    for (let i = 0; i < len; i++) {
+      result += chars.charAt(Math.floor(Math.random() * maxPos))
+    }
+    return result
+  }
 
-	randomString() {
-		const len = 6;
-		const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
-		const maxPos = chars.length;
-		let result = '';
-		for (let i = 0; i < len; i++) {
-			result += chars.charAt(Math.floor(Math.random() * maxPos));
-		}
-		return result;
-	}
+  get region() {
+    return this.inputs.region || 'ap-guangzhou'
+  }
 
-	get region() {
-		return this.inputs.region || 'ap-guangzhou';
-	}
+  getFuntionBucketKey(ns, functionName) {
+    const nowDate = new Date()
+    const timestamp = parseInt(nowDate.getTime() / 1000)
+    return this.prefix + '-' + ns + '-' + functionName + '-' + timestamp + '.zip'
+  }
 
-	getFuntionBucketKey(ns, functionName) {
-		const nowDate = new Date();
-		const timestamp = parseInt(nowDate.getTime() / 1000);
-		return this.prefix + '-' + ns + '-' + functionName + '-' + timestamp + '.zip';
-	}
+  getEnvironment(funcObject) {
+    const funcObjectInfo = funcObject.environment
+    if (funcObjectInfo && funcObjectInfo.variables) {
+      return { Variables: funcObject.environment.variables }
+    }
+    return null
+  }
 
-	getEnvironment(funcObject) {
-		const funcObjectInfo = funcObject.environment;
-		if (funcObjectInfo && funcObjectInfo.variables)
-			return {Variables: funcObject.environment.variables};
-		else
-			return null;
-	}
+  getVPCConfig(funcObject) {
+    const funcObjectInfo = funcObject.vpcConfig
+    const vpcId = funcObjectInfo && funcObjectInfo.vpcId ? funcObjectInfo.vpcId : ''
+    const subnetId = funcObjectInfo && funcObjectInfo.subnetId ? funcObjectInfo.subnetId : ''
+    return { VpcId: vpcId, SubnetId: subnetId }
+  }
 
-	getVPCConfig(funcObject) {
-		const funcObjectInfo = funcObject.vpcConfig;
-		const vpcId = (funcObjectInfo && funcObjectInfo.vpcId) ? funcObjectInfo.vpcId : '';
-		const subnetId = (funcObjectInfo && funcObjectInfo.subnetId) ? funcObjectInfo.subnetId : '';
-		return {'VpcId': vpcId, 'SubnetId': subnetId}
-	}
+  getCosBucketNme(name) {
+    return this.prefix + '-' + this.region + '-' + (name ? name : 'code')
+  }
 
-	getCosBucketNme(name) {
-		return this.prefix + '-' + this.region + '-' + (name ? name : 'code');
-	}
+  getFunctionResource(funcObject, functionName, serviceStr, keyTime) {
+    const functionResource = {
+      Type: 'TencentCloud::Serverless::Function',
+      Properties: {
+        CodeUri: {
+          Bucket: this.getCosBucketNme(),
+          Key: this.getFuntionBucketKey(this.namespace, functionName)
+        },
+        Type: 'Event',
+        Description: funcObject.description || 'This is a template function',
+        Role: funcObject.role || 'QCS_SCFExcuteRole',
+        Handler: funcObject.handler || 'index.main_handler',
+        MemorySize: funcObject.memorySize || 128,
+        Timeout: funcObject.timeout || 3,
+        Region: funcObject.region || 'ap-guangzhou',
+        Runtime: funcObject.runtime || 'Nodejs8.9'
+      }
+    }
 
+    const vpcConfig = this.getVPCConfig(funcObject)
+    if (vpcConfig) {
+      functionResource['Properties']['VpcConfig'] = vpcConfig
+    }
 
-	getFunctionResource(funcObject, functionName, serviceStr, keyTime) {
-		const functionResource = {
-			"Type": "TencentCloud::Serverless::Function",
-			'Properties': {
-				'CodeUri': {
-					'Bucket': this.getCosBucketNme(),
-					'Key': this.getFuntionBucketKey(this.namespace, functionName)
-				},
-				"Type": "Event",
-				'Description': funcObject.description || "This is a template function",
-				'Role': funcObject.role || "QCS_SCFExcuteRole",
-				'Handler': funcObject.handler || "index.main_handler",
-				'MemorySize': funcObject.memorySize || 128,
-				'Timeout': funcObject.timeout || 3,
-				'Region': funcObject.region || "ap-guangzhou",
-				'Runtime': funcObject.runtime || 'Nodejs8.9',
-			}
-		};
+    const environment = this.getEnvironment(funcObject)
+    if (environment) {
+      functionResource['Properties']['Environment'] = environment
+    }
 
-		const vpcConfig = this.getVPCConfig(funcObject);
-		if (vpcConfig)
-			functionResource['Properties']['VpcConfig'] = vpcConfig
+    return functionResource
+  }
 
-		const environment = this.getEnvironment(funcObject);
-		if (environment)
-			functionResource['Properties']['Environment'] = environment;
+  get namespace() {
+    return 'default'
+  }
 
-		return functionResource
-	}
+  getServiceResource() {
+    var functionList = {
+      Type: 'TencentCloud::Serverless::Namespace'
+    }
+    const serviceStr = this.randomString()
+    const date = new Date()
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset()) // toJSON 的时区补偿
+    const keyTime = date
+      .toJSON()
+      .substr(0, 19)
+      .replace(/[:T]/g, '-')
+    const funcObject = this.inputs
+    const functionName = this.getFunctionName(funcObject.name)
+    const funtionResource = this.getFunctionResource(funcObject, functionName, serviceStr, keyTime)
+    functionList[functionName] = funtionResource
 
-	get namespace() {
-		return 'default';
-	}
+    const resource = {
+      Resources: {}
+    }
 
-
-	getServiceResource() {
-		var functionList = {
-			"Type": "TencentCloud::Serverless::Namespace",
-		};
-		const serviceStr = this.randomString();
-		const date = new Date();
-		date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); // toJSON 的时区补偿
-		const keyTime = date.toJSON().substr(0, 19).replace(/[:T]/g, '-');
-		const funcObject = this.inputs;
-		const functionName = this.getFunctionName(funcObject.name);
-		const funtionResource = this.getFunctionResource(funcObject, functionName, serviceStr, keyTime);
-		functionList[functionName] = funtionResource
-
-		const resource = {
-			"Resources": {}
-		};
-
-		resource["Resources"]["default"] = functionList;
-		return resource
-	}
-
+    resource['Resources']['default'] = functionList
+    return resource
+  }
 }
 
-module.exports = Provider;
+module.exports = Provider
