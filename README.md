@@ -46,8 +46,8 @@ myFunction1:
     # code dir path
     codeUri: ./code
     handler: index.main_handler
-    runtime: Nodejs8.9
-    region: ap-guangzhou
+    runtime: Nodejs8.9  // If the function has been established, no modification is allowed
+    region: ap-guangzhou  // If the function has been established, change area will cause the function to redeploy
     description: My Serverless Function
     memorySize: 128
     timeout: 20
@@ -71,8 +71,7 @@ myFunction2:
     name: myFunction2
     # code dir path
     codeUri: ./code
-    
-    # more options ...
+   
 
 ```
 

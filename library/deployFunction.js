@@ -12,19 +12,22 @@ class DeployFunction extends Abstract {
 		super(appid, secret_id, secret_key, options);
 	}
 
-	async deploy(ns, funcObject, packagePath) {
+	async deploy(ns, funcObject) {
 		const func = await this.getFunction(ns, funcObject.FuncName);
 		if (!func) {
-			await this.createFunction(ns, funcObject, packagePath);
+			await this.createFunction(ns, funcObject);
 		} else {
-			await this.updateFunctionCode(ns, funcObject, packagePath);
+			if(func.Runtime != funcObject.Properties.Runtime){
+				throw "Runtime could not be changed! "
+			}
+			await this.updateFunctionCode(ns, funcObject);
 			await this.updateConfiguration(ns, func, funcObject);
 			return func;
 		}
 		return null;
 	}
 
-	async updateFunctionCode(ns, funcObject, packagePath) {
+	async updateFunctionCode(ns, funcObject) {
 		const updateArgs = {
 			Region: funcObject.Properties.Region,
 			FunctionName: funcObject.FuncName,
@@ -45,7 +48,7 @@ class DeployFunction extends Abstract {
 	}
 
 
-	async createFunction(ns, funcObject, packagePath) {
+	async createFunction(ns, funcObject) {
 
 		const createFuncRequest = {
 			Region: funcObject.Properties.Region,
@@ -123,10 +126,11 @@ class DeployFunction extends Abstract {
 			Region: this.options.region,
 			FunctionName: funcObject.FuncName,
 			Namespace: ns,
-			Runtime: funcObject.Properties.Runtime,
+			// Runtime: funcObject.Properties.Runtime, // Does not support modification
 			Role: funcObject.Properties.Role,
 			MemorySize: funcObject.Properties.MemorySize,
 			Timeout: funcObject.Properties.Timeout,
+			Description: funcObject.Properties.Description,
 		};
 
 

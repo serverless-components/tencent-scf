@@ -55,7 +55,6 @@ class Provider {
 		this.prefix = prefix || 'sls-cloudfunction';
 	}
 
-	//
 	getFunctionName(functionName) {
 		return functionName;
 	}
@@ -79,10 +78,6 @@ class Provider {
 		const nowDate = new Date();
 		const timestamp = parseInt(nowDate.getTime() / 1000);
 		return this.prefix + '-' + ns + '-' + functionName + '-' + timestamp + '.zip';
-	}
-
-	getServiceFileName(ns, funcName, timeData) {
-		return this.prefix + '-' + ns + '-' + funcName + '-' + timeData;
 	}
 
 	getEnvironment(funcObject) {
@@ -139,13 +134,6 @@ class Provider {
 		return 'default';
 	}
 
-	get service() {
-		return '';
-	}
-
-	get stage() {
-		return '';
-	}
 
 	getServiceResource() {
 		var functionList = {
@@ -161,12 +149,6 @@ class Provider {
 		functionList[functionName] = funtionResource
 
 		const resource = {
-			"Service": this.service,
-			"Stage": this.stage,
-			"ServiceFileName": this.getServiceFileName(this.namespace, functionName, Date.parse(date) / 1000) + ".json",
-			"ServiceZipName": this.getFuntionBucketKey(this.namespace, functionName),
-			"CreateTime": date,
-			"CreateTimestamp": Date.parse(date) / 1000,
 			"Resources": {}
 		};
 
