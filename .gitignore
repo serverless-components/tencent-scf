@@ -1,0 +1,10 @@
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+*.log
+.serverless
+.serverless_plugins
+.serverlessUnzipped
+node_modules
+.vscode/
+package-lock.json
