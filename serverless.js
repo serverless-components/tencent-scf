@@ -33,7 +33,7 @@ class TencentSCF extends Component {
 		this.context.debug(`Uploaded package successful ${zipOutput}`);
 
 		this.context.debug(`Creating function ${funcObject.FuncName}`);
-		const oldFunc = await func.deploy('default', funcObject, zipOutput);
+		await func.deploy('default', funcObject, zipOutput);
 		this.context.debug(`Created function ${funcObject.FuncName} successful`);
 
 		const output = {
