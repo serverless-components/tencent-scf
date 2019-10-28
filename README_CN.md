@@ -48,7 +48,7 @@ TENCENT_APP_ID=123
 ```yml
 # serverless.yml
 myFunction1:
-  component: "@serverless/tencent-cloudfunction"
+  component: "@serverless/tencent-scf"
   inputs:
     name: myFunction1
     codeUri: ./code       # 代码目录
