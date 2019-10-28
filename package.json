@@ -20,7 +20,8 @@
     "filesize": "^5.0.3",
     "ignore": "^5.1.4",
     "lodash": "^4.17.15",
-    "tencentcloud-sdk-nodejs": "^3.0.89"
+    "tencentcloud-sdk-nodejs": "^3.0.89",
+    "globby": "^9.2.0"
   },
   "devDependencies": {
     "babel-eslint": "9.0.0",

@@ -22,7 +22,8 @@ class TencentCloudFunction extends Component {
     const zipOutput = util.format('%s/%s.zip', this.context.instance.stateRoot, inputs.name)
 
     this.context.debug(`Compressing function ${funcObject.FuncName} file to ${zipOutput}.`)
-    const codeSize = await utils.zipArchive(inputs.codeUri, zipOutput, inputs.ignores)
+    // const codeSize = await utils.zipArchive(inputs.codeUri, zipOutput, inputs.ignores)
+    await utils.packDir(inputs.codeUri, zipOutput, inputs.include, inputs.exclude)
     this.context.debug(`Compressed function ${funcObject.FuncName} file successful`)
 
     const cosBucketName = funcObject.Properties.CodeUri.Bucket
@@ -44,8 +45,8 @@ class TencentCloudFunction extends Component {
       Region: region,
       Role: funcObject.Properties.Role,
       Description: funcObject.Properties.Description,
-      UsingCos: true,
-      CodeSize: filesize(codeSize)
+      UsingCos: true
+      // CodeSize: filesize(codeSize)
     }
     this.state.deployed = output
     await this.save()

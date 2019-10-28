@@ -59,12 +59,14 @@ myFunction1:
     memorySize: 128
     timeout: 20
     # 打包zip时希望忽略的文件或者目录配置（可选）
-    ignores:
+    exclude:
       - .gitignore
       - .git/**
       - node_modules/**
       - .serverless
       - .env
+    include:
+          - /Users/dfounderliu/Desktop/temp/.serverless/myFunction1.zip
     environment:
       variables:
         TEST: vale
