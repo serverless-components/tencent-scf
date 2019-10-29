@@ -35,6 +35,11 @@ $ touch .env # 腾讯云的配置信息
 
 在 `.env` 文件中配置腾讯云的APPID，SecretId和SecretKey信息并保存
 
+如果没有腾讯云账号，可以在此[注册新账号](https://cloud.tencent.com/register)。
+
+如果已有腾讯云账号，可以在[API密钥管理
+](https://console.cloud.tencent.com/cam/capi)中获取`APPID`, `SecretId` 和`SecretKey`.
+
 ```
 # .env
 TENCENT_SECRET_ID=123
