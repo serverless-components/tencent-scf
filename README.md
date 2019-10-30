@@ -26,18 +26,15 @@ $ touch serverless.yml
 $ touch .env # your Tencent API Keys
 ```
 
-Set Tencent credentials in the `.env` file.
-
-If you don't have a Tencent Cloud account, you could [sign up](https://intl.cloud.tencent.com/register) first.  
-
-If you already login in, find  `TENCENT_SECRET_ID` and `TENCENT_SECRET_KEY`  in [Tencent Console](https://console.cloud.tencent.com/cam/capi).
+Add the access keys of a [Tencent CAM Role](https://console.cloud.tencent.com/cam/capi) with `AdministratorAccess` in the `.env` file, using this format: 
 
 ```
 # .env
-TENCENT_SECRET_ID=123
-TENCENT_SECRET_KEY=123
+TENCENT_SECRET_ID=XXX
+TENCENT_SECRET_KEY=XXX
 TENCENT_APP_ID=123
 ```
+* If you don't have a Tencent Cloud account, you could [sign up](https://intl.cloud.tencent.com/register) first. 
 
 ### 3. Configure
 
