@@ -19,11 +19,16 @@ $ npm install -g serverless
 
 ### 2. Create
 
-Just create `serverless.yml` and `.env` files
-
-```console
-$ touch serverless.yml
-$ touch .env # your Tencent API Keys
+```
+$ mkdir my-function
+$ cd my-function
+```
+the directory should look something like this:
+```
+|- code
+  |- index.js
+|- serverless.yml
+|- .env      # your Tencent SecretId/Key/AppId
 ```
 
 Add the access keys of a [Tencent CAM Role](https://console.cloud.tencent.com/cam/capi) with `AdministratorAccess` in the `.env` file, using this format: 
@@ -36,83 +41,88 @@ TENCENT_APP_ID=123
 ```
 * If you don't have a Tencent Cloud account, you could [sign up](https://intl.cloud.tencent.com/register) first. 
 
+For this example, you could add the code to index.html file:
+```javascript
+'use strict';
+exports.main_handler = async (event, context, callback) => {
+    console.log("%j", event);
+    return "hello world"
+};
+
+```
+
+
 ### 3. Configure
 
 ```yml
 # serverless.yml
-myFunction1:
+
+myFunction:
   component: "@serverless/tencent-scf"
   inputs:
-    name: myFunction1
-    # code dir path
+    name: myFunction
     codeUri: ./code
     handler: index.main_handler
-    runtime: Nodejs8.9  // If the function has been established, no modification is allowed
-    region: ap-guangzhou  // If the function has been established, change area will cause the function to redeploy
-    description: My Serverless Function
-    memorySize: 128
-    timeout: 20
-    # zip compress ignore file or directory
-    exclude:
-      - .gitignore
-      - .git/**
-      - node_modules/**
-      - .serverless
-      - .env
-    include:
-      - /Users/dfounderliu/Desktop/temp/.serverless/myFunction1.zip
-    environment:
-      variables:
-        TEST: vale
-    vpcConfig:
-      subnetId: ''
-      vpcId: ''
+    runtime: Nodejs8.9
+    region: ap-guangzhou
 
-myFunction2:
-  component: "@serverless/tencent-cloudfunction"
-  inputs:
-    name: myFunction2
-    # code dir path
-    codeUri: ./code
-   
 
 ```
+* [Click here to view the configuration document](https://github.com/serverless-tencent/tencent-scf/blob/master/docs/configure.md)
+
 
 ### 4. Deploy
 
 ```console
-$ serverless --debug
+$ sls --debug
+
+  DEBUG ─ Resolving the template's static variables.
+  DEBUG ─ Collecting components from the template.
+  DEBUG ─ Downloading any NPM components found in the template.
+  DEBUG ─ Analyzing the template's components dependencies.
+  DEBUG ─ Creating the template's components graph.
+  DEBUG ─ Syncing template state.
+  DEBUG ─ Starting Website Removal.
+  DEBUG ─ Removing Website bucket.
+  DEBUG ─ Removing files from the "my-bucket-1300415943" bucket.
+  DEBUG ─ Removing "my-bucket-1300415943" bucket from the "ap-guangzhou" region.
+  DEBUG ─ "my-bucket-1300415943" bucket was successfully removed from the "ap-guangzhou" region.
+  DEBUG ─ Finished Website Removal.
+  DEBUG ─ Executing the template's components graph.
+  DEBUG ─ Compressing function myFunction file to /Users/dfounderliu/Desktop/temp/code/.serverless/myFunction.zip.
+  DEBUG ─ Compressed function myFunction file successful
+  DEBUG ─ Uploading service package to cos[sls-cloudfunction-ap-guangzhou-code]. sls-cloudfunction-default-myFunction-1572519895.zip
+  DEBUG ─ Uploaded package successful /Users/dfounderliu/Desktop/temp/code/.serverless/myFunction.zip
+  DEBUG ─ Creating function myFunction
+  DEBUG ─ Created function myFunction successful
+
+  myFunction: 
+    Name:        myFunction
+    Runtime:     Nodejs8.9
+    Handler:     index.main_handler
+    MemorySize:  128
+    Timeout:     3
+    Region:      ap-guangzhou
+    Role:        QCS_SCFExcuteRole
+    Description: This is a template function
+    UsingCos:    true
+
+  6s › myFunction › done
+
 ```
 
 ### 5. Remove
 
 ```console
-$ serverless remove --debug
-```
+$ sls remove --debug
 
-### Test
-```text
-DFOUNDERLIU-MB0:temp dfounderliu$ sls
+  DEBUG ─ Flushing template state and removing all components.
+  DEBUG ─ Removed function myFunction successful
 
-  myFunction1: 
-    Name:        myFunction1
-    Runtime:     Nodejs8.9
-    Handler:     index.main_handler
-    MemorySize:  128
-    Timeout:     200
-    Region:      ap-guangzhou
-    Role:        QCS_SCFExcuteRole
-    Description: My Serverless Function
-    UsingCos:    true
-    CodeSize:    243 B
-
-  3s › myFunction1 › done
-
-DFOUNDERLIU-MB0:temp dfounderliu$ sls remove
-
-  14s › myFunction1 › done
+  1s › myFunction › done
 
 ```
+
 
 ### New to Components?
 
