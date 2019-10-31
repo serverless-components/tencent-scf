@@ -41,7 +41,7 @@ TENCENT_APP_ID=123
 ```
 * If you don't have a Tencent Cloud account, you could [sign up](https://intl.cloud.tencent.com/register) first. 
 
-For this example, you could add the code to index.html file:
+For this example, you could add the code to index.js file:
 ```javascript
 'use strict';
 exports.main_handler = async (event, context, callback) => {
