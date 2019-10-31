@@ -12,10 +12,22 @@ class TencentCloudFunction extends Component {
     const provider = new Provider(inputs)
     const services = provider.getServiceResource()
     const tencent = this.context.credentials.tencent
-
     const region = provider.region
     const funcObject = _.cloneDeep(services.Resources.default[inputs.name])
     funcObject.FuncName = provider.getFunctionName(inputs.name)
+
+    if (this.state && this.state.deployed && this.state.deployed.Name) {
+      if (this.state.deployed.Name != funcObject.FuncName) {
+        try {
+          const handler = new RemoveFunction(tencent.AppId, tencent.SecretId, tencent.SecretKey, {
+            region
+          })
+          await handler.remove(this.state.deployed.Name)
+        } catch (e) {
+          this.context.debug('Remove old function failed.')
+        }
+      }
+    }
 
     const func = new DeployFunction(tencent.AppId, tencent.SecretId, tencent.SecretKey, { region })
 
