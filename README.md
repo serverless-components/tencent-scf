@@ -2,6 +2,11 @@
 
 Deploy scf functions to tencent in seconds with [Serverless Components](https://github.com/serverless/components).
 
+&nbsp;
+
+* [请点击这里查看中文版部署文档](./README_CN.md)
+
+&nbsp;
 
 1. [Install](#1-install)
 2. [Create](#2-create)
