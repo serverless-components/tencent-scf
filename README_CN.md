@@ -49,7 +49,6 @@ $ cd my-function
 # .env
 TENCENT_SECRET_ID=123
 TENCENT_SECRET_KEY=123
-TENCENT_APP_ID=123
 ```
 
 对于该例子可以使用一下Demo，作为index.js：

@@ -6,11 +6,64 @@ const filesize = require('filesize')
 const _ = require('lodash')
 const utils = require('./library/utils')
 const util = require('util')
+const tencentcloud = require('tencentcloud-sdk-nodejs')
+const ClientProfile = require('tencentcloud-sdk-nodejs/tencentcloud/common/profile/client_profile.js')
+const HttpProfile = require('tencentcloud-sdk-nodejs/tencentcloud/common/profile/http_profile.js')
+const AbstractModel = require('tencentcloud-sdk-nodejs/tencentcloud/common/abstract_model')
+const AbstractClient = require('tencentcloud-sdk-nodejs/tencentcloud/common/abstract_client')
+
+class GetUserAppIdResponse extends AbstractModel {
+  constructor() {
+    super()
+
+    this.RequestId = null
+  }
+
+  deserialize(params) {
+    if (!params) {
+      return
+    }
+    this.AppId = 'RequestId' in params ? params.AppId : null
+    this.RequestId = 'RequestId' in params ? params.RequestId : null
+  }
+}
+
+class AppidClient extends AbstractClient {
+  constructor(credential, region, profile) {
+    super('cam.tencentcloudapi.com', '2019-01-16', credential, region, profile)
+  }
+
+  GetUserAppId(req, cb) {
+    const resp = new GetUserAppIdResponse()
+    this.request('GetUserAppId', req, resp, cb)
+  }
+}
 
 class TencentCloudFunction extends Component {
+  getAppid(credentials) {
+    const secret_id = credentials.SecretId
+    const secret_key = credentials.SecretKey
+    const cred = new tencentcloud.common.Credential(secret_id, secret_key)
+    const httpProfile = new HttpProfile()
+    httpProfile.reqTimeout = 30
+    const clientProfile = new ClientProfile('HmacSHA256', httpProfile)
+    const cam = new AppidClient(cred, 'ap-guangzhou', clientProfile)
+    const req = new GetUserAppIdResponse()
+    const body = {}
+    req.from_json_string(JSON.stringify(body))
+    const handler = util.promisify(cam.GetUserAppId.bind(cam))
+    try {
+      return handler(req)
+    } catch (e) {
+      throw e
+    }
+  }
+
   async default(inputs = {}) {
     const provider = new Provider(inputs)
     const services = provider.getServiceResource()
+    const appId = await this.getAppid(this.context.credentials.tencent)
+    this.context.credentials.tencent.AppId = appId.AppId
     const tencent = this.context.credentials.tencent
     const region = provider.region
     const funcObject = _.cloneDeep(services.Resources.default[inputs.name])
