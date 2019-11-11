@@ -55,7 +55,7 @@ class TencentCloudFunction extends Component {
     try {
       return handler(req)
     } catch (e) {
-      throw e
+      throw 'Get Appid failed! '
     }
   }
 
