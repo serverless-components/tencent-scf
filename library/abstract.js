@@ -4,7 +4,7 @@ const HttpProfile = require('tencentcloud-sdk-nodejs/tencentcloud/common/profile
 const assert = require('assert')
 const COS = require('cos-nodejs-sdk-v5')
 
-const Credential = tencentcloud.common.Credential
+const { Credential } = tencentcloud.common
 const ScfClient = tencentcloud.scf.v20180416.Client
 
 class AbstractHandler {

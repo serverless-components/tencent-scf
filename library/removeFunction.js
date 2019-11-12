@@ -4,10 +4,6 @@ const models = tencentcloud.scf.v20180416.Models
 const util = require('util')
 
 class RemoveFunction extends Abstract {
-  constructor(appid, secret_id, secret_key, options) {
-    super(appid, secret_id, secret_key, options)
-  }
-
   async remove(funcName) {
     const delFuncRequest = new models.DeleteFunctionRequest()
     delFuncRequest.FunctionName = funcName

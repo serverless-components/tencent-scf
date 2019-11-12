@@ -4,13 +4,8 @@ const fs = require('fs')
 const _ = require('lodash')
 const util = require('util')
 const models = tencentcloud.scf.v20180416.Models
-const ScfUploadSliceLimit = 8 * 1024 * 1024
 
 class DeployFunction extends Abstract {
-  constructor(appid, secret_id, secret_key, options) {
-    super(appid, secret_id, secret_key, options)
-  }
-
   async deploy(ns, funcObject) {
     const func = await this.getFunction(ns, funcObject.FuncName)
     if (!func) {
@@ -41,8 +36,7 @@ class DeployFunction extends Abstract {
     try {
       return await handler(req)
     } catch (e) {
-      console.log('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
-      throw e
+      throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
     }
   }
 
@@ -82,8 +76,8 @@ class DeployFunction extends Abstract {
       const vpc = funcObject.Properties.VpcConfig
 
       createFuncRequest.VpcConfig = {
-        VpcId: vpc.vpcId,
-        SubnetId: vpc.subnetId
+        VpcId: vpc.VpcId,
+        SubnetId: vpc.SubnetId
       }
     }
     const req = new models.CreateFunctionRequest()
@@ -92,8 +86,7 @@ class DeployFunction extends Abstract {
     try {
       return await handler(req)
     } catch (e) {
-      console.log('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
-      throw e
+      throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
     }
   }
 
@@ -112,8 +105,7 @@ class DeployFunction extends Abstract {
       if (e.code == 'ResourceNotFound.FunctionName' || e.code == 'ResourceNotFound.Function') {
         return null
       }
-      console.log('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
-      throw e
+      throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
     }
   }
 
@@ -147,8 +139,8 @@ class DeployFunction extends Abstract {
     if (!_.isEmpty(funcObject.Properties.VpcConfig)) {
       const vpc = funcObject.Properties.VpcConfig
       configArgs.VpcConfig = {
-        VpcId: vpc.vpcId,
-        SubnetId: vpc.subnetId
+        VpcId: vpc.VpcId,
+        SubnetId: vpc.SubnetId
       }
     }
 
@@ -161,19 +153,20 @@ class DeployFunction extends Abstract {
       try {
         await handler(req)
       } catch (e) {
-        console.log('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
-        throw e
+        // console.log('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
+        throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
       }
     }
   }
 
   async uploadPackage2Cos(bucketName, key, filePath) {
-    const region = this.options.region
+    let handler
+    const { region } = this.options
     const cosBucketNameFull = util.format('%s-%s', bucketName, this.appid)
 
     // get region all bucket list
     let buckets
-    const handler = util.promisify(this.cosClient.getService.bind(this.cosClient))
+    handler = util.promisify(this.cosClient.getService.bind(this.cosClient))
     try {
       buckets = await handler({ Region: region })
     } catch (e) {
@@ -186,14 +179,13 @@ class DeployFunction extends Abstract {
       }
     })
 
-    let result
     // create a new bucket
     if (_.isEmpty(findBucket)) {
       const putArgs = {
         Bucket: cosBucketNameFull,
         Region: region
       }
-      const handler = util.promisify(this.cosClient.putBucket.bind(this.cosClient))
+      handler = util.promisify(this.cosClient.putBucket.bind(this.cosClient))
       try {
         await handler(putArgs)
       } catch (e) {
@@ -201,7 +193,7 @@ class DeployFunction extends Abstract {
       }
     }
 
-    if (fs.statSync(filePath).size <= ScfUploadSliceLimit) {
+    if (fs.statSync(filePath).size <= 20 * 1024 * 1024) {
       const objArgs = {
         Bucket: cosBucketNameFull,
         Region: region,
@@ -209,9 +201,9 @@ class DeployFunction extends Abstract {
         Body: fs.createReadStream(filePath),
         ContentLength: fs.statSync(filePath).size
       }
-      const handler = util.promisify(this.cosClient.putObject.bind(this.cosClient))
+      handler = util.promisify(this.cosClient.putObject.bind(this.cosClient))
       try {
-        result = await handler(objArgs)
+        await handler(objArgs)
       } catch (e) {
         throw e
       }
@@ -220,13 +212,11 @@ class DeployFunction extends Abstract {
         Bucket: cosBucketNameFull,
         Region: region,
         Key: key,
-        FilePath: filePath,
-        onTaskReady: function(taskId) {},
-        onProgress: function(progressData) {}
+        FilePath: filePath
       }
-      const handler = util.promisify(this.cosClient.sliceUploadFile.bind(this.cosClient))
+      handler = util.promisify(this.cosClient.sliceUploadFile.bind(this.cosClient))
       try {
-        result = await handler(sliceArgs)
+        await handler(sliceArgs)
       } catch (e) {
         throw e
       }
