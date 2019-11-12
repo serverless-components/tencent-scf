@@ -259,7 +259,7 @@ class TencentCloudFunction extends Component {
       Timeout: funcObject.Properties.Timeout,
       Region: region,
       Role: funcObject.Properties.Role,
-      Description: funcObject.Properties.Description,
+      Description: funcObject.Properties.Description
       // UsingCos: true
     }
     this.state.deployed = output
