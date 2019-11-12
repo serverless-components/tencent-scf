@@ -260,7 +260,7 @@ class TencentCloudFunction extends Component {
       Region: region,
       Role: funcObject.Properties.Role,
       Description: funcObject.Properties.Description,
-      UsingCos: true
+      // UsingCos: true
     }
     this.state.deployed = output
     await this.save()
