@@ -9,7 +9,7 @@ myFunction:
   component: "@serverless/tencent-scf"
   inputs:
     name: myFunction1
-    roleAuth: ture
+    enableRoleAuth: ture
     codeUri: ./code
     handler: index.main_handler
     runtime: Nodejs8.9
@@ -42,7 +42,7 @@ Main param description
 | --------     | :-----:              | :----:      |  :----      |
 | name       | Required             | | Name of the new function. The name: must be between 2 and 60 characters long; can contain any letters (both uppercase and lowercase) from a to z and any numbers from 0 through 9; can contain some special characters, including hyphen or dash, and underscore; must begin with a letter and be unique, and must not end with an underscore or a dash. |
 | codeUri | Required             |             | Function code path|
-| roleAuth  | Required             |             | Default `true`, enable role and policies for SCF to get access to related services |
+| enableRoleAuth  | Required             |             | Default `true`, enable role and policies for SCF to get access to related services |
 | handler  | Required             |             | Name of the handler. A handler is a method that the runtime executes when your function is invoked. A handler name must be formatted as the function name following the file name with a period (.) between these two names, for example, FileName.FunctionName. Both file name and function name: must be between 2 and 60 characters long; can contain any letters (both uppercase and lowercase) from a to z and any numbers from 0 through 9, can contain some special characters, including hyphen or dash, and underscore; must begin and end with a letter. |
 | runtime    | Required             |             | Runtime environment of the function; supported environment: Python2.7 (default), Python3.6, Nodejs6.10, PHP5, PHP7, Golang1 and Java8. |
 | region         | Optional             |    ap-guangzhou          |  |
