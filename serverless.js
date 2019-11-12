@@ -211,7 +211,10 @@ class TencentCloudFunction extends Component {
     const { tencent } = this.context.credentials
     const appId = await this.getAppid(tencent)
     this.context.credentials.tencent.AppId = appId.AppId
-    await this.addRole(tencent)
+    inputs.roleAuth = inputs.roleAuth ? true : inputs.roleAuth == false ? false : true
+    if (inputs.roleAuth) {
+      await this.addRole(tencent)
+    }
     const { region } = provider
     const funcObject = _.cloneDeep(services.Resources.default[inputs.name])
     funcObject.FuncName = inputs.name
