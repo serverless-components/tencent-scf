@@ -97,7 +97,7 @@ myFunction1:
       vpcId: ''
 
 myFunction2:
-  component: "@serverless/tencent-cloudfunction"
+  component: "@serverless/tencent-scf"
   inputs:
     name: myFunction2
     codeUri: ./code
