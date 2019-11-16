@@ -13,6 +13,7 @@ const VALID_FORMATS = ['zip', 'tar']
 const isValidFormat = (format) => contains(format, VALID_FORMATS)
 
 module.exports = {
+
   zipArchiveDirs(zipObject, dirPath, alias, packagePath, ig) {
     const dirs = fs.readdirSync(dirPath)
     if (!dirs) {
@@ -39,6 +40,7 @@ module.exports = {
     }
     return true
   },
+
   async zipArchive(packagePath, outZipFile, ignoreFile) {
     const dirs = fs.readdirSync(packagePath)
     if (!dirs) {

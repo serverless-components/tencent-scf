@@ -1,9 +1,11 @@
 const tencentcloud = require('tencentcloud-sdk-nodejs')
 const Abstract = require('./abstract')
+const utils = require('./utils')
 const fs = require('fs')
 const _ = require('lodash')
 const util = require('util')
 const models = tencentcloud.scf.v20180416.Models
+const camModels = tencentcloud.cam.v20190116.Models
 
 class DeployFunction extends Abstract {
   async deploy(ns, funcObject) {
@@ -12,13 +14,159 @@ class DeployFunction extends Abstract {
       await this.createFunction(ns, funcObject)
     } else {
       if (func.Runtime != funcObject.Properties.Runtime) {
-        throw 'Runtime could not be changed! '
+        throw `Runtime error: Release runtime(${func.Runtime}) and local runtime(${funcObject.Properties.Runtime}) are inconsistent`
       }
+      this.context.debug('Updating code... ')
       await this.updateFunctionCode(ns, funcObject)
+      // when update code Status is Active, continue
+      let status = 'updating'
+      while (status != 'Active') {
+        const tempFunc = await this.getFunction(ns, funcObject.FuncName)
+        status = tempFunc.Status
+        await utils.sleep(500)
+      }
+      this.context.debug('Updating configure... ')
       await this.updateConfiguration(ns, func, funcObject)
       return func
     }
     return null
+  }
+
+  async addRole() {
+    try {
+      const roleName = 'SCF_QcsRole'
+      const policyNameList = [
+        'QcloudCOSFullAccess',
+        'QcloudCOSBucketConfigWrite',
+        'QcloudCOSBucketConfigRead',
+        'QcloudCOSDataReadOnly',
+        'QcloudAPIGWFullAccess'
+      ]
+      const listPoliciesModels = new camModels.ListPoliciesRequest()
+      const listPoliciesHandler = util.promisify(this.camClient.ListPolicies.bind(this.camClient))
+      const policyIdList = new Array()
+      let pagePolicyCount = 200
+      let body = { Rp: 200, Page: 0 }
+      while (policyIdList.length < 5 || pagePolicyCount == 200) {
+        body.Page = body.Page + 1
+        listPoliciesModels.from_json_string(JSON.stringify(body))
+        try {
+          const pagePolicList = await listPoliciesHandler(listPoliciesModels)
+          for (let i = 0; i < pagePolicList.List.length; i++) {
+            if (policyNameList.indexOf(pagePolicList.List[i].PolicyName) > -1) {
+              policyIdList.push(pagePolicList.List[i].PolicyId)
+            }
+          }
+          pagePolicyCount = pagePolicList.List.length
+        } catch (e) {}
+        await utils.sleep(400)
+      }
+
+      // roleState
+      //   1:Created
+      //   -1:Not Created
+      //   0:Unknown
+      let roleState = 1
+
+      // Get role
+      try {
+        const getRoleModels = new camModels.GetRoleRequest()
+        getRoleModels.from_json_string(JSON.stringify({ RoleName: roleName }))
+        const getRoleHandler = util.promisify(this.camClient.GetRole.bind(this.camClient))
+        await getRoleHandler(getRoleModels)
+      } catch (e) {
+        if (e.message.includes('role not exist')) {
+          roleState = -1
+        } else {
+          roleState = 0
+        }
+      }
+
+      const haveIdList = new Array()
+      const addIdList = new Array()
+
+      // Get role policy list
+      try {
+        pagePolicyCount = 200
+        body = { Rp: 200, Page: 0, RoleName: roleName }
+        const listRolePoliciesModels = new camModels.ListAttachedRolePoliciesRequest()
+        const listRolePoliciesHandler = util.promisify(
+          this.camClient.ListAttachedRolePolicies.bind(this.camClient)
+        )
+        while (pagePolicyCount == 200) {
+          body.Page = body.Page + 1
+          listRolePoliciesModels.from_json_string(JSON.stringify(body))
+          try {
+            const pagePolicList = await listRolePoliciesHandler(listRolePoliciesModels)
+            for (let i = 0; i < pagePolicList.List.length; i++) {
+              haveIdList.push(pagePolicList.List[i].PolicyId)
+            }
+            pagePolicyCount = pagePolicList.List.length
+          } catch (e) {
+            pagePolicyCount = 0
+          }
+          await utils.sleep(400)
+        }
+      } catch (e) {}
+
+      // Get policy id which need to add in SCF_QcsRole
+      for (let i = 0; i < policyIdList.length; i++) {
+        if (haveIdList.indexOf(policyIdList[i]) <= -1) {
+          addIdList.push(policyIdList[i])
+        }
+      }
+
+      // Create role and attach policy
+      if (roleState <= 0) {
+        try {
+          const createRoleModels = new camModels.CreateRoleRequest()
+          createRoleModels.from_json_string(
+            JSON.stringify({
+              RoleName: roleName,
+              PolicyDocument: JSON.stringify({
+                version: '2.0',
+                statement: [
+                  {
+                    effect: 'allow',
+                    principal: {
+                      service: 'scf.qcloud.com'
+                    },
+                    action: 'sts:AssumeRole'
+                  }
+                ]
+              })
+            })
+          )
+          const createRoleHandler = util.promisify(this.camClient.CreateRole.bind(this.camClient))
+          await createRoleHandler(createRoleModels)
+        } catch (e) {
+          this.context.debug('Create role error: ' + e)
+        }
+      }
+      if (addIdList.length > 0) {
+        try {
+          const attachRolePolicyModels = new camModels.AttachRolePolicyRequest()
+          const attachRolePolicyHandler = util.promisify(
+            this.camClient.AttachRolePolicy.bind(this.camClient)
+          )
+          const attachRolePolicyBody = {
+            AttachRoleName: roleName
+          }
+          for (let i = 0; i < addIdList.length; i++) {
+            try {
+              attachRolePolicyBody.PolicyId = addIdList[i]
+              attachRolePolicyModels.from_json_string(JSON.stringify(attachRolePolicyBody))
+              await attachRolePolicyHandler(attachRolePolicyModels)
+            } catch (e) {
+              this.context.debug(`Attach policy id '${attachRolePolicyBody.PolicyId}' error: ${e}`)
+            }
+            await utils.sleep(400)
+          }
+        } catch (e) {}
+      }
+    } catch (e) {
+      this.context.debug('Check policy list error: ' + e)
+    }
   }
 
   async updateFunctionCode(ns, funcObject) {
@@ -36,7 +184,8 @@ class DeployFunction extends Abstract {
     try {
       return await handler(req)
     } catch (e) {
-      throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
+      this.context.debug('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
+      throw e
     }
   }
 
@@ -86,7 +235,8 @@ class DeployFunction extends Abstract {
     try {
       return await handler(req)
     } catch (e) {
-      throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
+      this.context.debug('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
+      throw e
     }
   }
 
@@ -105,7 +255,8 @@ class DeployFunction extends Abstract {
       if (e.code == 'ResourceNotFound.FunctionName' || e.code == 'ResourceNotFound.Function') {
         return null
       }
-      throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
+      this.context.debug('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
+      throw e
     }
   }
 
@@ -153,8 +304,8 @@ class DeployFunction extends Abstract {
       try {
         await handler(req)
       } catch (e) {
-        // console.log('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
-        throw 'ErrorCode: ' + e.code + ' RequestId: ' + e.requestId
+        this.context.debug('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
+        throw e
       }
     }
   }
@@ -224,6 +375,64 @@ class DeployFunction extends Abstract {
     return {
       CosBucketName: bucketName,
       CosObjectName: '/' + key
+    }
+  }
+
+  async createTags(ns, funcName, tags) {
+    let handler
+    if (_.isEmpty(tags)) {
+      return
+    }
+    const func = await this.getFunction(ns, funcName)
+    if (!func) {
+      throw new Error(`Function ${funcName} dont't exists`)
+    }
+    const resource = util.format('qcs::scf:%s::lam/%s', this.options.region, func.FunctionId)
+    const req = {
+      Resource: resource,
+      ReplaceTags: [],
+      DeleteTags: []
+    }
+    const findRequest = {
+      ResourceRegion: this.options.region,
+      ResourceIds: [func.FunctionId],
+      ResourcePrefix: 'lam',
+      ServiceType: 'scf',
+      Limit: 1000
+    }
+    let result
+    handler = util.promisify(this.tagClient.DescribeResourceTagsByResourceIds.bind(this.tagClient))
+    try {
+      result = await handler(findRequest)
+    } catch (e) {
+      throw e
+    }
+    const len = _.size(result.Tags)
+    for (let i = 0; i < len; i++) {
+      const oldTag = result.Tags[i]
+      const ret = _.find(tags, (value, key) => {
+        if (oldTag.TagKey == key) {
+          return true
+        }
+      })
+      if (!ret) {
+        req.DeleteTags.push({
+          TagKey: oldTag.TagKey
+        })
+      }
+    }
+
+    for (const key in tags) {
+      req.ReplaceTags.push({
+        TagKey: key,
+        TagValue: tags[key]
+      })
+    }
+    handler = util.promisify(this.tagClient.ModifyResourceTags.bind(this.tagClient))
+    try {
+      await handler(req)
+    } catch (e) {
+      throw e
     }
   }
 }

@@ -6,17 +6,20 @@ const COS = require('cos-nodejs-sdk-v5')
 
 const { Credential } = tencentcloud.common
 const ScfClient = tencentcloud.scf.v20180416.Client
+const CamClient = tencentcloud.cam.v20190116.Client
+const TagClient = tencentcloud.tag.v20180813.Client
 
 class AbstractHandler {
-  constructor(appid, secret_id, secret_key, options) {
+  constructor({ appid, secret_id, secret_key, options, context }) {
     this.appid = appid
-    this.secret_id = secret_id
-    this.secret_key = secret_key
     this.options = options
+    this.context = context
 
     assert(options, 'Options should not is empty')
     this._scfClient = AbstractHandler.createScfClient(secret_id, secret_key, options)
+    this._tagClient = AbstractHandler.createTagClient(secret_id, secret_key, options)
     this._cosClient = AbstractHandler.createCosClient(secret_id, secret_key, options)
+    this._camClient = AbstractHandler.createCamClient(secret_id, secret_key, options)
   }
 
   static getClientInfo(secret_id, secret_key, options) {
@@ -39,6 +42,20 @@ class AbstractHandler {
     return scfCli
   }
 
+  static createCamClient(secret_id, secret_key, options) {
+    const info = this.getClientInfo(secret_id, secret_key, options)
+    const camCli = new CamClient(info.cred, info.region, info.clientProfile)
+    camCli.sdkVersion = 'ServerlessComponent'
+    return camCli
+  }
+
+  static createTagClient(secret_id, secret_key, options) {
+    const info = this.getClientInfo(secret_id, secret_key, options)
+    const tagCli = new TagClient(info.cred, info.region, info.clientProfile)
+    tagCli.sdkVersion = 'ServerlessComponent'
+    return tagCli
+  }
+
   static createCosClient(secret_id, secret_key, options) {
     const fileParallelLimit = options.fileParallelLimit || 5
     const chunkParallelLimit = options.chunkParallelLimit || 8
@@ -55,18 +72,20 @@ class AbstractHandler {
     })
   }
 
-  logger() {
-    if (process.env['SLS_SCF_DEBUG']) {
-      this.output(...arguments)
-    }
-  }
-
   get cosClient() {
     return this._cosClient
   }
 
   get scfClient() {
     return this._scfClient
+  }
+
+  get camClient() {
+    return this._camClient
+  }
+
+  get tagClient() {
+    return this._tagClient
   }
 }
 

@@ -10,9 +10,9 @@ class RemoveFunction extends Abstract {
 
     const handler = util.promisify(this.scfClient.DeleteFunction.bind(this.scfClient))
     try {
-      this.logger('Removing function', funcName)
+      this.context.debug('Removing function', funcName)
       const result = await handler(delFuncRequest)
-      this.logger('Request id', result.RequestId)
+      this.context.debug('Request id', result.RequestId)
     } catch (e) {
       throw e
     }
