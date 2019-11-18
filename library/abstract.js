@@ -3,7 +3,6 @@ const ClientProfile = require('tencentcloud-sdk-nodejs/tencentcloud/common/profi
 const HttpProfile = require('tencentcloud-sdk-nodejs/tencentcloud/common/profile/http_profile.js')
 const assert = require('assert')
 const COS = require('cos-nodejs-sdk-v5')
-
 const { Credential } = tencentcloud.common
 const ScfClient = tencentcloud.scf.v20180416.Client
 const CamClient = tencentcloud.cam.v20190116.Client
@@ -23,7 +22,9 @@ class AbstractHandler {
   }
 
   static getClientInfo(secret_id, secret_key, options) {
-    const cred = new Credential(secret_id, secret_key)
+    const cred = options.token
+      ? new Credential(secret_id, secret_key, options.token)
+      : new Credential(secret_id, secret_key)
     const httpProfile = new HttpProfile()
     httpProfile.reqTimeout = 30
     const clientProfile = new ClientProfile('HmacSHA256', httpProfile)
@@ -62,13 +63,26 @@ class AbstractHandler {
     const chunkSize = options.chunkSize || 1024 * 1024 * 8
     const timeout = options.timeout || 60
 
+    if (!options.token) {
+      return new COS({
+        SecretId: secret_id,
+        SecretKey: secret_key,
+        FileParallelLimit: fileParallelLimit,
+        ChunkParallelLimit: chunkParallelLimit,
+        ChunkSize: chunkSize,
+        Timeout: timeout * 1000
+      })
+    }
+
     return new COS({
-      SecretId: secret_id,
-      SecretKey: secret_key,
-      FileParallelLimit: fileParallelLimit,
-      ChunkParallelLimit: chunkParallelLimit,
-      ChunkSize: chunkSize,
-      Timeout: timeout * 1000
+      getAuthorization: function(option, callback) {
+        callback({
+          TmpSecretId: secret_id,
+          TmpSecretKey: secret_key,
+          XCosSecurityToken: options.token,
+          ExpiredTime: 1574054865
+        })
+      }
     })
   }
 

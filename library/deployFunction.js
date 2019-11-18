@@ -47,7 +47,7 @@ class DeployFunction extends Abstract {
       const policyIdList = new Array()
       let pagePolicyCount = 200
       let body = { Rp: 200, Page: 0 }
-      while (policyIdList.length < 5 || pagePolicyCount == 200) {
+      while (policyIdList.length < 5 && pagePolicyCount == 200) {
         body.Page = body.Page + 1
         listPoliciesModels.from_json_string(JSON.stringify(body))
         try {
@@ -58,7 +58,9 @@ class DeployFunction extends Abstract {
             }
           }
           pagePolicyCount = pagePolicList.List.length
-        } catch (e) {}
+        } catch (e) {
+          pagePolicyCount = 0
+        }
         await utils.sleep(400)
       }
 
