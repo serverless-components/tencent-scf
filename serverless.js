@@ -191,35 +191,37 @@ class TencentCloudFunction extends Component {
     this.context.debug(`Creating trigger for function ${funcObject.FuncName}`)
     const apiTriggerList = new Array()
     const events = new Array()
-    for (let i = 0; i < funcObject.Properties.Events.length; i++) {
-      const keys = Object.keys(funcObject.Properties.Events[i])
-      const thisTrigger = funcObject.Properties.Events[i][keys[0]]
-      let tencentApiGateway
-      if (thisTrigger.Type == 'APIGW') {
-        tencentApiGateway = await this.load(
-          '@serverless/tencent-apigateway',
-          thisTrigger.Properties.serviceName
-        )
-        const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
-        apiTriggerList.push(thisTrigger.Properties.serviceName + ' - ' + apigwOutput['subDomain'])
-      } else {
-        events.push(funcObject.Properties.Events[i])
+    if (funcObject.Properties && funcObject.Properties.Events) {
+      for (let i = 0; i < funcObject.Properties.Events.length; i++) {
+        const keys = Object.keys(funcObject.Properties.Events[i])
+        const thisTrigger = funcObject.Properties.Events[i][keys[0]]
+        let tencentApiGateway
+        if (thisTrigger.Type == 'APIGW') {
+          tencentApiGateway = await this.load(
+            '/Users/dfounderliu/Desktop/temp/tencent-apigateway',
+            thisTrigger.Properties.serviceName
+          )
+          const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
+          apiTriggerList.push(thisTrigger.Properties.serviceName + ' - ' + apigwOutput['subDomain'])
+        } else {
+          events.push(funcObject.Properties.Events[i])
+        }
       }
+      funcObject.Properties.Events = events
+      await trigger.create(
+        'default',
+        oldFunc ? oldFunc.Triggers : null,
+        funcObject,
+        (response, thisTrigger) => {
+          this.context.debug(
+            `Created ${thisTrigger.Type} trigger ${response.TriggerName} for function ${funcObject.FuncName} success.`
+          )
+        },
+        (error) => {
+          throw error
+        }
+      )
     }
-    funcObject.Properties.Events = events
-    await trigger.create(
-      'default',
-      oldFunc ? oldFunc.Triggers : null,
-      funcObject,
-      (response, thisTrigger) => {
-        this.context.debug(
-          `Created ${thisTrigger.Type} trigger ${response.TriggerName} for function ${funcObject.FuncName} success.`
-        )
-      },
-      (error) => {
-        throw error
-      }
-    )
 
     this.context.debug(`Deployed function ${funcObject.FuncName} successful`)
 
@@ -278,7 +280,10 @@ class TencentCloudFunction extends Component {
     for (let i = 0; i < funcObject.APIGateway.length; i++) {
       try {
         const arr = funcObject.APIGateway[i].toString().split(' - ')
-        tencentApiGateway = await this.load('@serverless/tencent-apigateway', arr[0])
+        tencentApiGateway = await this.load(
+          '/Users/dfounderliu/Desktop/temp/tencent-apigateway',
+          arr[0]
+        )
         await tencentApiGateway.remove()
       } catch (e) {}
     }
