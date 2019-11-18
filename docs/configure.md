@@ -6,32 +6,40 @@
 # serverless.yml
 
 myFunction:
-  component: "@serverless/tencent-scf"
+  component: "/Users/dfounderliu/Desktop/temp/tencent-cloudfunction"
   inputs:
-    name: myFunction1
-    enableRoleAuth: ture
+    name: myFunction
     codeUri: ./code
     handler: index.main_handler
     runtime: Nodejs8.9
     region: ap-guangzhou
-    description: My Serverless Function
-    memorySize: 128
-    timeout: 20
-    exclude:
-      - .gitignore
-      - .git/**
-      - node_modules/**
-      - .serverless
-      - .env
-    include:
-      - /Users/dfounderliu/Desktop/temp/.serverless/myFunction1.zip
-    environment:
-      variables:
-        TEST: vale
-    vpcConfig:
-      subnetId: ''
-      vpcId: ''
-    events:
+    myFunction:
+      component: "@serverless/tencent-scf"
+      inputs:
+        name: myFunction1
+        enableRoleAuth: ture
+        codeUri: ./code
+        handler: index.main_handler
+        runtime: Nodejs8.9
+        region: ap-guangzhou
+        description: My Serverless Function
+        memorySize: 128
+        timeout: 20
+        exclude:
+          - .gitignore
+          - .git/**
+          - node_modules/**
+          - .serverless
+          - .env
+        include:
+          - /Users/dfounderliu/Desktop/temp/.serverless/myFunction1.zip
+        environment:
+          variables:
+            TEST: vale
+        vpcConfig:
+          subnetId: ''
+          vpcId: ''
+        events:
           - timer:
               name: timer
               parameters:
@@ -40,17 +48,21 @@ myFunction:
           - apigw:
               name: serverless
               parameters:
-                #            serviceId: service-8dsikiq6
+                serviceId: service-8dsikiq6
                 protocol: http
+                serviceName: serverless
                 description: the serverless service
                 environment: release
                 endpoints:
                   - path: /users
                     method: POST
                   - path: /test/{abc}/{cde}
-                    #                apiId: api-id
+                    apiId: api-id
                     method: GET
                     description: Serverless REST API
+                    enableCORS: TRUE
+                    responseType: HTML
+                    serviceTimeout: 10
                     param:
                       - name: abc
                         position: PATH
@@ -64,6 +76,19 @@ myFunction:
                         type: string
                         defaultValue: abc
                         desc: mytest
+                    function:
+                      isIntegratedResponse: TRUE
+                      functionQualifier: $LATEST
+                    usagePlan:
+                      usagePlanId: 1111
+                      usagePlanName: slscmp
+                      usagePlanDesc: sls create
+                      maxRequestNum: 1000
+                    auth:
+                      serviceTimeout: 15
+                      secretName: secret
+                      secretIds:
+                        - AKIDNSdvdFcJ8GJ9th6qeZH0ll8r7dE6HHaSuchJ
           - apigw:
               name: serverless_test
               parameters:
@@ -74,6 +99,29 @@ myFunction:
                 endpoints:
                   - path: /users
                     method: POST
+          - cos:
+              name: cli-appid.cos.ap-beijing.myqcloud.com
+              parameters:
+                bucket: cli-appid.cos.ap-beijing.myqcloud.com
+                filter:
+                  prefix: filterdir/
+                  suffix: .jpg
+                events: cos:ObjectCreated:*
+                enable: true
+          - cmq:
+              name: cmq_trigger
+              parameters:
+                name: test-topic-queue
+                enable: true
+          - ckafka:
+              name: ckafka_trigger
+              parameters:
+                name: ckafka-2o10hua5
+                topic: test
+                maxMsgNum: 999
+                offset: latest
+                enable: true
+
 ```
 
 ## Configuration description
