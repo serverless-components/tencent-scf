@@ -73,7 +73,8 @@ class TencentCloudFunction extends Component {
           SecretId: tencent_credentials.tencent_secret_id,
           SecretKey: tencent_credentials.tencent_secret_key,
           AppId: tencent_credentials.tencent_appid,
-          token: tencent_credentials.tencent_token
+          token: tencent_credentials.tencent_token,
+          timestamp: tencent_credentials.timestamp
         }
         await fs.writeFileSync('./.env_temp', tencent_credentials_json)
         this.context.debug(
@@ -98,6 +99,7 @@ class TencentCloudFunction extends Component {
           tencent.SecretKey = tencent_credentials_read.tencent_secret_key
           tencent.AppId = tencent_credentials_read.tencent_appid
           tencent.token = tencent_credentials_read.tencent_token
+          tencent.timestamp = tencent_credentials_read.timestamp
           return tencent
         }
         return await that.doLogin()
@@ -124,6 +126,7 @@ class TencentCloudFunction extends Component {
 
     const option = {
       region: provider.region,
+      timestamp: this.context.credentials.tencent.timestamp || null,
       token: this.context.credentials.tencent.token || null
     }
     const attr = {
@@ -198,7 +201,7 @@ class TencentCloudFunction extends Component {
           thisTrigger.Properties.serviceName
         )
         const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
-        apiTriggerList.push(apigwOutput['subDomain'])
+        apiTriggerList.push(thisTrigger.Properties.serviceName + ' - ' + apigwOutput['subDomain'])
       } else {
         events.push(funcObject.Properties.Events[i])
       }
@@ -245,17 +248,40 @@ class TencentCloudFunction extends Component {
       return
     }
 
-    const { tencent } = this.context.credentials
-    const funcObject = this.state.deployed
-    const option = { region: funcObject.Region }
+    let { tencent } = this.context.credentials
+    if (!tencent) {
+      tencent = await this.getTempKey(tencent)
+      this.context.credentials.tencent = tencent
+    }
+    if (!this.context.credentials.tencent.AppId) {
+      const appId = await this.getAppid(tencent)
+      this.context.credentials.tencent.AppId = appId.AppId
+    }
 
-    const handler = new RemoveFunction(
-      tencent.AppId,
-      tencent.SecretId,
-      tencent.SecretKey,
-      option,
-      this.context
-    )
+    const funcObject = this.state.deployed
+
+    const option = {
+      region: funcObject.Region,
+      token: this.context.credentials.tencent.token || null
+    }
+
+    const attr = {
+      appid: tencent.AppId,
+      secret_id: tencent.SecretId,
+      secret_key: tencent.SecretKey,
+      options: option,
+      context: this.context
+    }
+    const handler = new RemoveFunction(attr)
+
+    let tencentApiGateway
+    for (let i = 0; i < funcObject.APIGateway.length; i++) {
+      try {
+        const arr = funcObject.APIGateway[i].toString().split(' - ')
+        tencentApiGateway = await this.load('@serverless/tencent-apigateway', arr[0])
+        await tencentApiGateway.remove()
+      } catch (e) {}
+    }
 
     await handler.remove(funcObject.Name)
     this.context.debug(`Removed function ${funcObject.Name} successful`)

@@ -13,7 +13,6 @@ class AbstractHandler {
     this.appid = appid
     this.options = options
     this.context = context
-
     assert(options, 'Options should not is empty')
     this._scfClient = AbstractHandler.createScfClient(secret_id, secret_key, options)
     this._tagClient = AbstractHandler.createTagClient(secret_id, secret_key, options)
@@ -80,7 +79,7 @@ class AbstractHandler {
           TmpSecretId: secret_id,
           TmpSecretKey: secret_key,
           XCosSecurityToken: options.token,
-          ExpiredTime: 1574054865
+          ExpiredTime: options.timestamp
         })
       }
     })
