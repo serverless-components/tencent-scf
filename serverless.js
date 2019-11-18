@@ -198,7 +198,7 @@ class TencentCloudFunction extends Component {
         let tencentApiGateway
         if (thisTrigger.Type == 'APIGW') {
           tencentApiGateway = await this.load(
-            '/Users/dfounderliu/Desktop/temp/tencent-apigateway',
+            '@serverless/tencent-apigateway',
             thisTrigger.Properties.serviceName
           )
           const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
