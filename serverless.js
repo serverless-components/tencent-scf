@@ -280,10 +280,7 @@ class TencentCloudFunction extends Component {
     for (let i = 0; i < funcObject.APIGateway.length; i++) {
       try {
         const arr = funcObject.APIGateway[i].toString().split(' - ')
-        tencentApiGateway = await this.load(
-          '/Users/dfounderliu/Desktop/temp/tencent-apigateway',
-          arr[0]
-        )
+        tencentApiGateway = await this.load('@serverless/tencent-apigateway', arr[0])
         await tencentApiGateway.remove()
       } catch (e) {}
     }
