@@ -31,7 +31,49 @@ myFunction:
     vpcConfig:
       subnetId: ''
       vpcId: ''
-         
+    events:
+          - timer:
+              name: timer
+              parameters:
+                cronExpression: '*/5 * * * *'
+                enable: true
+          - apigw:
+              name: serverless
+              parameters:
+                #            serviceId: service-8dsikiq6
+                protocol: http
+                description: the serverless service
+                environment: release
+                endpoints:
+                  - path: /users
+                    method: POST
+                  - path: /test/{abc}/{cde}
+                    #                apiId: api-id
+                    method: GET
+                    description: Serverless REST API
+                    param:
+                      - name: abc
+                        position: PATH
+                        required: 'TRUE'
+                        type: string
+                        defaultValue: abc
+                        desc: mytest
+                      - name: cde
+                        position: PATH
+                        required: 'TRUE'
+                        type: string
+                        defaultValue: abc
+                        desc: mytest
+          - apigw:
+              name: serverless_test
+              parameters:
+                serviceId: service-cyjmc4eg
+                protocol: http
+                description: the serverless service
+                environment: release
+                endpoints:
+                  - path: /users
+                    method: POST
 ```
 
 ## Configuration description
@@ -69,3 +111,5 @@ Main param description
 | subnetId     |  ID of the VPC |
 | vpcId        | ID of the subnet |
 
+
+* About trigger, you cloud [click here](./events)
