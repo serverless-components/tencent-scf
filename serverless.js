@@ -146,15 +146,7 @@ class TencentCloudFunction extends Component {
       ? false
       : true
     if (inputs.enableRoleAuth) {
-      const camRole = await this.load('@serverless/tencent-cam-role')
-      await camRole({
-        roleName: 'SCF_QcsRole',
-        description: 'Serverless Framework',
-        service: ['scf.qcloud.com'],
-        policy: {
-          policyName: ['QcloudAccessForScfRole']
-        }
-      })
+      await func.addRole()
     }
 
     // clean old function
