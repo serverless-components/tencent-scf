@@ -35,26 +35,23 @@ class DeployFunction extends Abstract {
   async addRole() {
     try {
       const roleName = 'SCF_QcsRole'
-      const policyNameList = [
-        'QcloudCOSFullAccess',
-        'QcloudCOSBucketConfigWrite',
-        'QcloudCOSBucketConfigRead',
-        'QcloudCOSDataReadOnly',
-        'QcloudAPIGWFullAccess'
-      ]
+      const policyName = 'QcloudAccessForScfRole'
       const listPoliciesModels = new camModels.ListPoliciesRequest()
       const listPoliciesHandler = util.promisify(this.camClient.ListPolicies.bind(this.camClient))
-      const policyIdList = new Array()
+      let havePolicy = false
+      let policyId
       let pagePolicyCount = 200
-      let body = { Rp: 200, Page: 0 }
-      while (policyIdList.length < 5 && pagePolicyCount == 200) {
+      const body = { Rp: 200, Page: 0 }
+      while (!havePolicy && pagePolicyCount == 200) {
         body.Page = body.Page + 1
         listPoliciesModels.from_json_string(JSON.stringify(body))
         try {
           const pagePolicList = await listPoliciesHandler(listPoliciesModels)
           for (let i = 0; i < pagePolicList.List.length; i++) {
-            if (policyNameList.indexOf(pagePolicList.List[i].PolicyName) > -1) {
-              policyIdList.push(pagePolicList.List[i].PolicyId)
+            if (policyName == pagePolicList.List[i].PolicyName) {
+              havePolicy = true
+              policyId = pagePolicList.List[i].policyId
+              break
             }
           }
           pagePolicyCount = pagePolicList.List.length
@@ -64,108 +61,48 @@ class DeployFunction extends Abstract {
         await utils.sleep(400)
       }
 
-      // roleState
-      //   1:Created
-      //   -1:Not Created
-      //   0:Unknown
-      let roleState = 1
-
-      // Get role
-      try {
-        const getRoleModels = new camModels.GetRoleRequest()
-        getRoleModels.from_json_string(JSON.stringify({ RoleName: roleName }))
-        const getRoleHandler = util.promisify(this.camClient.GetRole.bind(this.camClient))
-        await getRoleHandler(getRoleModels)
-      } catch (e) {
-        if (e.message.includes('role not exist')) {
-          roleState = -1
-        } else {
-          roleState = 0
-        }
-      }
-
-      const haveIdList = new Array()
-      const addIdList = new Array()
-
-      // Get role policy list
-      try {
-        pagePolicyCount = 200
-        body = { Rp: 200, Page: 0, RoleName: roleName }
-        const listRolePoliciesModels = new camModels.ListAttachedRolePoliciesRequest()
-        const listRolePoliciesHandler = util.promisify(
-          this.camClient.ListAttachedRolePolicies.bind(this.camClient)
-        )
-        while (pagePolicyCount == 200) {
-          body.Page = body.Page + 1
-          listRolePoliciesModels.from_json_string(JSON.stringify(body))
-          try {
-            const pagePolicList = await listRolePoliciesHandler(listRolePoliciesModels)
-            for (let i = 0; i < pagePolicList.List.length; i++) {
-              haveIdList.push(pagePolicList.List[i].PolicyId)
-            }
-            pagePolicyCount = pagePolicList.List.length
-          } catch (e) {
-            pagePolicyCount = 0
-          }
-          await utils.sleep(400)
-        }
-      } catch (e) {}
-
-      // Get policy id which need to add in SCF_QcsRole
-      for (let i = 0; i < policyIdList.length; i++) {
-        if (haveIdList.indexOf(policyIdList[i]) <= -1) {
-          addIdList.push(policyIdList[i])
-        }
-      }
-
       // Create role and attach policy
-      if (roleState <= 0) {
-        try {
-          const createRoleModels = new camModels.CreateRoleRequest()
-          createRoleModels.from_json_string(
-            JSON.stringify({
-              RoleName: roleName,
-              PolicyDocument: JSON.stringify({
-                version: '2.0',
-                statement: [
-                  {
-                    effect: 'allow',
-                    principal: {
-                      service: 'scf.qcloud.com'
-                    },
-                    action: 'sts:AssumeRole'
-                  }
-                ]
-              })
+      try {
+        const createRoleModels = new camModels.CreateRoleRequest()
+        createRoleModels.from_json_string(
+          JSON.stringify({
+            RoleName: roleName,
+            PolicyDocument: JSON.stringify({
+              version: '2.0',
+              statement: [
+                {
+                  effect: 'allow',
+                  principal: {
+                    service: 'scf.qcloud.com'
+                  },
+                  action: 'sts:AssumeRole'
+                }
+              ]
             })
-          )
-          const createRoleHandler = util.promisify(this.camClient.CreateRole.bind(this.camClient))
-          await createRoleHandler(createRoleModels)
-        } catch (e) {
-          this.context.debug('Create role error: ' + e)
+          })
+        )
+        const createRoleHandler = util.promisify(this.camClient.CreateRole.bind(this.camClient))
+        await createRoleHandler(createRoleModels)
+      } catch (e) {
+        this.context.debug('Create role error: ' + e)
+      }
+      try {
+        const attachRolePolicyModels = new camModels.AttachRolePolicyRequest()
+        const attachRolePolicyHandler = util.promisify(
+          this.camClient.AttachRolePolicy.bind(this.camClient)
+        )
+        const attachRolePolicyBody = {
+          AttachRoleName: roleName
         }
-      }
-      if (addIdList.length > 0) {
         try {
-          const attachRolePolicyModels = new camModels.AttachRolePolicyRequest()
-          const attachRolePolicyHandler = util.promisify(
-            this.camClient.AttachRolePolicy.bind(this.camClient)
-          )
-          const attachRolePolicyBody = {
-            AttachRoleName: roleName
-          }
-          for (let i = 0; i < addIdList.length; i++) {
-            try {
-              attachRolePolicyBody.PolicyId = addIdList[i]
-              attachRolePolicyModels.from_json_string(JSON.stringify(attachRolePolicyBody))
-              await attachRolePolicyHandler(attachRolePolicyModels)
-            } catch (e) {
-              this.context.debug(`Attach policy id '${attachRolePolicyBody.PolicyId}' error: ${e}`)
-            }
-            await utils.sleep(400)
-          }
-        } catch (e) {}
-      }
+          attachRolePolicyBody.PolicyId = policyId
+          attachRolePolicyModels.from_json_string(JSON.stringify(attachRolePolicyBody))
+          await attachRolePolicyHandler(attachRolePolicyModels)
+        } catch (e) {
+          this.context.debug(`Attach policy id '${attachRolePolicyBody.PolicyId}' error: ${e}`)
+        }
+        await utils.sleep(400)
+      } catch (e) {}
     } catch (e) {
       this.context.debug('Check policy list error: ' + e)
     }
