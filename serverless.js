@@ -189,8 +189,8 @@ class TencentCloudFunction extends Component {
     inputs.enableRoleAuth = inputs.enableRoleAuth
       ? true
       : inputs.enableRoleAuth == false
-        ? false
-        : true
+      ? false
+      : true
     if (inputs.enableRoleAuth) {
       await func.addRole()
     }
@@ -330,12 +330,14 @@ class TencentCloudFunction extends Component {
     const handler = new RemoveFunction(attr)
 
     let tencentApiGateway
-    for (let i = 0; i < funcObject.APIGateway.length; i++) {
-      try {
-        const arr = funcObject.APIGateway[i].toString().split(' - ')
-        tencentApiGateway = await this.load('@serverless/tencent-apigateway', arr[0])
-        await tencentApiGateway.remove()
-      } catch (e) {}
+    if (funcObject.APIGateway && funcObject.APIGateway.length > 0) {
+      for (let i = 0; i < funcObject.APIGateway.length; i++) {
+        try {
+          const arr = funcObject.APIGateway[i].toString().split(' - ')
+          tencentApiGateway = await this.load('@serverless/tencent-apigateway', arr[0])
+          await tencentApiGateway.remove()
+        } catch (e) {}
+      }
     }
 
     await handler.remove(funcObject.Name)
