@@ -67,19 +67,18 @@ class TencentCloudFunction extends Component {
     const tencent_credentials = await login.login()
     if (tencent_credentials) {
       tencent_credentials.timestamp = Date.now() / 1000
-      const tencent_credentials_json = JSON.stringify(tencent_credentials)
       try {
         const tencent = {
-          SecretId: tencent_credentials.tencent_secret_id,
-          SecretKey: tencent_credentials.tencent_secret_key,
-          AppId: tencent_credentials.tencent_appid,
-          token: tencent_credentials.tencent_token,
+          SecretId: tencent_credentials.secret_id,
+          SecretKey: tencent_credentials.secret_key,
+          AppId: tencent_credentials.appid,
+          token: tencent_credentials.token,
+          expired: tencent_credentials.expired,
+          signature: tencent_credentials.signature,
+          uuid: tencent_credentials.uuid,
           timestamp: tencent_credentials.timestamp
         }
-        await fs.writeFileSync('./.env_temp', tencent_credentials_json)
-        this.context.debug(
-          'The temporary key is saved successfully, and the validity period is two hours.'
-        )
+        await fs.writeFileSync('./.env_temp', JSON.stringify(tencent))
         return tencent
       } catch (e) {
         throw 'Error getting temporary key: ' + e
@@ -87,19 +86,60 @@ class TencentCloudFunction extends Component {
     }
   }
 
-  async getTempKey() {
+  async sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms)
+    })
+  }
+
+  async getTempKey(temp) {
     const that = this
+
+    if (temp) {
+      while (true) {
+        try {
+          const tencent_credentials_read = JSON.parse(await fs.readFileSync('./.env_temp', 'utf8'))
+          if (
+            Date.now() / 1000 - tencent_credentials_read.timestamp <= 5 &&
+            tencent_credentials_read.AppId
+          ) {
+            return tencent_credentials_read
+          }
+          await that.sleep(1000)
+        } catch (e) {
+          await that.sleep(1000)
+        }
+      }
+    }
+
     try {
       const data = await fs.readFileSync('./.env_temp', 'utf8')
       try {
         const tencent = {}
         const tencent_credentials_read = JSON.parse(data)
-        if (Date.now() / 1000 - tencent_credentials_read.timestamp <= 7000) {
-          tencent.SecretId = tencent_credentials_read.tencent_secret_id
-          tencent.SecretKey = tencent_credentials_read.tencent_secret_key
-          tencent.AppId = tencent_credentials_read.tencent_appid
-          tencent.token = tencent_credentials_read.tencent_token
-          tencent.timestamp = tencent_credentials_read.timestamp
+        if (
+          Date.now() / 1000 - tencent_credentials_read.timestamp <= 6000 &&
+          tencent_credentials_read.AppId
+        ) {
+          return tencent_credentials_read
+        }
+        const login = new TencentLogin()
+        const tencent_credentials_flush = await login.flush(
+          tencent_credentials_read.uuid,
+          tencent_credentials_read.expired,
+          tencent_credentials_read.signature,
+          tencent_credentials_read.AppId
+        )
+        if (tencent_credentials_flush) {
+          tencent.SecretId = tencent_credentials_flush.secret_id
+          tencent.SecretKey = tencent_credentials_flush.secret_key
+          tencent.AppId = tencent_credentials_flush.appid
+          tencent.token = tencent_credentials_flush.token
+          tencent.expired = tencent_credentials_flush.expired
+          tencent.signature = tencent_credentials_flush.signature
+          tencent.uuid = tencent_credentials_read.uuid
+          tencent.timestamp = Date.now() / 1000
+          await fs.writeFileSync('./.env_temp', JSON.stringify(tencent))
           return tencent
         }
         return await that.doLogin()
@@ -112,17 +152,23 @@ class TencentCloudFunction extends Component {
   }
 
   async default(inputs = {}) {
-    const provider = new Provider(inputs)
-    const services = provider.getServiceResource()
+    // login
+    const temp = this.context.instance.state.status
+    this.context.instance.state.status = true
     let { tencent } = this.context.credentials
     if (!tencent) {
-      tencent = await this.getTempKey(tencent)
+      tencent = await this.getTempKey(temp)
       this.context.credentials.tencent = tencent
     }
+
+    // get AppId
     if (!this.context.credentials.tencent.AppId) {
       const appId = await this.getAppid(tencent)
       this.context.credentials.tencent.AppId = appId.AppId
     }
+
+    const provider = new Provider(inputs)
+    const services = provider.getServiceResource()
 
     const option = {
       region: provider.region,
@@ -143,8 +189,8 @@ class TencentCloudFunction extends Component {
     inputs.enableRoleAuth = inputs.enableRoleAuth
       ? true
       : inputs.enableRoleAuth == false
-      ? false
-      : true
+        ? false
+        : true
     if (inputs.enableRoleAuth) {
       await func.addRole()
     }
@@ -233,8 +279,10 @@ class TencentCloudFunction extends Component {
       Timeout: funcObject.Properties.Timeout,
       Region: provider.region,
       Role: funcObject.Properties.Role,
-      Description: funcObject.Properties.Description,
-      APIGateway: apiTriggerList
+      Description: funcObject.Properties.Description
+    }
+    if (apiTriggerList.length > 0) {
+      output.APIGateway = apiTriggerList
     }
     this.state.deployed = output
     await this.save()
@@ -243,21 +291,26 @@ class TencentCloudFunction extends Component {
   }
 
   async remove() {
+    // login
+    const temp = this.context.instance.state.status
+    this.context.instance.state.status = true
+    let { tencent } = this.context.credentials
+    if (!tencent) {
+      tencent = await this.getTempKey(temp)
+      this.context.credentials.tencent = tencent
+    }
+
+    // get AppId
+    if (!this.context.credentials.tencent.AppId) {
+      const appId = await this.getAppid(tencent)
+      this.context.credentials.tencent.AppId = appId.AppId
+    }
+
     this.context.status(`Removing`)
 
     if (_.isEmpty(this.state.deployed)) {
       this.context.debug(`Aborting removal. Function name not found in state.`)
       return
-    }
-
-    let { tencent } = this.context.credentials
-    if (!tencent) {
-      tencent = await this.getTempKey(tencent)
-      this.context.credentials.tencent = tencent
-    }
-    if (!this.context.credentials.tencent.AppId) {
-      const appId = await this.getAppid(tencent)
-      this.context.credentials.tencent.AppId = appId.AppId
     }
 
     const funcObject = this.state.deployed
