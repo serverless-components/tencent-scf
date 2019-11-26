@@ -1,7 +1,7 @@
 {
   "name": "@serverless/tencent-scf",
   "description": "Tencent Serverless Cloud Function",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "main": "./serverless.js",
   "publishConfig": {
     "access": "public"
