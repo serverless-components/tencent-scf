@@ -248,7 +248,13 @@ class TencentCloudFunction extends Component {
             thisTrigger.Properties.serviceName
           )
           const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
-          apiTriggerList.push(thisTrigger.Properties.serviceName + ' - ' + apigwOutput['subDomain'])
+          apiTriggerList.push(
+            thisTrigger.Properties.serviceName +
+              ' - ' +
+              apigwOutput['subDomain'] +
+              '/' +
+              apigwOutput['environment']
+          )
         } else {
           events.push(funcObject.Properties.Events[i])
         }
