@@ -251,6 +251,8 @@ class TencentCloudFunction extends Component {
           apiTriggerList.push(
             thisTrigger.Properties.serviceName +
               ' - ' +
+              apigwOutput['protocol'] +
+              '://' +
               apigwOutput['subDomain'] +
               '/' +
               apigwOutput['environment']
