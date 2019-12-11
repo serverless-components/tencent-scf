@@ -40,7 +40,8 @@ myFunction:
           name: serverless
           parameters:
             serviceId: service-8dsikiq6
-            protocol: http
+            protocols:
+              - http
             serviceName: serverless
             description: the serverless service
             environment: release
@@ -84,7 +85,8 @@ myFunction:
           name: serverless_test
           parameters:
             serviceId: service-cyjmc4eg
-            protocol: http
+            protocols:
+              - http
             description: the serverless service
             environment: release
             endpoints:
