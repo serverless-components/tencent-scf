@@ -41,6 +41,13 @@ class AppidClient extends AbstractClient {
 }
 
 class TencentCloudFunction extends Component {
+  getDefaultProtocol(protocols) {
+    if (protocols.map((i) => i.toLowerCase()).includes('https')) {
+      return 'https'
+    }
+    return 'http'
+  }
+
   async getAppid(credentials) {
     const secret_id = credentials.SecretId
     const secret_key = credentials.SecretKey
@@ -251,7 +258,7 @@ class TencentCloudFunction extends Component {
           apiTriggerList.push(
             thisTrigger.Properties.serviceName +
               ' - ' +
-              apigwOutput['protocol'] +
+              this.getDefaultProtocol(apigwOutput['protocols']) +
               '://' +
               apigwOutput['subDomain'] +
               '/' +
