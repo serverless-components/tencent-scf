@@ -1,20 +1,20 @@
 {
   "name": "@serverless/tencent-scf",
   "description": "Tencent Serverless Cloud Function",
-  "version": "1.2.14",
+  "version": "2.0.0",
   "main": "./serverless.js",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tape *.test.js",
     "lint": "eslint . --fix --cache"
   },
   "author": "Tencent Cloud",
   "license": "Apache",
   "dependencies": {
     "@serverless/core": "^1.1.1",
-    "@serverless/tencent-apigateway": "^1.9.6",
+    "@serverless/tencent-apigateway": "^2.0.0",
     "archiver": "^3.1.1",
     "assert": "^2.0.0",
     "async": "^2.6.3",
@@ -48,6 +48,7 @@
     "eslint-config-prettier": "^3.6.0",
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-prettier": "^3.0.1",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "tape": "^4.11.0"
   }
 }

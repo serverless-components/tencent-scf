@@ -1,4 +1,3 @@
-
 # API Gateway
 
 Tencent Serverless Cloud Functions can create function based API endpoints through API Gateway.
@@ -15,53 +14,54 @@ Here's an example:
 - apigw:
     name: serverless
     parameters:
-        serviceId: service-8dsikiq6
-        protocol: http
-        serviceName: serverless
-        description: the serverless service
-        environment: release
-        endpoints:
-          - path: /users
-            method: POST
-          - path: /test/{abc}/{cde}
-            apiId: api-id
-            method: GET
-            description: Serverless REST API
-            enableCORS: TRUE
-            responseType: HTML
-            serviceTimeout: 10
-            param:
-              - name: abc
-                position: PATH
-                required: 'TRUE'
-                type: string
-                defaultValue: abc
-                desc: mytest
-              - name: cde
-                position: PATH
-                required: 'TRUE'
-                type: string
-                defaultValue: abc
-                desc: mytest
-            function:
-              isIntegratedResponse: TRUE
-              functionQualifier: $LATEST
-            usagePlan:
-              usagePlanId: 1111
-              usagePlanName: slscmp
-              usagePlanDesc: sls create
-              maxRequestNum: 1000
-            auth:
-              serviceTimeout: 15
-              secretName: secret
-              secretIds:
-                - AKIDNSdvdFcJ8GJ9th6qeZH0ll8r7dE6HHaSuchJ
+      serviceId: service-8dsikiq6
+      protocols:
+        - http
+      serviceName: serverless
+      description: the serverless service
+      environment: release
+      endpoints:
+        - path: /users
+          method: POST
+        - path: /test/{abc}/{cde}
+          apiId: api-id
+          method: GET
+          description: Serverless REST API
+          enableCORS: TRUE
+          responseType: HTML
+          serviceTimeout: 10
+          param:
+            - name: abc
+              position: PATH
+              required: 'TRUE'
+              type: string
+              defaultValue: abc
+              desc: mytest
+            - name: cde
+              position: PATH
+              required: 'TRUE'
+              type: string
+              defaultValue: abc
+              desc: mytest
+          function:
+            isIntegratedResponse: TRUE
+            functionQualifier: $LATEST
+          usagePlan:
+            usagePlanId: 1111
+            usagePlanName: slscmp
+            usagePlanDesc: sls create
+            maxRequestNum: 1000
+          auth:
+            serviceTimeout: 15
+            secretName: secret
+            secretIds:
+              - AKIDNSdvdFcJ8GJ9th6qeZH0ll8r7dE6HHaSuchJ
 ```
 
 ```javascript
 //index.js
 exports.main_handler = async (event, context, callback) => {
-  console.log(event);
+  console.log(event)
   return {
     isBase64Encoded: false,
     statusCode: 200,
@@ -101,7 +101,7 @@ When an API Gateway trigger receives a request, it sends the event data to the b
   "queryStringParameters": {
     "foo": "bar"
   },
-  "headerParameters":{
+  "headerParameters": {
     "Refer": "10.0.2.14"
   },
   "stageVariables": {
@@ -109,8 +109,8 @@ When an API Gateway trigger receives a request, it sends the event data to the b
   },
   "path": "/test/value",
   "queryString": {
-    "foo" : "bar",
-    "bob" : "alice"
+    "foo": "bar",
+    "bob": "alice"
   },
   "httpMethod": "POST"
 }
