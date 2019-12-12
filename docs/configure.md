@@ -23,7 +23,7 @@ myFunction:
       - .serverless
       - .env
     include:
-      - /Users/dfounderliu/Desktop/temp/.serverless/myFunction1.zip
+      - ./myFunction1.zip
     environment:
       variables:
         TEST: vale
