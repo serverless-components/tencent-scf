@@ -13,7 +13,6 @@ const VALID_FORMATS = ['zip', 'tar']
 const isValidFormat = (format) => contains(format, VALID_FORMATS)
 
 module.exports = {
-
   zipArchiveDirs(zipObject, dirPath, alias, packagePath, ig) {
     const dirs = fs.readdirSync(dirPath)
     if (!dirs) {
@@ -111,7 +110,7 @@ module.exports = {
         zlib: { level: 9 }
       })
 
-      output.on('open', () => {
+      output.on('open', async () => {
         archive.pipe(output)
 
         // we must set the date to ensure correct hash
@@ -120,10 +119,27 @@ module.exports = {
         )
 
         if (!isNil(include)) {
-          include.forEach((file) => {
-            const stream = createReadStream(file)
-            archive.append(stream, { name: path.basename(file), date: new Date(0) })
-          })
+          for (let i = 0, len = include.length; i < len; i++) {
+            const curInclude = include[i]
+            if (fs.statSync(curInclude).isDirectory()) {
+              const includeFiles = await globby(patterns, { cwd: curInclude, dot: true })
+              includeFiles
+                .sort()
+                .map((file) => ({
+                  input: path.join(curInclude, file),
+                  output: prefix ? path.join(prefix, file) : file
+                }))
+                .forEach((file) =>
+                  archive.append(createReadStream(file.input), {
+                    name: file.output,
+                    date: new Date(0)
+                  })
+                )
+            } else {
+              const stream = createReadStream(curInclude)
+              archive.append(stream, { name: path.basename(curInclude), date: new Date(0) })
+            }
+          }
         }
 
         archive.finalize()
