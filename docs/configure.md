@@ -8,7 +8,7 @@ myFunction:
   component: "@serverless/tencent-scf"
   inputs:
     name: myFunction1
-    enableRoleAuth: ture
+    enableRoleAuth: true
     codeUri: ./code
     handler: index.main_handler
     runtime: Nodejs8.9
