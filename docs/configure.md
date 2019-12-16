@@ -133,7 +133,7 @@ Main param description
 | memorySize         | Optional             |     128M        | The size of memory size available to the function during execution. Specify a value between 128 MB (default) and 1,536 MB in 128 MB increments. |
 | timeout         | Optional             |      3S       | The duration a function allowed to execute. Choose a value between 1 and 300 seconds; The default is 3 seconds. |
 | exclude         | Optional             |             | exclude file |
-| include         | Optional             |             | include file |
+| include         | Optional             |             | include file, if relative path, should relative to `serverless.yml` |
 | [environment](#environment-param-description) | Optional             |             | Function configure |
 | [vpcConfig](#vpcConfig-param-description)| Optional            |             | API-Gateway configure |
 

@@ -122,11 +122,15 @@ module.exports = {
           for (let i = 0, len = include.length; i < len; i++) {
             const curInclude = include[i]
             if (fs.statSync(curInclude).isDirectory()) {
-              const includeFiles = await globby(patterns, { cwd: curInclude, dot: true })
+              // if is relative directory, we should join with process.cwd
+              const curPath = path.isAbsolute(curInclude)
+                ? curInclude
+                : path.join(process.cwd(), curInclude)
+              const includeFiles = await globby(patterns, { cwd: curPath, dot: true })
               includeFiles
                 .sort()
                 .map((file) => ({
-                  input: path.join(curInclude, file),
+                  input: path.join(curPath, file),
                   output: prefix ? path.join(prefix, file) : file
                 }))
                 .forEach((file) =>
