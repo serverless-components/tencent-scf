@@ -26,7 +26,10 @@ class Provider {
     const funcObjectInfo = funcObject.vpcConfig
     const vpcId = funcObjectInfo && funcObjectInfo.vpcId ? funcObjectInfo.vpcId : ''
     const subnetId = funcObjectInfo && funcObjectInfo.subnetId ? funcObjectInfo.subnetId : ''
-    return { VpcId: vpcId, SubnetId: subnetId }
+    if (vpcId && subnetId) {
+      return { VpcId: vpcId, SubnetId: subnetId }
+    }
+    return null
   }
 
   getCosBucketNme(name) {
@@ -43,7 +46,7 @@ class Provider {
         },
         Type: 'Event',
         Description: funcObject.description || 'This is a template function',
-        Role: funcObject.role || 'QCS_SCFExcuteRole',
+        Role: funcObject.role,
         Handler: funcObject.handler || 'index.main_handler',
         MemorySize: funcObject.memorySize || 128,
         Timeout: funcObject.timeout || 3,
