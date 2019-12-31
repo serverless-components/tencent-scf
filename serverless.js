@@ -293,8 +293,10 @@ class TencentCloudFunction extends Component {
       MemorySize: funcObject.Properties.MemorySize,
       Timeout: funcObject.Properties.Timeout,
       Region: provider.region,
-      Role: funcObject.Properties.Role,
       Description: funcObject.Properties.Description
+    }
+    if (funcObject.Properties.Role) {
+      output.Role = funcObject.Properties.Role
     }
     if (apiTriggerList.length > 0) {
       output.APIGateway = apiTriggerList
