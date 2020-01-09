@@ -2,43 +2,12 @@ const { Component } = require('@serverless/core')
 const DeployFunction = require('./library/deployFunction')
 const DeployTrigger = require('./library/deployTrigger')
 const RemoveFunction = require('./library/removeFunction')
-const TencentLogin = require('tencent-login')
+// const tencentAuth = require('serverless-tencent-auth-tool')
+const tencentAuth = require('/Users/dfounderliu/Desktop/component/experience/serverless-tencent-auth-tool')
 const Provider = require('./library/provider')
 const _ = require('lodash')
-const fs = require('fs')
 const util = require('util')
 const utils = require('./library/utils')
-const tencentcloud = require('tencentcloud-sdk-nodejs')
-const ClientProfile = require('tencentcloud-sdk-nodejs/tencentcloud/common/profile/client_profile.js')
-const HttpProfile = require('tencentcloud-sdk-nodejs/tencentcloud/common/profile/http_profile.js')
-const AbstractModel = require('tencentcloud-sdk-nodejs/tencentcloud/common/abstract_model')
-const AbstractClient = require('tencentcloud-sdk-nodejs/tencentcloud/common/abstract_client')
-
-class GetUserAppIdResponse extends AbstractModel {
-  constructor() {
-    super()
-    this.RequestId = null
-  }
-
-  deserialize(params) {
-    if (!params) {
-      return
-    }
-    this.AppId = 'RequestId' in params ? params.AppId : null
-    this.RequestId = 'RequestId' in params ? params.RequestId : null
-  }
-}
-
-class AppidClient extends AbstractClient {
-  constructor(credential, region, profile) {
-    super('cam.tencentcloudapi.com', '2019-01-16', credential, region, profile)
-  }
-
-  GetUserAppId(req, cb) {
-    const resp = new GetUserAppIdResponse()
-    this.request('GetUserAppId', req, resp, cb)
-  }
-}
 
 class TencentCloudFunction extends Component {
   getDefaultProtocol(protocols) {
@@ -48,131 +17,10 @@ class TencentCloudFunction extends Component {
     return 'http'
   }
 
-  async getAppid(credentials) {
-    const secret_id = credentials.SecretId
-    const secret_key = credentials.SecretKey
-    const cred = credentials.token
-      ? new tencentcloud.common.Credential(secret_id, secret_key, credentials.token)
-      : new tencentcloud.common.Credential(secret_id, secret_key)
-    const httpProfile = new HttpProfile()
-    httpProfile.reqTimeout = 30
-    const clientProfile = new ClientProfile('HmacSHA256', httpProfile)
-    const cam = new AppidClient(cred, 'ap-guangzhou', clientProfile)
-    const req = new GetUserAppIdResponse()
-    const body = {}
-    req.from_json_string(JSON.stringify(body))
-    const handler = util.promisify(cam.GetUserAppId.bind(cam))
-    try {
-      return handler(req)
-    } catch (e) {
-      throw 'Get Appid failed! '
-    }
-  }
-
-  async doLogin() {
-    const login = new TencentLogin()
-    const tencent_credentials = await login.login()
-    if (tencent_credentials) {
-      tencent_credentials.timestamp = Date.now() / 1000
-      try {
-        const tencent = {
-          SecretId: tencent_credentials.secret_id,
-          SecretKey: tencent_credentials.secret_key,
-          AppId: tencent_credentials.appid,
-          token: tencent_credentials.token,
-          expired: tencent_credentials.expired,
-          signature: tencent_credentials.signature,
-          uuid: tencent_credentials.uuid,
-          timestamp: tencent_credentials.timestamp
-        }
-        await fs.writeFileSync('./.env_temp', JSON.stringify(tencent))
-        return tencent
-      } catch (e) {
-        throw 'Error getting temporary key: ' + e
-      }
-    }
-  }
-
-  async sleep(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms)
-    })
-  }
-
-  async getTempKey(temp) {
-    const that = this
-
-    if (temp) {
-      while (true) {
-        try {
-          const tencent_credentials_read = JSON.parse(await fs.readFileSync('./.env_temp', 'utf8'))
-          if (
-            Date.now() / 1000 - tencent_credentials_read.timestamp <= 5 &&
-            tencent_credentials_read.AppId
-          ) {
-            return tencent_credentials_read
-          }
-          await that.sleep(1000)
-        } catch (e) {
-          await that.sleep(1000)
-        }
-      }
-    }
-
-    try {
-      const data = await fs.readFileSync('./.env_temp', 'utf8')
-      try {
-        const tencent = {}
-        const tencent_credentials_read = JSON.parse(data)
-        if (
-          Date.now() / 1000 - tencent_credentials_read.timestamp <= 6000 &&
-          tencent_credentials_read.AppId
-        ) {
-          return tencent_credentials_read
-        }
-        const login = new TencentLogin()
-        const tencent_credentials_flush = await login.flush(
-          tencent_credentials_read.uuid,
-          tencent_credentials_read.expired,
-          tencent_credentials_read.signature,
-          tencent_credentials_read.AppId
-        )
-        if (tencent_credentials_flush) {
-          tencent.SecretId = tencent_credentials_flush.secret_id
-          tencent.SecretKey = tencent_credentials_flush.secret_key
-          tencent.AppId = tencent_credentials_flush.appid
-          tencent.token = tencent_credentials_flush.token
-          tencent.expired = tencent_credentials_flush.expired
-          tencent.signature = tencent_credentials_flush.signature
-          tencent.uuid = tencent_credentials_read.uuid
-          tencent.timestamp = Date.now() / 1000
-          await fs.writeFileSync('./.env_temp', JSON.stringify(tencent))
-          return tencent
-        }
-        return await that.doLogin()
-      } catch (e) {
-        return await that.doLogin()
-      }
-    } catch (e) {
-      return await that.doLogin()
-    }
-  }
-
   async default(inputs = {}) {
-    // login
-    const temp = this.context.instance.state.status
-    this.context.instance.state.status = true
-    let { tencent } = this.context.credentials
-    if (!tencent) {
-      tencent = await this.getTempKey(temp)
-      this.context.credentials.tencent = tencent
-    }
-
-    // get AppId
-    if (!this.context.credentials.tencent.AppId) {
-      const appId = await this.getAppid(tencent)
-      this.context.credentials.tencent.AppId = appId.AppId
-    }
+    const auth = new tencentAuth()
+    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent)
+    const { tencent } = this.context.credentials
 
     const provider = new Provider(inputs)
     const services = provider.getServiceResource()
@@ -309,19 +157,9 @@ class TencentCloudFunction extends Component {
 
   async remove() {
     // login
-    const temp = this.context.instance.state.status
-    this.context.instance.state.status = true
-    let { tencent } = this.context.credentials
-    if (!tencent) {
-      tencent = await this.getTempKey(temp)
-      this.context.credentials.tencent = tencent
-    }
-
-    // get AppId
-    if (!this.context.credentials.tencent.AppId) {
-      const appId = await this.getAppid(tencent)
-      this.context.credentials.tencent.AppId = appId.AppId
-    }
+    const auth = new tencentAuth()
+    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent)
+    const { tencent } = this.context.credentials
 
     this.context.status(`Removing`)
 
