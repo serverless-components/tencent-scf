@@ -22,7 +22,7 @@ class DeployFunction extends Abstract {
       let status = 'Updating'
       let times = 90
       while (status == 'Updating') {
-        const tempFunc = await func.getFunction('default', funcObject.FuncName)
+        const tempFunc = await this.getFunction('default', funcObject.FuncName)
         status = tempFunc.Status
         await utils.sleep(1000)
         times = times - 1
