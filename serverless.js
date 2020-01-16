@@ -169,7 +169,7 @@ class TencentCloudFunction extends Component {
     return output
   }
 
-  async remove() {
+  async remove(inputs = {}) {
     // login
     const auth = new tencentAuth()
     this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent)
