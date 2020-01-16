@@ -95,7 +95,7 @@ class TencentCloudFunction extends Component {
       for (let i = 0; i < funcObject.Properties.Events.length; i++) {
         let status = 'Updating'
         let times = 90
-        while (status == 'Updating') {
+        while (status == 'Updating' || status == 'Creating') {
           const tempFunc = await func.getFunction('default', funcObject.FuncName)
           status = tempFunc.Status
           await utils.sleep(1000)
