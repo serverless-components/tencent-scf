@@ -18,7 +18,7 @@ class TencentCloudFunction extends Component {
 
   async default(inputs = {}) {
     const auth = new tencentAuth()
-    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent)
+    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, 'tencent-scf')
     const { tencent } = this.context.credentials
 
     const provider = new Provider(inputs)
@@ -172,7 +172,7 @@ class TencentCloudFunction extends Component {
   async remove(inputs = {}) {
     // login
     const auth = new tencentAuth()
-    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent)
+    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, 'tencent-scf')
     const { tencent } = this.context.credentials
 
     this.context.status(`Removing`)
