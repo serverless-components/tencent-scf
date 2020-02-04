@@ -18,7 +18,12 @@ class TencentCloudFunction extends Component {
 
   async default(inputs = {}) {
     const auth = new tencentAuth()
-    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, 'tencent-scf')
+    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, {
+      client: 'tencent-scf',
+      remark: inputs.fromClientRemark,
+      project: this.context.instance ? this.context.instance.id : undefined,
+      action: 'default'
+    })
     const { tencent } = this.context.credentials
 
     const provider = new Provider(inputs)
@@ -116,6 +121,7 @@ class TencentCloudFunction extends Component {
             '@serverless/tencent-apigateway',
             thisTrigger.Properties.serviceName
           )
+          thisTrigger.Properties.fromClientRemark = inputs.fromClientRemark || 'tencent-scf'
           const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
           apiTriggerList.push(
             thisTrigger.Properties.serviceName +
@@ -172,7 +178,12 @@ class TencentCloudFunction extends Component {
   async remove(inputs = {}) {
     // login
     const auth = new tencentAuth()
-    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, 'tencent-scf')
+    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, {
+      client: 'tencent-scf',
+      remark: inputs.fromClientRemark,
+      project: this.context.instance ? this.context.instance.id : undefined,
+      action: 'remove'
+    })
     const { tencent } = this.context.credentials
 
     this.context.status(`Removing`)
@@ -204,7 +215,9 @@ class TencentCloudFunction extends Component {
         try {
           const arr = funcObject.APIGateway[i].toString().split(' - ')
           tencentApiGateway = await this.load('@serverless/tencent-apigateway', arr[0])
-          await tencentApiGateway.remove()
+          await tencentApiGateway.remove({
+            fromClientRemark: inputs.fromClientRemark || 'tencent-scf'
+          })
         } catch (e) {}
       }
     }
