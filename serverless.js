@@ -230,13 +230,13 @@ class TencentCloudFunction extends Component {
     return funcObject
   }
 
-  async updateFunctionConf(inputs = {}) {
+  async updateBaseConf(inputs = {}) {
     const auth = new tencentAuth()
     this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, {
       client: 'tencent-scf',
       remark: inputs.fromClientRemark,
       project: this.context.instance ? this.context.instance.id : undefined,
-      action: 'update'
+      action: 'updateBaseConf'
     })
     const { tencent } = this.context.credentials
 
