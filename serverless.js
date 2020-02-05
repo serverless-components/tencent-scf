@@ -269,7 +269,7 @@ class TencentCloudFunction extends Component {
 
     const funcObject = _.cloneDeep(services.Resources.default[inputs.name])
     funcObject.FuncName = inputs.name
-    
+
     try {
       const oldFunc = await func.getFunction('default', inputs.name, false)
       if (!oldFunc) {
