@@ -229,6 +229,80 @@ class TencentCloudFunction extends Component {
     await this.save()
     return funcObject
   }
+
+  async updateBaseConf(inputs = {}) {
+    const auth = new tencentAuth()
+    this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, {
+      client: 'tencent-scf',
+      remark: inputs.fromClientRemark,
+      project: this.context.instance ? this.context.instance.id : undefined,
+      action: 'updateBaseConf'
+    })
+    const { tencent } = this.context.credentials
+
+    const provider = new Provider(inputs)
+    const services = provider.getServiceResource()
+
+    const option = {
+      region: provider.region,
+      timestamp: this.context.credentials.tencent.timestamp || null,
+      token: this.context.credentials.tencent.token || null
+    }
+    const attr = {
+      appid: tencent.AppId,
+      secret_id: tencent.SecretId,
+      secret_key: tencent.SecretKey,
+      options: option,
+      context: this.context
+    }
+    const func = new DeployFunction(attr)
+
+    // add role
+    inputs.enableRoleAuth = inputs.enableRoleAuth
+      ? true
+      : inputs.enableRoleAuth == false
+      ? false
+      : true
+    if (inputs.enableRoleAuth) {
+      await func.addRole()
+    }
+
+    const funcObject = _.cloneDeep(services.Resources.default[inputs.name])
+    funcObject.FuncName = inputs.name
+    
+    try {
+      const oldFunc = await func.getFunction('default', inputs.name, false)
+      if (!oldFunc) {
+        throw new Error(`Function ${inputs.name} not exist.`)
+      }
+    } catch (e) {
+      throw e
+    }
+
+    // create function
+    this.context.debug(`Updating function base configuration ${funcObject.FuncName}`)
+    await func.updateConfiguration('default', null, funcObject)
+    this.context.debug(`Updated function base configuration ${funcObject.FuncName} successful`)
+
+    const output = {
+      Name: funcObject.FuncName,
+      Runtime: funcObject.Properties.Runtime,
+      Handler: funcObject.Properties.Handler,
+      MemorySize: funcObject.Properties.MemorySize,
+      Timeout: funcObject.Properties.Timeout,
+      Region: provider.region,
+      Description: funcObject.Properties.Description,
+      Environment: funcObject.Properties.Environment
+    }
+    if (funcObject.Properties.Role) {
+      output.Role = funcObject.Properties.Role
+    }
+
+    this.state.deployed = output
+    await this.save()
+
+    return output
+  }
 }
 
 module.exports = TencentCloudFunction
