@@ -18,19 +18,7 @@ class DeployFunction extends Abstract {
       }
       this.context.debug('Updating code... ')
       await this.updateFunctionCode(ns, funcObject)
-      // when update code Status is Active, continue
-      let status = 'Updating'
-      let times = 90
-      while (status == 'Updating' || status == 'Creating') {
-        const tempFunc = await this.getFunction('default', funcObject.FuncName)
-        status = tempFunc.Status
-        await utils.sleep(1000)
-        times = times - 1
-        if (times <= 0) {
-          throw `Function ${funcObject.FuncName} update failed`
-        }
-      }
-      if (status != 'Active') {
+      if ((await this.checkStatus(ns, funcObject)) == false) {
         throw `Function ${funcObject.FuncName} update failed`
       }
       this.context.debug('Updating configure... ')
@@ -38,6 +26,18 @@ class DeployFunction extends Abstract {
       return func
     }
     return null
+  }
+
+  async checkStatus(ns, funcObject) {
+    let status = 'Updating'
+    let times = 90
+    while ((status == 'Updating' || status == 'Creating') && times > 0) {
+      const tempFunc = await this.getFunction(ns, funcObject.FuncName)
+      status = tempFunc.Status
+      await utils.sleep(1000)
+      times = times - 1
+    }
+    return status != 'Active' ? false : true
   }
 
   async addRole() {

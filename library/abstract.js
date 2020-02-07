@@ -62,26 +62,17 @@ class AbstractHandler {
     const chunkSize = options.chunkSize || 1024 * 1024 * 8
     const timeout = options.timeout || 60
 
-    if (!options.token) {
-      return new COS({
-        SecretId: secret_id,
-        SecretKey: secret_key,
-        FileParallelLimit: fileParallelLimit,
-        ChunkParallelLimit: chunkParallelLimit,
-        ChunkSize: chunkSize,
-        Timeout: timeout * 1000
-      })
-    }
-
     return new COS({
-      getAuthorization: function(option, callback) {
-        callback({
-          TmpSecretId: secret_id,
-          TmpSecretKey: secret_key,
-          XCosSecurityToken: options.token,
-          ExpiredTime: options.timestamp
-        })
-      }
+      SecretId: secret_id,
+      SecretKey: secret_key,
+      FileParallelLimit: fileParallelLimit,
+      ChunkParallelLimit: chunkParallelLimit,
+      ChunkSize: chunkSize,
+      Timeout: timeout * 1000,
+      TmpSecretId: secret_id,
+      TmpSecretKey: secret_key,
+      XCosSecurityToken: options.token,
+      ExpiredTime: options.timestamp
     })
   }
 

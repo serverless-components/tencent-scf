@@ -98,18 +98,7 @@ class TencentCloudFunction extends Component {
     const events = new Array()
     if (funcObject.Properties && funcObject.Properties.Events) {
       for (let i = 0; i < funcObject.Properties.Events.length; i++) {
-        let status = 'Updating'
-        let times = 90
-        while (status == 'Updating' || status == 'Creating') {
-          const tempFunc = await func.getFunction('default', funcObject.FuncName)
-          status = tempFunc.Status
-          await utils.sleep(1000)
-          times = times - 1
-          if (times <= 0) {
-            throw `Function ${funcObject.FuncName} update failed`
-          }
-        }
-        if (status != 'Active') {
+        if ((await func.checkStatus('default', funcObject)) == false) {
           throw `Function ${funcObject.FuncName} update failed`
         }
 
