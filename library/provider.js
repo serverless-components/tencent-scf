@@ -163,6 +163,9 @@ class Provider {
   }
 
   get namespace() {
+    if (this.inputs && this.inputs.namespace) {
+      return this.inputs.namespace
+    }
     return 'default'
   }
 
