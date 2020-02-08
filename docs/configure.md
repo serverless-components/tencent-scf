@@ -12,7 +12,6 @@ myFunction:
     codeUri: ./code
     handler: index.main_handler
     runtime: Nodejs8.9
-    namespace: namespace
     region: ap-guangzhou
     description: My Serverless Function
     memorySize: 128

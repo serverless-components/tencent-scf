@@ -93,15 +93,14 @@ class TencentCloudFunction extends Component {
     // deploy trigger
     // apigw: apigw component
     // cos/ckkafka/cmq/timer: cloud api/sdk
+    if ((await func.checkStatus(provider.namespace, funcObject)) == false) {
+      throw `Function ${funcObject.FuncName} update failed`
+    }
     this.context.debug(`Creating trigger for function ${funcObject.FuncName}`)
     const apiTriggerList = new Array()
     const events = new Array()
     if (funcObject.Properties && funcObject.Properties.Events) {
       for (let i = 0; i < funcObject.Properties.Events.length; i++) {
-        if ((await func.checkStatus('default', funcObject)) == false) {
-          throw `Function ${funcObject.FuncName} update failed`
-        }
-
         const keys = Object.keys(funcObject.Properties.Events[i])
         const thisTrigger = funcObject.Properties.Events[i][keys[0]]
         let tencentApiGateway
@@ -137,7 +136,8 @@ class TencentCloudFunction extends Component {
         },
         (error) => {
           throw error
-        }
+        },
+        func
       )
     }
 
@@ -260,7 +260,7 @@ class TencentCloudFunction extends Component {
     funcObject.FuncName = inputs.name
 
     try {
-      const oldFunc = await func.getFunction('default', inputs.name, false)
+      const oldFunc = await func.getFunction(provider.namespace, inputs.name, false)
       if (!oldFunc) {
         throw new Error(`Function ${inputs.name} not exist.`)
       }
@@ -270,7 +270,7 @@ class TencentCloudFunction extends Component {
 
     // create function
     this.context.debug(`Updating function base configuration ${funcObject.FuncName}`)
-    await func.updateConfiguration('default', null, funcObject)
+    await func.updateConfiguration(provider.namespace, null, funcObject)
     this.context.debug(`Updated function base configuration ${funcObject.FuncName} successful`)
 
     const output = {

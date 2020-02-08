@@ -121,7 +121,8 @@ class Provider {
         endpoint.function['functionName'] = functionName
       } else {
         endpoint['function'] = {
-          functionName: functionName
+          functionName: functionName,
+          functionNamespace: this.namespace
         }
       }
       endpoints.push(endpoint)

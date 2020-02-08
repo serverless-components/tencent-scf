@@ -10,7 +10,7 @@ const Constants = {
 }
 
 class DeployTrigger extends Abstract {
-  async create(ns, oldEvents, funcObject, successFunc, failedFunc) {
+  async create(ns, oldEvents, funcObject, successFunc, failedFunc, func) {
     const triggers = funcObject.Properties.Events
     const triggerResults = []
     const len = _.size(triggers)
@@ -53,6 +53,9 @@ class DeployTrigger extends Abstract {
           TriggerDesc: oldEvent.TriggerDesc
         }
 
+        if ((await func.checkStatus(ns, funcObject)) == false) {
+          throw `Function ${funcObject.FuncName} update failed`
+        }
         const handler = util.promisify(this.scfClient.DeleteTrigger.bind(this.scfClient))
         try {
           await handler(delArgs)
@@ -140,6 +143,9 @@ class DeployTrigger extends Abstract {
           break
       }
 
+      if ((await func.checkStatus(ns, funcObject)) == false) {
+        throw `Function ${funcObject.FuncName} update failed`
+      }
       let handler
       handler = util.promisify(this.scfClient.CreateTrigger.bind(this.scfClient))
       try {
@@ -156,9 +162,11 @@ class DeployTrigger extends Abstract {
           handler = util.promisify(this.scfClient.CreateTrigger.bind(this.scfClient))
           try {
             await handler(args)
-          } catch (e) {
-            this.context.debug('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
-            throw e
+          } catch (handlerError) {
+            this.context.debug(
+              'ErrorCode: ' + handlerError.code + ' RequestId: ' + handlerError.requestId
+            )
+            throw handlerError
           }
         } else {
           throw e
