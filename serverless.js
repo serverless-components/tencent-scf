@@ -83,12 +83,12 @@ class TencentCloudFunction extends Component {
 
     // create function
     this.context.debug(`Creating function ${funcObject.FuncName}`)
-    const oldFunc = await func.deploy('default', funcObject)
+    const oldFunc = await func.deploy(provider.namespace, funcObject)
     this.context.debug(`Created function ${funcObject.FuncName} successful`)
 
     // set tags
     this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
-    await func.createTags('default', funcObject.FuncName, funcObject.Properties.Tags)
+    await func.createTags(provider.namespace, funcObject.FuncName, funcObject.Properties.Tags)
 
     // deploy trigger
     // apigw: apigw component
@@ -138,7 +138,7 @@ class TencentCloudFunction extends Component {
       }
       funcObject.Properties.Events = events
       await trigger.create(
-        'default',
+        provider.namespace,
         oldFunc ? oldFunc.Triggers : null,
         funcObject,
         (response, thisTrigger) => {
