@@ -6,6 +6,7 @@ const tencentAuth = require('serverless-tencent-auth-tool')
 const Provider = require('./library/provider')
 const _ = require('lodash')
 const util = require('util')
+const cliProgress = require('cli-progress')
 const utils = require('./library/utils')
 
 class TencentCloudFunction extends Component {
@@ -91,11 +92,54 @@ class TencentCloudFunction extends Component {
     let oldFunc
     if (needUpdateCode) {
       this.state.codeHash = codeHash
+
       // upload to cos
       const cosBucketName = funcObject.Properties.CodeUri.Bucket
       const cosBucketKey = funcObject.Properties.CodeUri.Key
       this.context.debug(`Uploading service package to cos[${cosBucketName}]. ${cosBucketKey}`)
-      await func.uploadPackage2Cos(cosBucketName, cosBucketKey, zipOutput)
+
+      // display upload bar
+      const { context } = this
+      if (!context.instance.multiBar) {
+        context.instance.multiBar = new cliProgress.MultiBar({
+          forceRedraw: true,
+          hideCursor: true,
+          linewrap: false,
+          clearOnComplete: false,
+          format: `  {filename} [{bar}] {percentage}% | ETA: {eta}s | Speed: {speed}k/s`,
+          speed: 'N/A'
+        })
+        context.instance.multiBar.count = 0
+      }
+      const uploadBar = context.instance.multiBar.create(100, 0, {
+        filename: funcObject.FuncName
+      })
+      context.instance.multiBar.count += 1
+      const onProgress = ({ percent, speed }) => {
+        const percentage = Math.round(percent * 100)
+
+        if (percent === 1) {
+          uploadBar.update(100, {
+            speed: (speed / 1024).toFixed(2)
+          })
+          setTimeout(() => {
+            context.instance.multiBar.remove(uploadBar)
+          }, 300)
+          context.instance.multiBar.count -= 1
+          if (context.instance.multiBar.count === 0) {
+            setTimeout(() => {
+              context.instance.multiBar.stop()
+              // eslint-disable-next-line
+            }, 300)
+          }
+        } else {
+          uploadBar.update(percentage, {
+            speed: (speed / 1024).toFixed(2)
+          })
+        }
+      }
+      await func.uploadPackage2Cos(cosBucketName, cosBucketKey, zipOutput, onProgress)
+
       this.context.debug(`Uploaded package successful ${zipOutput}`)
 
       // create function
@@ -189,8 +233,6 @@ class TencentCloudFunction extends Component {
       action: 'remove'
     })
     const { tencent } = this.context.credentials
-
-    this.context.status(`Removing`)
 
     if (_.isEmpty(this.state.deployed)) {
       this.context.debug(`Aborting removal. Function name not found in state.`)
