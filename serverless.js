@@ -74,17 +74,41 @@ class TencentCloudFunction extends Component {
     await utils.packDir(inputs.codeUri, zipOutput, inputs.include, inputs.exclude)
     this.context.debug(`Compressed function ${funcObject.FuncName} file successful`)
 
-    // upload to cos
-    const cosBucketName = funcObject.Properties.CodeUri.Bucket
-    const cosBucketKey = funcObject.Properties.CodeUri.Key
-    this.context.debug(`Uploading service package to cos[${cosBucketName}]. ${cosBucketKey}`)
-    await func.uploadPackage2Cos(cosBucketName, cosBucketKey, zipOutput)
-    this.context.debug(`Uploaded package successful ${zipOutput}`)
+    const output = {
+      Name: funcObject.FuncName,
+      Runtime: funcObject.Properties.Runtime,
+      Handler: funcObject.Properties.Handler,
+      MemorySize: funcObject.Properties.MemorySize,
+      Timeout: funcObject.Properties.Timeout,
+      Region: provider.region,
+      Description: funcObject.Properties.Description
+    }
 
-    // create function
-    this.context.debug(`Creating function ${funcObject.FuncName}`)
-    const oldFunc = await func.deploy(provider.namespace, funcObject)
-    this.context.debug(`Created function ${funcObject.FuncName} successful`)
+    // check code hash, if not change, just updata function configure
+    const codeHash = utils.getFileHash(zipOutput)
+    const oldHash = this.state.codeHash
+    const needUpdateCode = oldHash !== codeHash
+    let oldFunc
+    if (needUpdateCode) {
+      this.state.codeHash = codeHash
+      // upload to cos
+      const cosBucketName = funcObject.Properties.CodeUri.Bucket
+      const cosBucketKey = funcObject.Properties.CodeUri.Key
+      this.context.debug(`Uploading service package to cos[${cosBucketName}]. ${cosBucketKey}`)
+      await func.uploadPackage2Cos(cosBucketName, cosBucketKey, zipOutput)
+      this.context.debug(`Uploaded package successful ${zipOutput}`)
+
+      // create function
+      this.context.debug(`Creating function ${funcObject.FuncName}`)
+      oldFunc = await func.deploy(provider.namespace, funcObject, needUpdateCode)
+      this.context.debug(`Created function ${funcObject.FuncName} successful`)
+    } else {
+      this.context.debug('Function code no change.')
+      // create function
+      this.context.debug(`Updating function ${funcObject.FuncName}`)
+      oldFunc = await func.deploy(provider.namespace, funcObject, needUpdateCode)
+      this.context.debug(`Update function ${funcObject.FuncName} successful`)
+    }
 
     // set tags
     this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
@@ -141,22 +165,13 @@ class TencentCloudFunction extends Component {
       )
     }
 
-    this.context.debug(`Deployed function ${funcObject.FuncName} successful`)
-
-    const output = {
-      Name: funcObject.FuncName,
-      Runtime: funcObject.Properties.Runtime,
-      Handler: funcObject.Properties.Handler,
-      MemorySize: funcObject.Properties.MemorySize,
-      Timeout: funcObject.Properties.Timeout,
-      Region: provider.region,
-      Description: funcObject.Properties.Description
-    }
-    if (funcObject.Properties.Role) {
-      output.Role = funcObject.Properties.Role
-    }
     if (apiTriggerList.length > 0) {
       output.APIGateway = apiTriggerList
+    }
+    this.context.debug(`Deployed function ${funcObject.FuncName} successful`)
+
+    if (funcObject.Properties.Role) {
+      output.Role = funcObject.Properties.Role
     }
     this.state.deployed = output
     await this.save()

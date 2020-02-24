@@ -1,5 +1,6 @@
 const util = require('util')
 const fs = require('fs')
+const crypto = require('crypto')
 const ignore = require('ignore')
 const _ = require('lodash')
 const Zip = require('./zip')
@@ -152,5 +153,14 @@ module.exports = {
       archive.on('error', (err) => reject(err))
       output.on('close', () => resolve(outputFilePath))
     })
+  },
+  getHash(content, encoding, type) {
+    return crypto
+      .createHash(type)
+      .update(content, encoding)
+      .digest('hex')
+  },
+  getFileHash(filePath) {
+    return this.getHash(fs.readFileSync(filePath, 'utf8'), 'utf8', 'md5')
   }
 }
