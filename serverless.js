@@ -103,7 +103,7 @@ class TencentCloudFunction extends Component {
       oldFunc = await func.deploy(provider.namespace, funcObject, needUpdateCode)
       this.context.debug(`Created function ${funcObject.FuncName} successful`)
     } else {
-      this.context.debug('Function code no change.')
+      this.context.debug(`Function ${funcObject.FuncName} code no change.`)
       // create function
       this.context.debug(`Updating function ${funcObject.FuncName}`)
       oldFunc = await func.deploy(provider.namespace, funcObject, needUpdateCode)
