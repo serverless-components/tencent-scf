@@ -292,7 +292,7 @@ class DeployFunction extends Abstract {
       }
     }
 
-    if (fs.statSync(filePath).size <= 1 * 1024 * 1024) {
+    if (fs.statSync(filePath).size <= 10 * 1024 * 1024) {
       const objArgs = {
         Bucket: cosBucketNameFull,
         Region: region,
