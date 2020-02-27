@@ -100,15 +100,19 @@ class TencentCloudFunction extends Component {
 
       // display upload bar
       const { context } = this
+
       if (!context.instance.multiBar) {
-        context.instance.multiBar = new cliProgress.MultiBar({
-          forceRedraw: true,
-          hideCursor: true,
-          linewrap: false,
-          clearOnComplete: false,
-          format: `  {filename} [{bar}] {percentage}% | ETA: {eta}s | Speed: {speed}k/s`,
-          speed: 'N/A'
-        })
+        context.instance.multiBar = new cliProgress.MultiBar(
+          {
+            forceRedraw: true,
+            hideCursor: true,
+            linewrap: true,
+            clearOnComplete: false,
+            format: `  {filename} [{bar}] {percentage}% | ETA: {eta}s | Speed: {speed}k/s`,
+            speed: 'N/A'
+          },
+          cliProgress.Presets.shades_grey
+        )
         context.instance.multiBar.count = 0
       }
       const uploadBar = context.instance.multiBar.create(100, 0, {
@@ -124,14 +128,11 @@ class TencentCloudFunction extends Component {
           })
           setTimeout(() => {
             context.instance.multiBar.remove(uploadBar)
-          }, 300)
-          context.instance.multiBar.count -= 1
-          if (context.instance.multiBar.count === 0) {
-            setTimeout(() => {
+            context.instance.multiBar.count -= 1
+            if (context.instance.multiBar.count <= 0) {
               context.instance.multiBar.stop()
-              // eslint-disable-next-line
-            }, 300)
-          }
+            }
+          }, 300)
         } else {
           uploadBar.update(percentage, {
             speed: (speed / 1024).toFixed(2)
