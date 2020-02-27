@@ -8,7 +8,13 @@
   },
   "scripts": {
     "test": "tape **/*.test.js",
-    "lint": "eslint . --fix --cache"
+    "lint": "eslint . --fix --cache",
+    "release": "standard-version"
+  },
+  "standard-version": {
+    "skip": {
+      "tag": false
+    }
   },
   "author": "Tencent Cloud",
   "license": "Apache",
@@ -34,6 +40,7 @@
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-prettier": "^3.0.1",
     "prettier": "^1.18.2",
+    "standard-version": "^7.1.0",
     "tape": "^4.11.0"
   }
 }
