@@ -81,6 +81,7 @@ class TencentCloudFunction extends Component {
       MemorySize: funcObject.Properties.MemorySize,
       Timeout: funcObject.Properties.Timeout,
       Region: provider.region,
+      Namespace: provider.namespace,
       Description: funcObject.Properties.Description
     }
 
@@ -226,7 +227,7 @@ class TencentCloudFunction extends Component {
       }
     }
 
-    await handler.remove(funcObject.Name)
+    await handler.remove(funcObject.Name, funcObject.Namespace)
     this.context.debug(`Removed function ${funcObject.Name} successful`)
 
     this.state = {}
