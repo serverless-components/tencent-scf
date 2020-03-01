@@ -258,7 +258,7 @@ class DeployFunction extends Abstract {
     }
   }
 
-  async uploadPackage2Cos(bucketName, key, filePath) {
+  async uploadPackage2Cos(bucketName, key, filePath, onProgress) {
     let handler
     const { region } = this.options
     const cosBucketNameFull = util.format('%s-%s', bucketName, this.appid)
@@ -292,13 +292,14 @@ class DeployFunction extends Abstract {
       }
     }
 
-    if (fs.statSync(filePath).size <= 20 * 1024 * 1024) {
+    if (fs.statSync(filePath).size <= 10 * 1024 * 1024) {
       const objArgs = {
         Bucket: cosBucketNameFull,
         Region: region,
         Key: key,
         Body: fs.createReadStream(filePath),
-        ContentLength: fs.statSync(filePath).size
+        ContentLength: fs.statSync(filePath).size,
+        onProgress
       }
       handler = util.promisify(this.cosClient.putObject.bind(this.cosClient))
       try {
@@ -311,7 +312,8 @@ class DeployFunction extends Abstract {
         Bucket: cosBucketNameFull,
         Region: region,
         Key: key,
-        FilePath: filePath
+        FilePath: filePath,
+        onProgress
       }
       handler = util.promisify(this.cosClient.sliceUploadFile.bind(this.cosClient))
       try {
