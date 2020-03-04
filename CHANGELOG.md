@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.2](https://github.com/serverless-components/tencent-scf/compare/v2.1.1...v2.1.2) (2020-03-04)
+
+
+### Bug Fixes
+
+* function name change need update code cos ([c546ba7](https://github.com/serverless-components/tencent-scf/commit/c546ba7178acc384df7c0ab79997abd7cb6e826f))
+
 ### [2.1.1](https://github.com/serverless-components/tencent-scf/compare/v2.1.0...v2.1.1) (2020-02-27)
 
 
