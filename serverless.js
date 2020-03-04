@@ -90,8 +90,11 @@ class TencentCloudFunction extends Component {
     const codeHash = utils.getFileHash(zipOutput)
     const oldHash = this.state.codeHash
     const needUpdateCode = oldHash !== codeHash
+    // check function name change
+    const oldFunctionName = this.state.deployed && this.state.deployed.Name
+    const nameChange = oldFunctionName !== funcObject.FuncName
     let oldFunc
-    if (needUpdateCode) {
+    if (needUpdateCode || nameChange) {
       this.state.codeHash = codeHash
 
       // upload to cos
