@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.4](https://github.com/serverless-components/tencent-scf/compare/v2.1.3...v2.1.4) (2020-03-09)
+
+
+### Bug Fixes
+
+* namespace change or region change code not upload bug ([2b43614](https://github.com/serverless-components/tencent-scf/commit/2b436141be031a1133202dbd25c0cd7292792db2))
+* remove unuse npm folder ([5d9c147](https://github.com/serverless-components/tencent-scf/commit/5d9c147b97c17edc1fa7edc60597ee8729cf5826))
+
 ### [2.1.3](https://github.com/serverless-components/tencent-scf/compare/v2.1.1...v2.1.3) (2020-03-04)
 
 
