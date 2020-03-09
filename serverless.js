@@ -34,6 +34,8 @@ class TencentCloudFunction extends Component {
   }
 
   async default(inputs = {}) {
+
+    // login && auth
     const auth = new tencentAuth()
     this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, {
       client: 'tencent-scf',
@@ -43,9 +45,10 @@ class TencentCloudFunction extends Component {
     })
     const { tencent } = this.context.credentials
 
+
+    // set deafult provider attr and option attr
     const provider = new Provider(inputs)
     const services = provider.getServiceResource()
-
     const option = {
       region: provider.region,
       timestamp: this.context.credentials.tencent.timestamp || null,
@@ -203,15 +206,15 @@ class TencentCloudFunction extends Component {
           )
           thisTrigger.Properties.fromClientRemark = inputs.fromClientRemark || 'tencent-scf'
           const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
-          apiTriggerList.push(
-            thisTrigger.Properties.serviceName +
-              ' - ' +
-              this.getDefaultProtocol(apigwOutput['protocols']) +
-              '://' +
-              apigwOutput['subDomain'] +
-              '/' +
-              apigwOutput['environment']
-          )
+          for (let j = 0; j < apigwOutput.apis.length; j++) {
+            apiTriggerList.push(
+              `${thisTrigger.Properties.serviceName} - ${
+                apigwOutput.apis[j].method
+              } - ${this.getDefaultProtocol(apigwOutput['protocols'])}://${
+                apigwOutput['subDomain']
+              }/${apigwOutput['environment']}${apigwOutput.apis[j].path}`
+            )
+          }
         } else {
           events.push(funcObject.Properties.Events[i])
         }
