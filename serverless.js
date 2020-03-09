@@ -17,6 +17,22 @@ class TencentCloudFunction extends Component {
     return 'http'
   }
 
+  functionStateChange({ newState, oldState }) {
+    // 1. code change
+    // 2. function name change
+    // 3. namaspace change
+    // 4. region change
+    if (
+      newState.codeHash !== oldState.codeHash ||
+      newState.deployed.Name !== oldState.deployed.Name ||
+      newState.deployed.Namespace !== oldState.deployed.Namespace ||
+      newState.deployed.Region !== oldState.deployed.Region
+    ) {
+      return true
+    }
+    return false
+  }
+
   async default(inputs = {}) {
     const auth = new tencentAuth()
     this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, {
@@ -88,15 +104,18 @@ class TencentCloudFunction extends Component {
 
     // check code hash, if not change, just updata function configure
     const codeHash = utils.getFileHash(zipOutput)
-    const oldHash = this.state.codeHash
-    const needUpdateCode = oldHash !== codeHash
+    const newState = {
+      deployed: output,
+      codeHash
+    }
     // check function name change
-    const oldFunctionName = this.state.deployed && this.state.deployed.Name
-    const nameChange = oldFunctionName !== funcObject.FuncName
-    let oldFunc
-    if (needUpdateCode || nameChange) {
-      this.state.codeHash = codeHash
+    const needUpdateCode = this.functionStateChange({
+      newState,
+      oldState: this.state
+    })
 
+    let oldFunc
+    if (needUpdateCode) {
       // upload to cos
       const cosBucketName = funcObject.Properties.CodeUri.Bucket
       const cosBucketKey = funcObject.Properties.CodeUri.Key
@@ -222,7 +241,8 @@ class TencentCloudFunction extends Component {
     if (funcObject.Properties.Role) {
       output.Role = funcObject.Properties.Role
     }
-    this.state.deployed = output
+    newState.deployed = output
+    this.state = newState
     await this.save()
 
     return output
