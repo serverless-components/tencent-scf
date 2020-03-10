@@ -34,6 +34,7 @@ class TencentCloudFunction extends Component {
   }
 
   async default(inputs = {}) {
+    // login && auth
     const auth = new tencentAuth()
     this.context.credentials.tencent = await auth.doAuth(this.context.credentials.tencent, {
       client: 'tencent-scf',
@@ -43,9 +44,25 @@ class TencentCloudFunction extends Component {
     })
     const { tencent } = this.context.credentials
 
+    // 增加default exclude， 一方面可以降低压缩包大小，另一方面可以保证codehash的生效
+    if (!inputs.exclude) {
+      inputs.exclude = []
+    }
+
+    if (!inputs.include) {
+      inputs.exclude = []
+    }
+
+    const defaultExclude = ['.serverless', '.temp_env', '.git/**', '.gitignore']
+    for (let i = 0; i < defaultExclude.length; i++) {
+      if (inputs.exclude.indexOf(defaultExclude[i]) == -1) {
+        inputs.exclude.push(defaultExclude[i])
+      }
+    }
+
+    // set deafult provider attr and option attr
     const provider = new Provider(inputs)
     const services = provider.getServiceResource()
-
     const option = {
       region: provider.region,
       timestamp: this.context.credentials.tencent.timestamp || null,
@@ -108,17 +125,28 @@ class TencentCloudFunction extends Component {
       deployed: output,
       codeHash
     }
+
     // check function name change
-    const needUpdateCode = this.functionStateChange({
+    let needUpdateCode = this.functionStateChange({
       newState,
       oldState: this.state
     })
+
+    // 判断是否需要上传代码
+    if (!needUpdateCode && this.state.Bucket && this.state.Key) {
+      if (!(await func.getObject(this.state.Bucket + '-' + tencent.AppId, this.state.Key))) {
+        needUpdateCode = true
+      }
+    } else {
+      needUpdateCode = true
+    }
 
     let oldFunc
     if (needUpdateCode) {
       // upload to cos
       const cosBucketName = funcObject.Properties.CodeUri.Bucket
       const cosBucketKey = funcObject.Properties.CodeUri.Key
+
       this.context.debug(`Uploading service package to cos[${cosBucketName}]. ${cosBucketKey}`)
 
       // display upload bar
@@ -168,15 +196,22 @@ class TencentCloudFunction extends Component {
 
       // create function
       this.context.debug(`Creating function ${funcObject.FuncName}`)
-      oldFunc = await func.deploy(provider.namespace, funcObject, needUpdateCode)
+      oldFunc = await func.deploy(provider.namespace, funcObject)
       this.context.debug(`Created function ${funcObject.FuncName} successful`)
     } else {
+      // 将object特征存储到state中
+      funcObject.Properties.CodeUri.Bucket = this.state.Bucket
+      funcObject.Properties.CodeUri.Key = this.state.Key
       this.context.debug(`Function ${funcObject.FuncName} code no change.`)
       // create function
       this.context.debug(`Updating function ${funcObject.FuncName}`)
-      oldFunc = await func.deploy(provider.namespace, funcObject, needUpdateCode)
+      oldFunc = await func.deploy(provider.namespace, funcObject)
       this.context.debug(`Update function ${funcObject.FuncName} successful`)
     }
+
+    // 将bucket/key回传到state
+    newState.Bucket = funcObject.Properties.CodeUri.Bucket
+    newState.Key = funcObject.Properties.CodeUri.Key
 
     // set tags
     this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
@@ -203,15 +238,15 @@ class TencentCloudFunction extends Component {
           )
           thisTrigger.Properties.fromClientRemark = inputs.fromClientRemark || 'tencent-scf'
           const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
-          apiTriggerList.push(
-            thisTrigger.Properties.serviceName +
-              ' - ' +
-              this.getDefaultProtocol(apigwOutput['protocols']) +
-              '://' +
-              apigwOutput['subDomain'] +
-              '/' +
-              apigwOutput['environment']
-          )
+          for (let j = 0; j < apigwOutput.apis.length; j++) {
+            apiTriggerList.push(
+              `${thisTrigger.Properties.serviceName} - ${
+                apigwOutput.apis[j].method
+              } - ${this.getDefaultProtocol(apigwOutput['protocols'])}://${
+                apigwOutput['subDomain']
+              }/${apigwOutput['environment']}${apigwOutput.apis[j].path}`
+            )
+          }
         } else {
           events.push(funcObject.Properties.Events[i])
         }

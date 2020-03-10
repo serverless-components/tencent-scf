@@ -8,7 +8,7 @@ const models = tencentcloud.scf.v20180416.Models
 const camModels = tencentcloud.cam.v20190116.Models
 
 class DeployFunction extends Abstract {
-  async deploy(ns, funcObject, updateCode = true) {
+  async deploy(ns, funcObject) {
     const func = await this.getFunction(ns, funcObject.FuncName)
     if (!func) {
       await this.createFunction(ns, funcObject)
@@ -16,14 +16,12 @@ class DeployFunction extends Abstract {
       if (func.Runtime != funcObject.Properties.Runtime) {
         throw `Runtime error: Release runtime(${func.Runtime}) and local runtime(${funcObject.Properties.Runtime}) are inconsistent`
       }
-      if (updateCode) {
-        this.context.debug('Updating code... ')
-        await this.updateFunctionCode(ns, funcObject)
-        if ((await this.checkStatus(ns, funcObject)) == false) {
-          throw `Function ${funcObject.FuncName} update failed`
-        }
-        this.context.debug('Updating configure... ')
+      this.context.debug('Updating code... ')
+      await this.updateFunctionCode(ns, funcObject)
+      if ((await this.checkStatus(ns, funcObject)) == false) {
+        throw `Function ${funcObject.FuncName} update failed`
       }
+      this.context.debug('Updating configure... ')
       await this.updateConfiguration(ns, func, funcObject)
       return func
     }
@@ -255,6 +253,22 @@ class DeployFunction extends Abstract {
         this.context.debug('ErrorCode: ' + e.code + ' RequestId: ' + e.requestId)
         throw e
       }
+    }
+  }
+
+  async getObject(bucketName, key) {
+    const { region } = this.options
+    const headObjectArgs = {
+      Bucket: bucketName,
+      Key: key,
+      Region: region
+    }
+    const handler = util.promisify(this.cosClient.headObject.bind(this.cosClient))
+    try {
+      await handler(headObjectArgs)
+      return true
+    } catch (e) {
+      return false
     }
   }
 
