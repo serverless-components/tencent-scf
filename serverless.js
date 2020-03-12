@@ -239,13 +239,13 @@ class TencentCloudFunction extends Component {
           thisTrigger.Properties.fromClientRemark = inputs.fromClientRemark || 'tencent-scf'
           const apigwOutput = await tencentApiGateway(thisTrigger.Properties)
           for (let j = 0; j < apigwOutput.apis.length; j++) {
-            apiTriggerList.push(
-              `${thisTrigger.Properties.serviceName} - ${
-                apigwOutput.apis[j].method
-              } - ${this.getDefaultProtocol(apigwOutput['protocols'])}://${
+            apiTriggerList.push({
+              serviceName: thisTrigger.Properties.serviceName,
+              method: apigwOutput.apis[j].method,
+              url: `${this.getDefaultProtocol(apigwOutput['protocols'])}://${
                 apigwOutput['subDomain']
               }/${apigwOutput['environment']}${apigwOutput.apis[j].path}`
-            )
+            })
           }
         } else {
           events.push(funcObject.Properties.Events[i])
