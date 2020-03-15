@@ -272,38 +272,74 @@ class DeployFunction extends Abstract {
     }
   }
 
-  async uploadPackage2Cos(bucketName, key, filePath, onProgress) {
+  async uploadPackage2Cos(bucketName, key, filePath, onProgress, codeUriType = 0) {
     let handler
     const { region } = this.options
     const cosBucketNameFull = util.format('%s-%s', bucketName, this.appid)
 
-    // get region all bucket list
-    let buckets
-    handler = util.promisify(this.cosClient.getService.bind(this.cosClient))
-    try {
-      buckets = await handler({ Region: region })
-    } catch (e) {
-      throw e
-    }
-
-    const findBucket = _.find(buckets.Buckets, (item) => {
-      if (item.Name == cosBucketNameFull) {
-        return item
-      }
-    })
-
-    // create a new bucket
-    if (_.isEmpty(findBucket)) {
-      const putArgs = {
-        Bucket: cosBucketNameFull,
-        Region: region
-      }
-      handler = util.promisify(this.cosClient.putBucket.bind(this.cosClient))
+    if (codeUriType == 0) {
+      // get region all bucket list
+      let buckets
+      handler = util.promisify(this.cosClient.getService.bind(this.cosClient))
       try {
-        await handler(putArgs)
+        buckets = await handler({ Region: region })
       } catch (e) {
         throw e
       }
+
+      const findBucket = _.find(buckets.Buckets, (item) => {
+        if (item.Name == cosBucketNameFull) {
+          return item
+        }
+      })
+
+      // create a new bucket
+      if (_.isEmpty(findBucket)) {
+        const putArgs = {
+          Bucket: cosBucketNameFull,
+          Region: region
+        }
+        handler = util.promisify(this.cosClient.putBucket.bind(this.cosClient))
+        try {
+          await handler(putArgs)
+        } catch (e) {
+          throw e
+        }
+      }
+
+      // 设置Bucket生命周期
+      try {
+        let tempLifeCycle
+        handler = util.promisify(this.cosClient.getBucketLifecycle.bind(this.cosClient))
+        const lifeCycleSetting = await handler({
+          Bucket: cosBucketNameFull,
+          Region: region
+        })
+        for (let i = 0; i < lifeCycleSetting.Rules.length; i++) {
+          if (lifeCycleSetting.Rules[i].ID == 'deleteObject') {
+            tempLifeCycle = true
+            break
+          }
+        }
+        if (!tempLifeCycle) {
+          const putArgs = {
+            Bucket: cosBucketNameFull,
+            Region: region,
+            Rules: [
+              {
+                Status: 'Enabled',
+                ID: 'deleteObject',
+                Filter: '',
+                Expiration: { Days: '10' },
+                AbortIncompleteMultipartUpload: { DaysAfterInitiation: '10' }
+              }
+            ],
+            stsAction: 'cos:PutBucketLifeCycle'
+          }
+          handler = util.promisify(this.cosClient.putBucketLifecycle.bind(this.cosClient))
+          await handler(putArgs)
+        }
+      } catch (e) {}
     }
 
     if (fs.statSync(filePath).size <= 10 * 1024 * 1024) {

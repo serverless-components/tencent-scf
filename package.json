@@ -1,7 +1,7 @@
 {
   "name": "@serverless/tencent-scf",
   "description": "Tencent Serverless Cloud Function",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "main": "./serverless.js",
   "publishConfig": {
     "access": "public"
@@ -30,7 +30,8 @@
     "lodash": "^4.17.15",
     "qrcode-terminal": "^0.12.0",
     "ramda": "^0.26.1",
-    "serverless-tencent-auth-tool": "^1.0.14",
+    "serverless-tencent-auth-tool": "^2.0.1",
+    "serverless-tencent-tools": "^1.0.1",
     "tencentcloud-sdk-nodejs": "^3.0.89"
   },
   "devDependencies": {

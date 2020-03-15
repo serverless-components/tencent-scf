@@ -41,8 +41,11 @@ class Provider {
       Type: 'TencentCloud::Serverless::Function',
       Properties: {
         CodeUri: {
-          Bucket: this.getCosBucketNme(),
-          Key: this.getFuntionBucketKey(this.namespace, functionName)
+          type: funcObject.codeUri.key ? 1 : funcObject.codeUri.bucket ? 2 : 0,
+          Bucket: funcObject.codeUri.bucket ? funcObject.codeUri.bucket : this.getCosBucketNme(),
+          Key: funcObject.codeUri.key
+            ? funcObject.codeUri.key
+            : this.getFuntionBucketKey(this.namespace, functionName)
         },
         Type: 'Event',
         Description: funcObject.description || 'This is a template function',
@@ -52,9 +55,7 @@ class Provider {
         Timeout: funcObject.timeout || 3,
         Region: funcObject.region || 'ap-guangzhou',
         Runtime: funcObject.runtime || 'Nodejs8.9',
-        Tags: {
-          CLI: 'Serverless'
-        }
+        Tags: funcObject.tags
       }
     }
 
