@@ -102,12 +102,8 @@ class TencentCloudFunction extends Component {
       }
     }
 
-    // packDir
-    const zipOutput = util.format('%s/%s.zip', this.context.instance.stateRoot, inputs.name)
-    this.context.debug(`Compressing function ${funcObject.FuncName} file to ${zipOutput}.`)
-    await utils.packDir(inputs.codeUri, zipOutput, inputs.include, inputs.exclude)
-    this.context.debug(`Compressed function ${funcObject.FuncName} file successful`)
-
+    let oldFunc
+    let newState = {}
     const output = {
       Name: funcObject.FuncName,
       Runtime: funcObject.Properties.Runtime,
@@ -119,99 +115,116 @@ class TencentCloudFunction extends Component {
       Description: funcObject.Properties.Description
     }
 
-    // check code hash, if not change, just updata function configure
-    const codeHash = utils.getFileHash(zipOutput)
-    const newState = {
-      deployed: output,
-      codeHash
-    }
+    if (funcObject.Properties.CodeUri.type == 0 || funcObject.Properties.CodeUri.type == 2) {
+      // packDir
+      const zipOutput = util.format('%s/%s.zip', this.context.instance.stateRoot, inputs.name)
+      this.context.debug(`Compressing function ${funcObject.FuncName} file to ${zipOutput}.`)
+      await utils.packDir(
+        inputs.codeUri.path || inputs.codeUri,
+        zipOutput,
+        inputs.include,
+        inputs.exclude
+      )
+      this.context.debug(`Compressed function ${funcObject.FuncName} file successful`)
 
-    // check function name change
-    let needUpdateCode = this.functionStateChange({
-      newState,
-      oldState: this.state
-    })
+      // check code hash, if not change, just updata function configure
+      const codeHash = utils.getFileHash(zipOutput)
+      newState = {
+        deployed: output,
+        codeHash,
+        Bucket: funcObject.Properties.CodeUri.Bucket,
+        Key: funcObject.Properties.CodeUri.Key
+      }
 
-    // 判断是否需要上传代码
-    if (!needUpdateCode && this.state.Bucket && this.state.Key) {
-      if (!(await func.getObject(this.state.Bucket + '-' + tencent.AppId, this.state.Key))) {
+      // check function name change
+      let needUpdateCode = this.functionStateChange({
+        newState,
+        oldState: this.state
+      })
+
+      // 判断是否需要上传代码
+      if (!needUpdateCode && this.state.Bucket && this.state.Key) {
+        if (!(await func.getObject(this.state.Bucket + '-' + tencent.AppId, this.state.Key))) {
+          needUpdateCode = true
+        }
+      } else {
         needUpdateCode = true
       }
-    } else {
-      needUpdateCode = true
-    }
 
-    let oldFunc
-    if (needUpdateCode) {
-      // upload to cos
-      const cosBucketName = funcObject.Properties.CodeUri.Bucket
-      const cosBucketKey = funcObject.Properties.CodeUri.Key
+      if (needUpdateCode) {
+        // upload to cos
+        const cosBucketName = funcObject.Properties.CodeUri.Bucket
+        const cosBucketKey = funcObject.Properties.CodeUri.Key
 
-      this.context.debug(`Uploading service package to cos[${cosBucketName}]. ${cosBucketKey}`)
+        this.context.debug(`Uploading service package to cos[${cosBucketName}]. ${cosBucketKey}`)
 
-      // display upload bar
-      const { context } = this
+        // display upload bar
+        const { context } = this
 
-      if (!context.instance.multiBar) {
-        context.instance.multiBar = new cliProgress.MultiBar(
-          {
-            forceRedraw: true,
-            hideCursor: true,
-            linewrap: true,
-            clearOnComplete: false,
-            format: `  {filename} [{bar}] {percentage}% | ETA: {eta}s | Speed: {speed}k/s`,
-            speed: 'N/A'
-          },
-          cliProgress.Presets.shades_grey
-        )
-        context.instance.multiBar.count = 0
-      }
-      const uploadBar = context.instance.multiBar.create(100, 0, {
-        filename: funcObject.FuncName
-      })
-      context.instance.multiBar.count += 1
-      const onProgress = ({ percent, speed }) => {
-        const percentage = Math.round(percent * 100)
-
-        if (percent === 1) {
-          uploadBar.update(100, {
-            speed: (speed / 1024).toFixed(2)
-          })
-          setTimeout(() => {
-            context.instance.multiBar.remove(uploadBar)
-            context.instance.multiBar.count -= 1
-            if (context.instance.multiBar.count <= 0) {
-              context.instance.multiBar.stop()
-            }
-          }, 300)
-        } else {
-          uploadBar.update(percentage, {
-            speed: (speed / 1024).toFixed(2)
-          })
+        if (!context.instance.multiBar) {
+          context.instance.multiBar = new cliProgress.MultiBar(
+            {
+              forceRedraw: true,
+              hideCursor: true,
+              linewrap: true,
+              clearOnComplete: false,
+              format: `  {filename} [{bar}] {percentage}% | ETA: {eta}s | Speed: {speed}k/s`,
+              speed: 'N/A'
+            },
+            cliProgress.Presets.shades_grey
+          )
+          context.instance.multiBar.count = 0
         }
-      }
-      await func.uploadPackage2Cos(cosBucketName, cosBucketKey, zipOutput, onProgress)
+        const uploadBar = context.instance.multiBar.create(100, 0, {
+          filename: funcObject.FuncName
+        })
+        context.instance.multiBar.count += 1
+        const onProgress = ({ percent, speed }) => {
+          const percentage = Math.round(percent * 100)
 
-      this.context.debug(`Uploaded package successful ${zipOutput}`)
+          if (percent === 1) {
+            uploadBar.update(100, {
+              speed: (speed / 1024).toFixed(2)
+            })
+            setTimeout(() => {
+              context.instance.multiBar.remove(uploadBar)
+              context.instance.multiBar.count -= 1
+              if (context.instance.multiBar.count <= 0) {
+                context.instance.multiBar.stop()
+              }
+            }, 300)
+          } else {
+            uploadBar.update(percentage, {
+              speed: (speed / 1024).toFixed(2)
+            })
+          }
+        }
+        await func.uploadPackage2Cos(
+          cosBucketName,
+          cosBucketKey,
+          zipOutput,
+          onProgress,
+          funcObject.Properties.CodeUri.type
+        )
+        this.context.debug(`Uploaded package successful ${zipOutput}`)
+      } else {
+        // 将object特征存储到state中
+        funcObject.Properties.CodeUri.Bucket = this.state.Bucket
+        funcObject.Properties.CodeUri.Key = this.state.Key
+        this.context.debug(`Function ${funcObject.FuncName} code no change.`)
+        // create function
+        // this.context.debug(`Updating function ${funcObject.FuncName}`)
+        // oldFunc = await func.deploy(provider.namespace, funcObject)
+        // this.context.debug(`Update function ${funcObject.FuncName} successful`)
+      }
+
+      funcObject.Properties.CodeUri.type = undefined
 
       // create function
       this.context.debug(`Creating function ${funcObject.FuncName}`)
       oldFunc = await func.deploy(provider.namespace, funcObject)
       this.context.debug(`Created function ${funcObject.FuncName} successful`)
-    } else {
-      // 将object特征存储到state中
-      funcObject.Properties.CodeUri.Bucket = this.state.Bucket
-      funcObject.Properties.CodeUri.Key = this.state.Key
-      this.context.debug(`Function ${funcObject.FuncName} code no change.`)
-      // create function
-      this.context.debug(`Updating function ${funcObject.FuncName}`)
-      oldFunc = await func.deploy(provider.namespace, funcObject)
-      this.context.debug(`Update function ${funcObject.FuncName} successful`)
     }
-
-    // 将bucket/key回传到state
-    newState.Bucket = funcObject.Properties.CodeUri.Bucket
-    newState.Key = funcObject.Properties.CodeUri.Key
 
     // set tags
     this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
@@ -276,6 +289,7 @@ class TencentCloudFunction extends Component {
     if (funcObject.Properties.Role) {
       output.Role = funcObject.Properties.Role
     }
+
     newState.deployed = output
     this.state = newState
     await this.save()
