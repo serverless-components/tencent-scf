@@ -383,11 +383,13 @@ class DeployFunction extends Abstract {
     if (_.isEmpty(tags)) {
       return
     }
+
     const func = await this.getFunction(ns, funcName)
     if (!func) {
       throw new Error(`Function ${funcName} dont't exists`)
     }
     const resource = util.format('qcs::scf:%s::lam/%s', this.options.region, func.FunctionId)
+
     const req = {
       Resource: resource,
       ReplaceTags: [],
@@ -428,6 +430,8 @@ class DeployFunction extends Abstract {
         TagValue: tags[key]
       })
     }
+
+
     handler = util.promisify(this.tagClient.ModifyResourceTags.bind(this.tagClient))
     try {
       await handler(req)
