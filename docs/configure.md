@@ -9,10 +9,16 @@ myFunction:
   inputs:
     name: myFunction1
     enableRoleAuth: true
-    codeUri: # 默认情况下会新建特定命名的 cos bucket 并上传，默认配置为 codeUri: ./code
+    # 默认写法，新建特定命名的 cos bucket 并上传
+    codeUri: ./code
+    # 指定 bucket name 和文件的方式
+    codeUri:
       bucket: abc   # bucket name
-      key: cde # 可选，bucket key, 指定存储桶内的文件
-      path: # 可选，指定本地路径
+      key: cde      # bucket key 指定存储桶内的文件
+    # 指定本地文件到 bucket
+    codeUri:
+      bucket: abc   # bucket name
+      path:         # 可选，指定本地路径
     handler: index.main_handler
     runtime: Nodejs8.9
     region: ap-guangzhou
