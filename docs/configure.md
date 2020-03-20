@@ -13,7 +13,7 @@ myFunction:
     codeUri: ./code
     # 指定 bucket name 和文件的方式，直接上传 cos 中的文件部署云函数
     codeUri:
-      bucket: tinatest   # bucket name，当前会默认在bucket name后增加后缀 bucketname-appid
+      bucket: tinatest   # bucket name，当前会默认在bucket name后增加 appid 后缀, e.g. bucketname-appid
       key: 'code.zip'      # bucket key 指定存储桶内的文件
     # 指定本地文件到 bucket
     codeUri:
