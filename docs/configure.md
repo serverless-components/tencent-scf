@@ -17,7 +17,7 @@ myFunction:
       key: 'code.zip'      # bucket key 指定存储桶内的文件
     # 指定本地文件到 bucket
     codeUri:
-      bucket: abc   # bucket name
+      bucket: tinatest   # bucket name
       path:         # 可选，指定本地路径
     handler: index.main_handler
     runtime: Nodejs8.9
