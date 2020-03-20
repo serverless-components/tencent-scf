@@ -48,11 +48,9 @@ class TencentCloudFunction extends Component {
     if (!inputs.exclude) {
       inputs.exclude = []
     }
-
     if (!inputs.include) {
       inputs.exclude = []
     }
-
     const defaultExclude = ['.serverless', '.temp_env', '.git/**', '.gitignore']
     for (let i = 0; i < defaultExclude.length; i++) {
       if (inputs.exclude.indexOf(defaultExclude[i]) == -1) {
@@ -221,9 +219,8 @@ class TencentCloudFunction extends Component {
       funcObject.Properties.CodeUri.type = undefined
     }
     // create function
-    this.context.debug(`Creating function ${funcObject.FuncName}`)
+    this.context.debug(`Deploying function ${funcObject.FuncName}`)
     oldFunc = await func.deploy(provider.namespace, funcObject)
-    this.context.debug(`Created function ${funcObject.FuncName} successful`)
 
     // set tags
     this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
@@ -232,13 +229,13 @@ class TencentCloudFunction extends Component {
     // deploy trigger
     // apigw: apigw component
     // cos/ckkafka/cmq/timer: cloud api/sdk
-    if ((await func.checkStatus(provider.namespace, funcObject)) == false) {
-      throw `Function ${funcObject.FuncName} update failed`
-    }
-    this.context.debug(`Creating trigger for function ${funcObject.FuncName}`)
     const apiTriggerList = new Array()
     const events = new Array()
     if (funcObject.Properties && funcObject.Properties.Events) {
+      if ((await func.checkStatus(provider.namespace, funcObject)) == false) {
+        throw `Function ${funcObject.FuncName} update failed`
+      }
+      this.context.debug(`Creating trigger for function ${funcObject.FuncName}`)
       for (let i = 0; i < funcObject.Properties.Events.length; i++) {
         const keys = Object.keys(funcObject.Properties.Events[i])
         const thisTrigger = funcObject.Properties.Events[i][keys[0]]
@@ -292,7 +289,6 @@ class TencentCloudFunction extends Component {
     newState.deployed = output
     this.state = newState
     await this.save()
-
     return output
   }
 

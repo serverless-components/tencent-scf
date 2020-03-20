@@ -34,7 +34,7 @@ class DeployFunction extends Abstract {
     while ((status == 'Updating' || status == 'Creating') && times > 0) {
       const tempFunc = await this.getFunction(ns, funcObject.FuncName)
       status = tempFunc.Status
-      await utils.sleep(1000)
+      await utils.sleep(60)
       times = times - 1
     }
     return status != 'Active' ? false : true
@@ -43,33 +43,8 @@ class DeployFunction extends Abstract {
   async addRole() {
     try {
       const roleName = 'SCF_QcsRole'
-      const policyName = 'QcloudAccessForScfRole'
-      const listPoliciesModels = new camModels.ListPoliciesRequest()
-      const listPoliciesHandler = util.promisify(this.camClient.ListPolicies.bind(this.camClient))
-      let havePolicy = false
-      let policyId
-      let pagePolicyCount = 200
-      const body = { Rp: 200, Page: 0 }
-      while (!havePolicy && pagePolicyCount == 200) {
-        body.Page = body.Page + 1
-        listPoliciesModels.from_json_string(JSON.stringify(body))
-        try {
-          const pagePolicList = await listPoliciesHandler(listPoliciesModels)
-          for (let i = 0; i < pagePolicList.List.length; i++) {
-            if (policyName == pagePolicList.List[i].PolicyName) {
-              havePolicy = true
-              policyId = pagePolicList.List[i].PolicyId
-              break
-            }
-          }
-          pagePolicyCount = pagePolicList.List.length
-        } catch (e) {
-          pagePolicyCount = 0
-        }
-        await utils.sleep(400)
-      }
-
-      // Create role and attach policy
+      const policyId = 28341895
+      // Create role
       try {
         const createRoleModels = new camModels.CreateRoleRequest()
         createRoleModels.from_json_string(
@@ -91,26 +66,20 @@ class DeployFunction extends Abstract {
         )
         const createRoleHandler = util.promisify(this.camClient.CreateRole.bind(this.camClient))
         await createRoleHandler(createRoleModels)
-      } catch (e) {
-        if (e && e.message.match('role name in use')) {
-        } else {
-          this.context.debug('Create role error : ' + e)
-        }
-      }
+      } catch (e) {}
+      //  Attach policy
       try {
         const attachRolePolicyModels = new camModels.AttachRolePolicyRequest()
+        attachRolePolicyModels.from_json_string(
+          JSON.stringify({
+            AttachRoleName: roleName,
+            PolicyId: policyId
+          })
+        )
         const attachRolePolicyHandler = util.promisify(
           this.camClient.AttachRolePolicy.bind(this.camClient)
         )
-        const attachRolePolicyBody = {
-          AttachRoleName: roleName
-        }
-        try {
-          attachRolePolicyBody.PolicyId = policyId
-          attachRolePolicyModels.from_json_string(JSON.stringify(attachRolePolicyBody))
-          await attachRolePolicyHandler(attachRolePolicyModels)
-        } catch (e) {}
-        await utils.sleep(400)
+        await attachRolePolicyHandler(attachRolePolicyModels)
       } catch (e) {}
     } catch (e) {}
   }
@@ -430,7 +399,6 @@ class DeployFunction extends Abstract {
         TagValue: tags[key]
       })
     }
-
 
     handler = util.promisify(this.tagClient.ModifyResourceTags.bind(this.tagClient))
     try {
