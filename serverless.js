@@ -219,12 +219,11 @@ class TencentCloudFunction extends Component {
       }
 
       funcObject.Properties.CodeUri.type = undefined
-
-      // create function
-      this.context.debug(`Creating function ${funcObject.FuncName}`)
-      oldFunc = await func.deploy(provider.namespace, funcObject)
-      this.context.debug(`Created function ${funcObject.FuncName} successful`)
     }
+    // create function
+    this.context.debug(`Creating function ${funcObject.FuncName}`)
+    oldFunc = await func.deploy(provider.namespace, funcObject)
+    this.context.debug(`Created function ${funcObject.FuncName} successful`)
 
     // set tags
     this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
