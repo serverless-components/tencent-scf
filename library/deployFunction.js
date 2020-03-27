@@ -8,8 +8,7 @@ const models = tencentcloud.scf.v20180416.Models
 const camModels = tencentcloud.cam.v20190116.Models
 
 class DeployFunction extends Abstract {
-  async deploy(ns, funcObject) {
-    const func = await this.getFunction(ns, funcObject.FuncName)
+  async deploy(ns, funcObject, func) {
     if (!func) {
       await this.createFunction(ns, funcObject)
     } else {
@@ -22,7 +21,7 @@ class DeployFunction extends Abstract {
         throw `Function ${funcObject.FuncName} update failed`
       }
       this.context.debug('Updating configure... ')
-      await this.updateConfiguration(ns, func, funcObject)
+      this.updateConfiguration(ns, func, funcObject)
       return func
     }
     return null
@@ -30,11 +29,11 @@ class DeployFunction extends Abstract {
 
   async checkStatus(ns, funcObject) {
     let status = 'Updating'
-    let times = 90
+    let times = 200
     while ((status == 'Updating' || status == 'Creating') && times > 0) {
       const tempFunc = await this.getFunction(ns, funcObject.FuncName)
       status = tempFunc.Status
-      await utils.sleep(60)
+      await utils.sleep(51)
       times = times - 1
     }
     return status != 'Active' ? false : true
@@ -347,17 +346,13 @@ class DeployFunction extends Abstract {
     }
   }
 
-  async createTags(ns, funcName, tags) {
+  async createTags(ns, functionId, tags) {
     let handler
     if (_.isEmpty(tags)) {
       return
     }
 
-    const func = await this.getFunction(ns, funcName)
-    if (!func) {
-      throw new Error(`Function ${funcName} dont't exists`)
-    }
-    const resource = util.format('qcs::scf:%s::lam/%s', this.options.region, func.FunctionId)
+    const resource = util.format('qcs::scf:%s::lam/%s', this.options.region, functionId)
 
     const req = {
       Resource: resource,
@@ -366,7 +361,7 @@ class DeployFunction extends Abstract {
     }
     const findRequest = {
       ResourceRegion: this.options.region,
-      ResourceIds: [func.FunctionId],
+      ResourceIds: [functionId],
       ResourcePrefix: 'lam',
       ServiceType: 'scf',
       Limit: 1000

@@ -209,22 +209,27 @@ class TencentCloudFunction extends Component {
         // 将object特征存储到state中
         funcObject.Properties.CodeUri.Bucket = this.state.Bucket
         funcObject.Properties.CodeUri.Key = this.state.Key
+        newState.Bucket = this.state.Bucket
+        newState.Key = this.state.Key
         this.context.debug(`Function ${funcObject.FuncName} code no change.`)
-        // create function
-        // this.context.debug(`Updating function ${funcObject.FuncName}`)
-        // oldFunc = await func.deploy(provider.namespace, funcObject)
-        // this.context.debug(`Update function ${funcObject.FuncName} successful`)
       }
 
       funcObject.Properties.CodeUri.type = undefined
     }
     // create function
     this.context.debug(`Deploying function ${funcObject.FuncName}`)
-    oldFunc = await func.deploy(provider.namespace, funcObject)
+    const getFunctionResult = await func.getFunction(provider.namespace, funcObject.FuncName)
+    oldFunc = await func.deploy(provider.namespace, funcObject, getFunctionResult)
 
     // set tags
-    this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
-    await func.createTags(provider.namespace, funcObject.FuncName, funcObject.Properties.Tags)
+    if (funcObject.Properties.Tags) {
+      this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
+      await func.createTags(
+        provider.namespace,
+        getFunctionResult.FunctionId,
+        funcObject.Properties.Tags
+      )
+    }
 
     // deploy trigger
     // apigw: apigw component
