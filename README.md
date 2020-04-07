@@ -1,3 +1,6 @@
+[![Serverless Components](https://img.serverlesscloud.cn/202047/1586246008932-Tencent%20SCF_%E9%95%BF.png)](http://serverless.com)
+
+<br/>
 
 **腾讯云 SCF 云函数组件** ⎯⎯⎯ 通过使用 [Tencent Serverless Framework](https://github.com/serverless/components/tree/cloud)，基于云上 Serverless 服务（云函数及触发器等），实现“0”配置，便捷开发，极速部署你的第一个云函数，该组件支持丰富的配置扩展，提供了目前最易用、低成本并且弹性伸缩的云函数的开发、配置及部署能力。
 <br/>
