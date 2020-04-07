@@ -1,5 +1,5 @@
 {
-  "name": "@serverless/tencent-scf",
+  "name": "@serverless/scf",
   "version": "0.0.1",
   "main": "./serverless.js",
   "publishConfig": {
