@@ -143,8 +143,6 @@ class Express extends Component {
   }
 
   async remove(inputs = {}) {
-    console.log(this.state)
-    console.log(this.state.function)
     console.log(`Removing Tencent Serverless Cloud Funtion Tencent (SCF) ...`)
     const scf = new Scf(this.credentials.tencent, this.state.function.Region)
     await scf.remove(this.state.function)
