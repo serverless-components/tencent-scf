@@ -95,6 +95,7 @@ class DeployFunction extends Abstract {
     const req = new models.UpdateFunctionCodeRequest()
     req.from_json_string(JSON.stringify(updateArgs))
     const handler = util.promisify(this.scfClient.UpdateFunctionCode.bind(this.scfClient))
+    console.log(await handler(req))
     try {
       return await handler(req)
     } catch (e) {
@@ -146,6 +147,7 @@ class DeployFunction extends Abstract {
     const req = new models.CreateFunctionRequest()
     req.from_json_string(JSON.stringify(createFuncRequest))
     const handler = util.promisify(this.scfClient.CreateFunction.bind(this.scfClient))
+    console.log(await handler(req))
     try {
       return await handler(req)
     } catch (e) {
