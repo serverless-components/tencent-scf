@@ -1,6 +1,6 @@
 {
   "name": "@serverless/tencent-scf",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "./serverless.js",
   "publishConfig": {
     "access": "public"
@@ -11,13 +11,9 @@
   },
   "author": "anycodes",
   "license": "Apache",
-  "dependencies": {},
-  "devDependencies": {
-    "babel-eslint": "9.0.0",
-    "eslint": "5.6.0",
-    "eslint-config-prettier": "^3.6.0",
-    "eslint-plugin-import": "^2.18.0",
-    "eslint-plugin-prettier": "^3.0.1",
-    "prettier": "^1.18.2"
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "tencent-component-toolkit": "^1.0.4",
+    "type": "^2.0.0"
   }
 }

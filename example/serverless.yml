@@ -1,0 +1,25 @@
+component: tencent-scf@dev
+name: scfdemo
+org: test
+app: scfApp
+stage: dev
+
+inputs:
+  name: scfFunctionName
+  src: ./src
+  runtime: Python3.6
+  region: ap-shanghai
+  handler: index.main_handler
+  events:
+    - apigw:
+        name: serverless_api
+        parameters:
+          protocols:
+            - http
+            - https
+          serviceName:
+          description: The service of Serverless Framework
+          environment: release
+          endpoints:
+            - path: /index
+              method: GET

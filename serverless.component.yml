@@ -1,0 +1,14 @@
+name: tencent-scf
+version: 0.0.0-dev
+author: anycodes
+org: anycodes
+description: Deploys Tencent SCF.
+keywords: tencent, serverless, SCF
+repo: https://github.com/serverless-components/tencent-scf/tree/v2
+readme: https://github.com/serverless-components/tencent-scf/tree/v2
+license: MIT
+main: ./src
+
+
+# service-9nq76qdn-1256773370.sh.apigw.tencentcs.com/release
+# service-7x8z689z-1256773370.sh.apigw.tencentcs.com/release/index
