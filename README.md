@@ -1,15 +1,12 @@
-[![Serverless Components](https://img.serverlesscloud.cn/2020210/1581352135771-express.png)](http://serverless.com)
 
-<br/>
-
-**腾讯云 SCF 云函数组件** ⎯⎯⎯ 通过使用 [Tencent Serverless Framework](https://github.com/serverless/components/tree/cloud)，基于云上 Serverless 服务（云函数及触发器等），实现“0”配置，便捷开发，极速部署你的第一个云函数，Express 组件支持丰富的配置扩展，提供了目前最易用、低成本并且弹性伸缩的 Experss 项目开发/托管能力。
+**腾讯云 SCF 云函数组件** ⎯⎯⎯ 通过使用 [Tencent Serverless Framework](https://github.com/serverless/components/tree/cloud)，基于云上 Serverless 服务（云函数及触发器等），实现“0”配置，便捷开发，极速部署你的第一个云函数，该组件支持丰富的配置扩展，提供了目前最易用、低成本并且弹性伸缩的云函数的开发、配置及部署能力。
 <br/>
 
 特性介绍：
 
 - [x] **按需付费** - 按照请求的使用量进行收费，没有请求时无需付费
 - [x] **"0"配置** - 只需要关心项目代码，之后部署即可，Serverless Framework 会搞定所有配置。
-- [x] **极速部署** - 仅需几秒，部署你的整个 express 应用。
+- [x] **极速部署** - 仅需几秒，部署你的整个云函数应用。
 - [x] **实时日志** - 通过实时日志的输出查看业务状态，便于直接在云端开发应用。
 - [x] **云端调试** - 针对 Node.js 框架支持一键云端调试能力，屏蔽本地环境的差异。
 - [x] **便捷协作** - 通过云端的状态信息和部署日志，方便的进行多人协作开发。
@@ -42,7 +39,7 @@ $ npm install -g serverless
 $ mkdir tencent-scf && cd tencent-scf
 ```
 
-通过如下命令和模板链接，快速创建一个 express 应用：
+通过如下命令和模板链接，快速创建一个 SCF 应用：
 ```
 $ serverless create --template-url https://github.com/serverless-components/tencent-scf/tree/v2/example
 $ cd example
