@@ -136,6 +136,9 @@ class Express extends Component {
       }
     }
 
+    this.state.region = region
+    this.state.lambdaArn = scfOutput.FunctionName
+
     await this.save()
 
     return output
