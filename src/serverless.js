@@ -1,19 +1,7 @@
 const {Component} = require('@serverless/core')
-const ensureObject = require('type/object/ensure')
-const ensureIterable = require('type/iterable/ensure')
-const ensureString = require('type/string/ensure')
-const Cam = require('tencent-cloud-sdk').cam
 const {Scf, Cos} = require('tencent-component-toolkit')
 
 class Express extends Component {
-  async getUserInfo(credentials) {
-    const cam = new Cam(credentials)
-    return await cam.request({
-      Action: 'GetUserAppId',
-      Version: '2019-01-16'
-    })
-  }
-
   getDefaultProtocol(protocols) {
     if (String(protocols).includes('https')) {
       return 'https'
@@ -29,7 +17,6 @@ class Express extends Component {
 
     // 默认值
     const region = inputs.region || "ap-guangzhou"
-    const userInfo = await this.getUserInfo(credentials)
 
     const code = {}
 
@@ -41,7 +28,7 @@ class Express extends Component {
     // 创建存储桶 + 设置生命周期
     if (!inputs.src.bucket) {
       await cos.deploy({
-        bucket: code.bucket + '-' + userInfo.Response.AppId,
+        bucket: code.bucket + '-' + credentials.tmpSecrets.appId,
         force: true,
         lifecycle: [
           {
@@ -58,7 +45,7 @@ class Express extends Component {
     // 上传代码
     if (!inputs.src.object) {
       await cos.upload({
-        bucket: code.bucket + '-' + userInfo.Response.AppId,
+        bucket: code.bucket + '-' + credentials.tmpSecrets.appId,
         file: inputs.src.path || inputs.src,
         key: code.object
       })
