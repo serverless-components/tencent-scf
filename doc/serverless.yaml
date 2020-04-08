@@ -1,4 +1,4 @@
-component: tencent-scf
+component: scf
 name: scfdemo
 org: test
 app: scfApp
