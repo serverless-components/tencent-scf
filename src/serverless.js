@@ -1,9 +1,9 @@
-const {Component} = require('@serverless/core')
+const { Component } = require('@serverless/core')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
 const stringRandom = require('string-random')
-const {Scf, Cos} = require('tencent-component-toolkit')
+const { Scf, Cos } = require('tencent-component-toolkit')
 
 const templateDownloadUrl =
   'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/scf-demo.zip'
@@ -20,13 +20,13 @@ class Express extends Component {
     const scfUrl = templateDownloadUrl
     const loacalPath = '/tmp/' + stringRandom(10)
     fs.mkdirSync(loacalPath)
-    return new Promise(function (resolve, reject) {
-      request(scfUrl, function (error, response) {
+    return new Promise(function(resolve, reject) {
+      request(scfUrl, function(error, response) {
         if (!error && response.statusCode == 200) {
           const stream = fs.createWriteStream(path.join(loacalPath, 'demo.zip'))
           request(scfUrl)
             .pipe(stream)
-            .on('close', function () {
+            .on('close', function() {
               resolve(path.join(loacalPath, 'demo.zip'))
             })
         } else {
@@ -52,14 +52,16 @@ class Express extends Component {
     const appid = this.credentials.tencent.tmpSecrets.appId
 
     // 默认值
-    const region = inputs.region || "ap-guangzhou"
+    const region = inputs.region || 'ap-guangzhou'
 
     const code = {}
 
-    const tempSrc = inputs.srcOriginal || inputs.src || {"no_src": true}
+    const tempSrc = inputs.srcOriginal || inputs.src || { no_src: true }
 
     code.bucket = tempSrc.bucket ? tempSrc.bucket : `sls-cloudfunction-${region}-code`
-    code.object = tempSrc.object ? tempSrc.object : `/${inputs.name}-${Math.floor(Date.now() / 1000)}.zip`
+    code.object = tempSrc.object
+      ? tempSrc.object
+      : `/${inputs.name}-${Math.floor(Date.now() / 1000)}.zip`
 
     // 创建cos对象
     const cos = new Cos(credentials, region)
@@ -73,8 +75,8 @@ class Express extends Component {
             status: 'Enabled',
             id: 'deleteObject',
             filter: '',
-            expiration: {days: '10'},
-            abortIncompleteMultipartUpload: {daysAfterInitiation: '10'}
+            expiration: { days: '10' },
+            abortIncompleteMultipartUpload: { daysAfterInitiation: '10' }
           }
         ]
       })
@@ -84,9 +86,9 @@ class Express extends Component {
 
     // 上传代码
     let templateUrlOutput
-    if(!tempSrc.object){
+    if (!tempSrc.object) {
       // 需要上传
-      if(tempSrc.no_src || typeof inputs.src != 'string'){
+      if (tempSrc.no_src || typeof inputs.src != 'string') {
         // 使用默认模板
         templateUrlOutput = templateDownloadUrl
         inputs.srcOriginal = inputs.src
@@ -117,8 +119,15 @@ class Express extends Component {
             throw new Error("APIGateway's name must be unique")
           } else {
             inputs.events[i][eventType].parameters.serviceName = inputs.events[i][eventType].name
-            if (this.state && this.state.apigw && this.state.apigw.includes(inputs.events[i][eventType].name) && !inputs.events[i][eventType].parameters.serviceId) {
-              inputs.events[i][eventType].parameters.serviceId = this.state.apigwjson[inputs.events[i][eventType].name]
+            if (
+              this.state &&
+              this.state.apigw &&
+              this.state.apigw.includes(inputs.events[i][eventType].name) &&
+              !inputs.events[i][eventType].parameters.serviceId
+            ) {
+              inputs.events[i][eventType].parameters.serviceId = this.state.apigwjson[
+                inputs.events[i][eventType].name
+              ]
             }
             apigwName.push(inputs.events[i][eventType].name)
           }
@@ -126,13 +135,11 @@ class Express extends Component {
       }
     }
 
-
     const scf = new Scf(credentials, region)
 
     const scfOutput = await scf.deploy(inputs)
 
     this.state.function = scfOutput
-
 
     const output = {
       FunctionName: scfOutput.FunctionName,
@@ -141,7 +148,7 @@ class Express extends Component {
       Namespace: scfOutput.Namespace,
       Runtime: scfOutput.Runtime,
       Handler: scfOutput.Handler,
-      MemorySize: scfOutput.MemorySize,
+      MemorySize: scfOutput.MemorySize
     }
 
     // 处理APIGW和其他的event的输出
@@ -170,7 +177,11 @@ class Express extends Component {
           this.state.apigw.push(scfOutput.Triggers[i].serviceName)
           this.state.apigwjson[scfOutput.Triggers[i].serviceName] = scfOutput.Triggers[i].serviceId
           for (let j = 0; j < scfOutput.Triggers[i].apiList.length; j++) {
-            output.Triggers['apigw'].push(`${this.getDefaultProtocol(scfOutput.Triggers[i].protocols)}://${scfOutput.Triggers[i].subDomain}/${scfOutput.Triggers[i].environment}${scfOutput.Triggers[i].apiList[j].path}`)
+            output.Triggers['apigw'].push(
+              `${this.getDefaultProtocol(scfOutput.Triggers[i].protocols)}://${
+                scfOutput.Triggers[i].subDomain
+              }/${scfOutput.Triggers[i].environment}${scfOutput.Triggers[i].apiList[j].path}`
+            )
           }
         }
       }
@@ -181,16 +192,14 @@ class Express extends Component {
 
     await this.save()
 
-    if(templateUrlOutput){
+    if (templateUrlOutput) {
       output.templateUrl = templateUrlOutput
     }
 
     return output
-
   }
 
   async remove(inputs = {}) {
-
     // 获取腾讯云密钥信息
     if (!this.credentials.tencent.tmpSecrets) {
       throw new Error('Please add SLS_QcsRole in your tencent account.')
