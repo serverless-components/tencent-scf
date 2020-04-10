@@ -44,6 +44,10 @@ class Express extends Component {
     console.log(`Deploying Tencent Serverless Cloud Funtion Tencent (SCF) ...`)
 
     // 获取腾讯云密钥信息
+    if( !this.credentials.tencent.tmpSecrets ){
+      throw new Error("Couldn't get your SecretId/Key, Please add SLS_QcsRole For Serverless Framework or Update Serverless Framework CLI(At least 1.67.3)")
+    }
+
     const credentials = {
       SecretId: this.credentials.tencent.tmpSecrets.TmpSecretId,
       SecretKey: this.credentials.tencent.tmpSecrets.TmpSecretKey,
@@ -81,8 +85,6 @@ class Express extends Component {
         ]
       })
     }
-
-    console.log(inputs)
 
     // 上传代码
     let templateUrlOutput
@@ -201,8 +203,8 @@ class Express extends Component {
 
   async remove(inputs = {}) {
     // 获取腾讯云密钥信息
-    if (!this.credentials.tencent.tmpSecrets) {
-      throw new Error('Please add SLS_QcsRole in your tencent account.')
+    if( !this.credentials.tencent.tmpSecrets ){
+      throw new Error("Couldn't get your SecretId/Key, Please add SLS_QcsRole For Serverless Framework or Update Serverless Framework CLI(At least 1.67.3)")
     }
     const credentials = {
       SecretId: this.credentials.tencent.tmpSecrets.TmpSecretId,
@@ -211,7 +213,9 @@ class Express extends Component {
     }
 
     console.log(`Removing Tencent Serverless Cloud Funtion Tencent (SCF) ...`)
-    const scf = new Scf(credentials, this.state.function.Region)
+    console.log(this.state.function)
+    console.log(this.state.function.Region)
+    const scf = new Scf(credentials, this.state.region)
     await scf.remove(this.state.function)
     this.state = {}
     console.log(`Removed Tencent Serverless Cloud Funtion Tencent (SCF)`)
