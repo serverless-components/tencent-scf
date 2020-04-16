@@ -44,8 +44,10 @@ class Express extends Component {
     console.log(`Deploying Tencent Serverless Cloud Funtion Tencent (SCF) ...`)
 
     // 获取腾讯云密钥信息
-    if( !this.credentials.tencent.tmpSecrets ){
-      throw new Error("Couldn't get your SecretId/Key, Please add SLS_QcsRole For Serverless Framework or Update Serverless Framework CLI(At least 1.67.3)")
+    if (!this.credentials.tencent.tmpSecrets) {
+      throw new Error(
+        "Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account."
+      )
     }
 
     const credentials = {
@@ -203,8 +205,10 @@ class Express extends Component {
 
   async remove(inputs = {}) {
     // 获取腾讯云密钥信息
-    if( !this.credentials.tencent.tmpSecrets ){
-      throw new Error("Couldn't get your SecretId/Key, Please add SLS_QcsRole For Serverless Framework or Update Serverless Framework CLI(At least 1.67.3)")
+    if (!this.credentials.tencent.tmpSecrets) {
+      throw new Error(
+        "Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account."
+      )
     }
     const credentials = {
       SecretId: this.credentials.tencent.tmpSecrets.TmpSecretId,
