@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.5](https://github.com/serverless-components/tencent-scf/compare/v3.0.1...v3.0.5) (2020-04-21)
+
+
+### Bug Fixes
+
+* inputs.exclude bug ([f590fc0](https://github.com/serverless-components/tencent-scf/commit/f590fc0e98050d3970c7b4156efe5f10e793a018))
+
 ### [3.0.1](https://github.com/serverless-components/tencent-scf/compare/v3.0.0...v3.0.1) (2020-03-12)
 
 
