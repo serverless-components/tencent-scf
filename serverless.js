@@ -49,7 +49,7 @@ class TencentCloudFunction extends Component {
       inputs.exclude = []
     }
     if (!inputs.include) {
-      inputs.exclude = []
+      inputs.include = []
     }
     const defaultExclude = ['.serverless', '.temp_env', '.git/**', '.gitignore']
     for (let i = 0; i < defaultExclude.length; i++) {
