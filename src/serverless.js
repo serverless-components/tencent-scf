@@ -41,12 +41,12 @@ class Express extends Component {
   }
 
   async deploy(inputs) {
-    console.log(`Deploying Tencent Serverless Cloud Funtion Tencent (SCF) ...`)
+    console.log(`Deploying Tencent Serverless Cloud Funtion (SCF) ...`)
 
     // 获取腾讯云密钥信息
     if (!this.credentials.tencent.tmpSecrets) {
       throw new Error(
-        "Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account."
+        'Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account.'
       )
     }
 
@@ -200,6 +200,8 @@ class Express extends Component {
       output.templateUrl = templateUrlOutput
     }
 
+    console.log(`Deployed Tencent Serverless Cloud Funtion (SCF) ...`)
+
     return output
   }
 
@@ -207,7 +209,7 @@ class Express extends Component {
     // 获取腾讯云密钥信息
     if (!this.credentials.tencent.tmpSecrets) {
       throw new Error(
-        "Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account."
+        'Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account.'
       )
     }
     const credentials = {
@@ -216,13 +218,13 @@ class Express extends Component {
       Token: this.credentials.tencent.tmpSecrets.Token
     }
 
-    console.log(`Removing Tencent Serverless Cloud Funtion Tencent (SCF) ...`)
+    console.log(`Removing Tencent Serverless Cloud Funtion (SCF) ...`)
     console.log(this.state.function)
     console.log(this.state.function.Region)
     const scf = new Scf(credentials, this.state.region)
     await scf.remove(this.state.function)
     this.state = {}
-    console.log(`Removed Tencent Serverless Cloud Funtion Tencent (SCF)`)
+    console.log(`Removed Tencent Serverless Cloud Funtion (SCF)`)
   }
 }
 
