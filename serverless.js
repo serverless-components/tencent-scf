@@ -271,11 +271,7 @@ class TencentCloudFunction extends Component {
     // set tags
     if (funcObject.Properties.Tags) {
       this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
-      await func.createTags(
-        provider.namespace,
-        getFunctionResult.FunctionId,
-        funcObject.Properties.Tags
-      )
+      await func.createTags(provider.namespace, oldFunc.FunctionId, funcObject.Properties.Tags)
     }
 
     // deploy trigger
