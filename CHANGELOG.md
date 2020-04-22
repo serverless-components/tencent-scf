@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.7](https://github.com/serverless-components/tencent-scf/compare/v3.0.6...v3.0.7) (2020-04-22)
+
+
+### Bug Fixes
+
+* set tags FunctionId not found bug ([bfb1e72](https://github.com/serverless-components/tencent-scf/commit/bfb1e721f5eddd4085de1118dd3ec49dc38237bc))
+
 ### [3.0.6](https://github.com/serverless-components/tencent-scf/compare/v3.0.5...v3.0.6) (2020-04-22)
 
 
