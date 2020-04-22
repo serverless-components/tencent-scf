@@ -40,6 +40,7 @@ class Provider {
     const functionResource = {
       Type: 'TencentCloud::Serverless::Function',
       Properties: {
+        Layers: funcObject.layers,
         CodeUri: {
           type: funcObject.codeUri.key ? 1 : funcObject.codeUri.bucket ? 2 : 0,
           Bucket: funcObject.codeUri.bucket ? funcObject.codeUri.bucket : this.getCosBucketNme(),

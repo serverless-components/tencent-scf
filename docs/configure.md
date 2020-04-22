@@ -25,6 +25,15 @@ myFunction:
     description: My Serverless Function
     memorySize: 128
     timeout: 20
+    layers:
+      - name: layerTest
+        version: 6
+        # src: ./node_modules
+        # runtimes:
+        #   - Nodejs8.9
+        #   - Nodejs10.15
+        # exclude:
+        #   - .bin
     exclude:
       - .gitignore
       - .git/**
@@ -147,6 +156,7 @@ Main param description
 | include                                       |     Optional      |              | include file, if relative path, should relative to `serverless.yml`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | [environment](#environment-param-description) |     Optional      |              | Function configure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | [vpcConfig](#vpcConfig-param-description)     |     Optional      |              | API-Gateway configure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| layers                                        |     Optional      |              | Bind layers for scf, it's a n array of [Layer object](#Layer)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ### environment param description
 
@@ -162,3 +172,14 @@ Main param description
 | vpcId    | ID of the subnet |
 
 - About trigger, you cloud [click here](./events)
+
+### Layer
+
+Must setup one of `version` and `src`.
+
+| Param        | Required/Optional | Type    | Default | Description                                                   |
+| ------------ | ----------------- | ------- | ------- | ------------------------------------------------------------- |
+| name         | Required          | String  |         | Layer name                                                    |
+| version      | Optional          | String  |         | Layer version                                                 |
+| src          | Optional          | String  |         | Layer code folder                                             |
+| forcePublish | Optional          | Boolean | false   | Whether layer change or exist, force to publish a new version |
