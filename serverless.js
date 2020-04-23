@@ -269,7 +269,7 @@ class TencentCloudFunction extends Component {
     const oldFunc = await func.deploy(provider.namespace, funcObject, getFunctionResult)
 
     // set tags
-    if (funcObject.Properties.Tags) {
+    if (funcObject.Properties.Tags && Object.keys(funcObject.Properties.Tags).length > 0) {
       this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
       await func.createTags(provider.namespace, oldFunc.FunctionId, funcObject.Properties.Tags)
     }
