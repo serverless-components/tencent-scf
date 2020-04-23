@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.8](https://github.com/serverless-components/tencent-scf/compare/v3.0.7...v3.0.8) (2020-04-23)
+
+
+### Bug Fixes
+
+* tags unset bug ([f684789](https://github.com/serverless-components/tencent-scf/commit/f68478957037866031be65b26d7b2254b8162d4e))
+
+### [3.0.7](https://github.com/serverless-components/tencent-scf/compare/v3.0.6...v3.0.7) (2020-04-22)
+
+
+### Bug Fixes
+
+* set tags FunctionId not found bug ([bfb1e72](https://github.com/serverless-components/tencent-scf/commit/bfb1e721f5eddd4085de1118dd3ec49dc38237bc))
+
+### [3.0.6](https://github.com/serverless-components/tencent-scf/compare/v3.0.5...v3.0.6) (2020-04-22)
+
+
+### Features
+
+* add bind layer feature ([4d53786](https://github.com/serverless-components/tencent-scf/commit/4d53786924c65cda2d959e53e4df34b3d1917b4b))
+
+### [3.0.5](https://github.com/serverless-components/tencent-scf/compare/v3.0.1...v3.0.5) (2020-04-21)
+
+
+### Bug Fixes
+
+* inputs.exclude bug ([f590fc0](https://github.com/serverless-components/tencent-scf/commit/f590fc0e98050d3970c7b4156efe5f10e793a018))
+
 ### [3.0.1](https://github.com/serverless-components/tencent-scf/compare/v3.0.0...v3.0.1) (2020-03-12)
 
 

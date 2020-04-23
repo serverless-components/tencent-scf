@@ -1,7 +1,7 @@
 {
   "name": "@serverless/tencent-scf",
   "description": "Tencent Serverless Cloud Function",
-  "version": "3.0.5",
+  "version": "3.0.8",
   "main": "./serverless.js",
   "publishConfig": {
     "access": "public"
@@ -21,6 +21,7 @@
   "dependencies": {
     "@serverless/core": "^1.1.1",
     "@serverless/tencent-apigateway": "^2.1.2",
+    "@serverless/tencent-layer": "^0.1.2",
     "archiver": "^3.1.1",
     "cli-progress": "^3.6.0",
     "cos-nodejs-sdk-v5": "^2.5.12",

@@ -119,7 +119,8 @@ class DeployFunction extends Abstract {
       Role: funcObject.Properties.Role,
       MemorySize: funcObject.Properties.MemorySize,
       Timeout: funcObject.Properties.Timeout,
-      Description: funcObject.Properties.Description
+      Description: funcObject.Properties.Description,
+      Layers: funcObject.Properties.Layers
     }
 
     if (!_.isEmpty(funcObject.Properties.Environment)) {
@@ -185,7 +186,8 @@ class DeployFunction extends Abstract {
       Role: funcObject.Properties.Role,
       MemorySize: funcObject.Properties.MemorySize,
       Timeout: funcObject.Properties.Timeout,
-      Description: funcObject.Properties.Description
+      Description: funcObject.Properties.Description,
+      Layers: funcObject.Properties.Layers
     }
 
     if (!_.isEmpty(funcObject.Properties.Environment)) {

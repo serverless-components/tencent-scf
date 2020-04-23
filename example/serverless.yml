@@ -1,0 +1,24 @@
+scf:
+  component: "@serverless/tencent-scf"
+  inputs:
+    name: scfDemo
+    codeUri: ./
+    handler: sls.handler
+    runtime: Nodejs10.15
+    region: ap-guangzhou
+    memorySize: 128
+    timeout: 20
+    exclude:
+      - .env
+    events:
+      - apigw:
+          name: scfServerless
+          parameters:
+            protocols:
+              - https
+            serviceName: serverless
+            description: the serverless service
+            environment: release
+            endpoints:
+              - path: /
+                method: GET

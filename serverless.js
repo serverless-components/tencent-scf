@@ -33,6 +33,40 @@ class TencentCloudFunction extends Component {
     return false
   }
 
+  async deployLayers({ region, fromClientRemark, layers }) {
+    const res = []
+    for (let i = 0; i < layers.length; i++) {
+      const layerInputs = layers[i]
+      const op = {
+        created: false,
+        LayerName: layerInputs.name,
+        LayerVersion: layerInputs.version
+      }
+      if (!layerInputs.version) {
+        layerInputs.region = layerInputs.region || region
+        layerInputs.fromClientRemark = fromClientRemark
+        const layer = await this.load('@serverless/tencent-layer', layerInputs.name)
+        const { version } = await layer(layerInputs)
+        op.LayerVersion = version
+        op.created = true
+      }
+      res.push(op)
+    }
+    return res
+  }
+
+  async removeLayers({ fromClientRemark, layers }) {
+    for (let i = 0; i < layers.length; i++) {
+      const layerInputs = layers[i]
+      if (layerInputs.created) {
+        const layer = await this.load('@serverless/tencent-layer', layerInputs.LayerName)
+        await layer.remove({
+          fromClientRemark
+        })
+      }
+    }
+  }
+
   async default(inputs = {}) {
     // login && auth
     const auth = new tencentAuth()
@@ -49,7 +83,7 @@ class TencentCloudFunction extends Component {
       inputs.exclude = []
     }
     if (!inputs.include) {
-      inputs.exclude = []
+      inputs.include = []
     }
     const defaultExclude = ['.serverless', '.temp_env', '.git/**', '.gitignore']
     for (let i = 0; i < defaultExclude.length; i++) {
@@ -88,6 +122,7 @@ class TencentCloudFunction extends Component {
 
     // clean old function
     const funcObject = _.cloneDeep(services.Resources.default[inputs.name])
+
     funcObject.FuncName = inputs.name
     if (this.state && this.state.deployed && this.state.deployed.Name) {
       if (this.state.deployed.Name != funcObject.FuncName) {
@@ -100,7 +135,6 @@ class TencentCloudFunction extends Component {
       }
     }
 
-    let oldFunc
     let newState = {}
     const output = {
       Name: funcObject.FuncName,
@@ -218,17 +252,26 @@ class TencentCloudFunction extends Component {
     }
     // create function
     this.context.debug(`Deploying function ${funcObject.FuncName}`)
+    // deploy layers
+    funcObject.Properties.Layers = await this.deployLayers({
+      region: provider.region,
+      fromClientRemark: inputs.fromClientRemark || 'tencent-scf',
+      layers: funcObject.Properties.Layers || []
+    })
+    // layer deployed wait 1 second for prepare
+    await utils.sleep(1000)
+
+    if (funcObject.Properties.Layers) {
+      output.layers = funcObject.Properties.Layers
+    }
+
     const getFunctionResult = await func.getFunction(provider.namespace, funcObject.FuncName)
-    oldFunc = await func.deploy(provider.namespace, funcObject, getFunctionResult)
+    const oldFunc = await func.deploy(provider.namespace, funcObject, getFunctionResult)
 
     // set tags
-    if (funcObject.Properties.Tags) {
+    if (funcObject.Properties.Tags && Object.keys(funcObject.Properties.Tags).length > 0) {
       this.context.debug(`Setting tags for function ${funcObject.FuncName}`)
-      await func.createTags(
-        provider.namespace,
-        getFunctionResult.FunctionId,
-        funcObject.Properties.Tags
-      )
+      await func.createTags(provider.namespace, oldFunc.FunctionId, funcObject.Properties.Tags)
     }
 
     // deploy trigger
@@ -308,12 +351,11 @@ class TencentCloudFunction extends Component {
     })
     const { tencent } = this.context.credentials
 
-    if (_.isEmpty(this.state.deployed)) {
-      this.context.debug(`Aborting removal. Function name not found in state.`)
-      return
-    }
+    const funcObject = this.state.deployed || {}
 
-    const funcObject = this.state.deployed
+    if (!funcObject.Name) {
+      throw new Error(`Aborting removal. Function name not found in state.`)
+    }
 
     const option = {
       region: funcObject.Region,
@@ -333,8 +375,8 @@ class TencentCloudFunction extends Component {
     if (funcObject.APIGateway && funcObject.APIGateway.length > 0) {
       for (let i = 0; i < funcObject.APIGateway.length; i++) {
         try {
-          const arr = funcObject.APIGateway[i].toString().split(' - ')
-          tencentApiGateway = await this.load('@serverless/tencent-apigateway', arr[0])
+          const { serviceName } = funcObject.APIGateway[i]
+          tencentApiGateway = await this.load('@serverless/tencent-apigateway', serviceName)
           await tencentApiGateway.remove({
             fromClientRemark: inputs.fromClientRemark || 'tencent-scf'
           })
@@ -343,6 +385,21 @@ class TencentCloudFunction extends Component {
     }
 
     await handler.remove(funcObject.Name, funcObject.Namespace)
+
+    // remove bind layer
+    if (funcObject.layers) {
+      try {
+        await this.removeLayers({
+          regoin: funcObject.region,
+          layers: funcObject.layers,
+          fromClientRemark: inputs.fromClientRemark || 'tencent-scf'
+        })
+      } catch (e) {
+        this.context.debug(e)
+        // noop
+      }
+    }
+
     this.context.debug(`Removed function ${funcObject.Name} successful`)
 
     this.state = {}
