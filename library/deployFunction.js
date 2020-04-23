@@ -11,20 +11,22 @@ class DeployFunction extends Abstract {
   async deploy(ns, funcObject, func) {
     if (!func) {
       await this.createFunction(ns, funcObject)
-    } else {
-      if (func.Runtime != funcObject.Properties.Runtime) {
-        throw `Runtime error: Release runtime(${func.Runtime}) and local runtime(${funcObject.Properties.Runtime}) are inconsistent`
-      }
-      this.context.debug('Updating code... ')
-      await this.updateFunctionCode(ns, funcObject)
       if ((await this.checkStatus(ns, funcObject)) == false) {
-        throw `Function ${funcObject.FuncName} update failed`
+        throw `Function ${funcObject.FuncName} create failed`
       }
-      this.context.debug('Updating configure... ')
-      this.updateConfiguration(ns, func, funcObject)
-      return func
+      return await this.getFunction(ns, funcObject.FuncName)
     }
-    return null
+    if (func.Runtime != funcObject.Properties.Runtime) {
+      throw `Runtime error: Release runtime(${func.Runtime}) and local runtime(${funcObject.Properties.Runtime}) are inconsistent`
+    }
+    this.context.debug('Updating code... ')
+    await this.updateFunctionCode(ns, funcObject)
+    if ((await this.checkStatus(ns, funcObject)) == false) {
+      throw `Function ${funcObject.FuncName} update failed`
+    }
+    this.context.debug('Updating configure... ')
+    this.updateConfiguration(ns, func, funcObject)
+    return func
   }
 
   async checkStatus(ns, funcObject) {
