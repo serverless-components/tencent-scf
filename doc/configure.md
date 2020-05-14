@@ -47,8 +47,8 @@ inputs:
       name: deadLetterName
       filterType: deadLetterFilterType
     layers:
-      name: expressLayer    // layer名称
-      version: 1           // 版本
+      - name: expressLayer    // layer名称
+        version: 1           // 版本
     cls: 	//函数日志
       logsetId: ClsLogsetId
       topicId: ClsTopicId
