@@ -9,6 +9,22 @@ const templateDownloadUrl =
   'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/scf-demo.zip'
 
 class Express extends Component {
+  getCredentials() {
+    const { tmpSecrets } = this.credentials.tencent
+
+    if (!tmpSecrets || !tmpSecrets.TmpSecretId) {
+      throw new Error(
+        'Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account.'
+      )
+    }
+
+    return {
+      SecretId: tmpSecrets.TmpSecretId,
+      SecretKey: tmpSecrets.TmpSecretKey,
+      Token: tmpSecrets.Token
+    }
+  }
+
   getDefaultProtocol(protocols) {
     if (String(protocols).includes('https')) {
       return 'https'
@@ -43,18 +59,7 @@ class Express extends Component {
   async deploy(inputs) {
     console.log(`Deploying Tencent Serverless Cloud Funtion (SCF) ...`)
 
-    // 获取腾讯云密钥信息
-    if (!this.credentials.tencent.tmpSecrets) {
-      throw new Error(
-        'Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account.'
-      )
-    }
-
-    const credentials = {
-      SecretId: this.credentials.tencent.tmpSecrets.TmpSecretId,
-      SecretKey: this.credentials.tencent.tmpSecrets.TmpSecretKey,
-      Token: this.credentials.tencent.tmpSecrets.Token
-    }
+    const credentials = this.getCredentials()
     const appid = this.credentials.tencent.tmpSecrets.appId
 
     // 默认值
@@ -205,18 +210,9 @@ class Express extends Component {
     return output
   }
 
+  // eslint-disable-next-line
   async remove(inputs = {}) {
-    // 获取腾讯云密钥信息
-    if (!this.credentials.tencent.tmpSecrets) {
-      throw new Error(
-        'Cannot get secretId/Key, your account could be sub-account or does not have access, please check if SLS_QcsRole role exists in your account, and visit https://console.cloud.tencent.com/cam to bind this role to your account.'
-      )
-    }
-    const credentials = {
-      SecretId: this.credentials.tencent.tmpSecrets.TmpSecretId,
-      SecretKey: this.credentials.tencent.tmpSecrets.TmpSecretKey,
-      Token: this.credentials.tencent.tmpSecrets.Token
-    }
+    const credentials = this.getCredentials()
 
     console.log(`Removing Tencent Serverless Cloud Funtion (SCF) ...`)
     console.log(this.state.function)

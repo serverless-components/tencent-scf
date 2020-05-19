@@ -37,7 +37,7 @@ inputs:
     memorySize: 128 //内存大小，单位MB
     timeout: 20  //超时时间，单位秒
     environment: // 环境变量
-      variables:  // 环境变量数组
+      variables:  // 环境变量对象
         TEST: value
     vpcConfig:  //私有网络配置
       subnetId: '' //私有网络的Id

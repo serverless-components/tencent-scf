@@ -1,5 +1,5 @@
 name: scf
-version: 0.0.6
+version: 0.0.7
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploys Tencent SCF.
@@ -8,7 +8,3 @@ repo: https://github.com/serverless-components/tencent-scf/tree/v2
 readme: https://github.com/serverless-components/tencent-scf/tree/v2
 license: MIT
 main: ./src
-
-
-# service-9nq76qdn-1256773370.sh.apigw.tencentcs.com/release
-# service-7x8z689z-1256773370.sh.apigw.tencentcs.com/release/index
