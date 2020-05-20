@@ -215,10 +215,10 @@ class Express extends Component {
     const credentials = this.getCredentials()
 
     console.log(`Removing Tencent Serverless Cloud Funtion (SCF) ...`)
-    console.log(this.state.function)
-    console.log(this.state.function.Region)
     const scf = new Scf(credentials, this.state.region)
-    await scf.remove(this.state.function)
+    if (this.state.function && this.state.function.FunctionName) {
+      await scf.remove(this.state.function)
+    }
     this.state = {}
     console.log(`Removed Tencent Serverless Cloud Funtion (SCF)`)
   }
