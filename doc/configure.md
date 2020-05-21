@@ -69,7 +69,6 @@ inputs:
             serviceId: service-8dsikiq6
             protocols:
               - http
-            serviceName: serverless
             description: the serverless service
             environment: release
             endpoints:
@@ -225,7 +224,7 @@ inputs:
 
 | 参数名称 | 是否必选 |  类型  | 默认值 | 描述                                 |
 | -------- | :------: | :----: | :----: | :----------------------------------- |
-| name     |    是    | String |        | 触发器名称                           |
+| name     |    是    | String |        | 触发器名称(如果是apigw，则该参数也是apigw的serviceName)                           |
 | param    |    是    | Object |        | 根据触发器类型，参考以下触发器参数表 |
 
 ##### timer触发器参数
@@ -272,7 +271,6 @@ inputs:
 | ----------- | -------- | :------: | :------- | :----------------------------------------------------------- |
 | serviceId   | 否       |  String  |          | Apigw Service ID（不传入则新建一个 Service）                 |
 | protocols   | 否       | String[] | ['http'] | 前端请求的类型，如http，https，http与https                   |
-| serviceName | 否       |  String  |          | Apigw API名称。如果不传递则默认自动新建一个。                |
 | description | 否       |  String  |          | Apigw API描述                                                |
 | environment | 是       |  String  | release  | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release` |
 | endpoints   | 是       | Object[] |          | 参考endpoint参数。                                           |
