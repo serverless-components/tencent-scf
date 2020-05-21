@@ -116,8 +116,6 @@ class Express extends Component {
     // 建立新的inputs
     inputs.code = code
 
-    console.log(inputs)
-
     const apigwName = []
     if (inputs.events && inputs.events.length > 0) {
       for (let i = 0; i < inputs.events.length; i++) {
