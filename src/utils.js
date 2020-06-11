@@ -45,6 +45,7 @@ const getDefaultZipPath = async () => {
 const prepareInputs = async (instance, credentials, appId, inputs) => {
   // 默认值
   const region = inputs.region || CONFIGS.region
+  inputs.srcOriginal = inputs.srcOriginal || inputs.src
   const tempSrc =
     typeof inputs.srcOriginal === 'object'
       ? inputs.srcOriginal
