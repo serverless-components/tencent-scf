@@ -5,6 +5,6 @@ org: Tencent Cloud, Inc.
 description: Deploys Tencent SCF.
 keywords: tencent, serverless, SCF
 repo: https://github.com/serverless-components/tencent-scf/tree/v2
-readme: https://github.com/serverless-components/tencent-scf/tree/v2
+readme: https://github.com/serverless-components/tencent-scf/tree/v2/README.md
 license: MIT
 main: ./src

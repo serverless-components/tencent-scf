@@ -1,11 +1,10 @@
-component: scf
-name: scfdemo
-org: test
-app: scfApp
+org: orgDemo
+app: appDemo
 stage: dev
+component: scf
+name: scfDemo
 
 inputs:
-  name: scfFunctionName
   src: ./src
   runtime: Nodejs10.15
   region: ap-guangzhou
@@ -17,9 +16,8 @@ inputs:
           protocols:
             - http
             - https
-          serviceName:
           description: The service of Serverless Framework
           environment: release
           endpoints:
-            - path: /index
+            - path: /
               method: GET
