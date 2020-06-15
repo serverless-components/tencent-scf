@@ -16,7 +16,7 @@ inputs:
   namespace: abc # 云函数命名空间
   role: exRole # 云函数执行角色
   enableRoleAuth:
-    true # 默认会尝试绑定 SCF_QcsRole 角色，如果不需要配置成 false 即可
+    true # 默认会尝试创建 SCF_QcsRole 角色，如果不需要配置成 false 即可
     # 1. 默认写法，新建特定命名的 cos bucket 并上传
   src: ./code
   # 2. src 为对象，并且制定忽略上传文件夹 node_modules
@@ -153,7 +153,7 @@ inputs:
 | name                     | 是       |              | 创建的函数名称，函数名称支持 26 个英文字母大小写、数字、连接符和下划线，第一个字符只能以字母开头，最后一个字符不能为连接符或者下划线，名称长度 2-60                                                                  |
 | namesapce                | 否       | default      | 命名空间。默认为 default。                                                                                                                                                                                           |
 | role                     | 否       |              | 函数绑定的角色                                                                                                                                                                                                       |
-| enableRoleAuth           | 是       | true         | 默认会尝试绑定 SCF_QcsRole 角色，如果不需要配置成 false 即可                                                                                                                                                         |
+| enableRoleAuth           | 是       | true         | 默认会尝试创建 SCF_QcsRole 角色，如果不需要配置成 false 即可                                                                                                                                                         |
 | src                      | 是       |              | 函数代码路径。如果是对象,配置参数参考 [执行目录](#执行目录)                                                                                                                                                          |
 | handler                  | 是       |              | 函数处理方法名称，名称格式支持 "文件名称.方法名称" 形式，文件名称和函数名称之间以"."隔开，文件名称和函数名称要求以字母开始和结尾，中间允许插入字母、数字、下划线和连接符，文件名称和函数名字的长度要求是 2-60 个字符 |
 | runtime                  | 是       |              | 函数运行环境，目前仅支持 Python2.7，Python3.6，Nodejs6.10，Nodejs8.9，Nodejs10.15，Nodejs12.16， PHP5， PHP7，Go1 和 Java8，默认 Python2.7                                                                           |
