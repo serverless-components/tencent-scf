@@ -148,34 +148,34 @@ inputs:
 
 主要的参数
 
-| 参数名称                 | 是否必选 | 默认值       | 描述                                                                                                                                                                                                                 |
-| ------------------------ | -------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                     | 是       |              | 创建的函数名称，函数名称支持 26 个英文字母大小写、数字、连接符和下划线，第一个字符只能以字母开头，最后一个字符不能为连接符或者下划线，名称长度 2-60                                                                  |
-| namesapce                | 否       | default      | 命名空间。默认为 default。                                                                                                                                                                                           |
-| role                     | 否       |              | 函数绑定的角色                                                                                                                                                                                                       |
-| enableRoleAuth           | 是       | true         | 默认会尝试创建 SCF_QcsRole 角色，如果不需要配置成 false 即可                                                                                                                                                         |
-| src                      | 是       |              | 函数代码路径。如果是对象,配置参数参考 [执行目录](#执行目录)                                                                                                                                                          |
-| handler                  | 是       |              | 函数处理方法名称，名称格式支持 "文件名称.方法名称" 形式，文件名称和函数名称之间以"."隔开，文件名称和函数名称要求以字母开始和结尾，中间允许插入字母、数字、下划线和连接符，文件名称和函数名字的长度要求是 2-60 个字符 |
-| runtime                  | 是       |              | 函数运行环境，目前仅支持 Python2.7，Python3.6，Nodejs6.10，Nodejs8.9，Nodejs10.15，Nodejs12.16， PHP5， PHP7，Go1 和 Java8，默认 Python2.7                                                                           |
-| region                   | 否       | ap-guangzhou | 云函数所在区域。详见产品支持的 [地域列表](https:# cloud.tencent.com/document/api/583/17238#.E5.9C.B0.E5.9F.9F.E5.88.97.E8.A1.A8)。                                                                                   |
-| description              | 否       |              | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                                                                                                                      |
-| memorySize               | 否       | 128M         | 函数运行时内存大小，默认为 128M，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                                                                                                                      |
-| timeout                  | 否       | 3S           | 函数最长执行时间，单位为秒，可选值范围 1-900 秒，默认为 3 秒                                                                                                                                                         |
-| [environment](#环境变量) | 否       |              | 函数的环境变量                                                                                                                                                                                                       |
-| [vpcConfig](#私有网络)   | 否       |              | 函数的私有网络配置，配置参数参考[私有网络]()                                                                                                                                                                         |
-| layers                   | 否       |              | 云函数绑定的 layer, 配置参数参考[层配置](#层配置)                                                                                                                                                                    |
-| deadLetter               | 否       |              | 死信队列参数                                                                                                                                                                                                         |
-| cls                      | 否       |              | 函数日志                                                                                                                                                                                                             |
-| eip                      | 否       | false        | 固定出口 IP。默认为 false，即不启用                                                                                                                                                                                  |
-| tags                     | 否       |              | 标签设置。可设置多对 key-value 的键值对                                                                                                                                                                              |
-| events                   | 否       |              | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考触发器。                                                    |
+| 参数名称                 | 是否必选 | 默认值       | 描述                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------ | -------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                     | 是       |              | 创建的函数名称，函数名称支持 26 个英文字母大小写、数字、连接符和下划线，第一个字符只能以字母开头，最后一个字符不能为连接符或者下划线，名称长度 2-60                                                                                                                                                                                       |
+| namesapce                | 否       | default      | 命名空间。默认为 default。                                                                                                                                                                                                                                                                                                                |
+| role                     | 否       |              | 函数绑定的角色                                                                                                                                                                                                                                                                                                                            |
+| enableRoleAuth           | 是       | true         | 默认会尝试创建 SCF_QcsRole 角色。SCF_QcsRole 为 SCF 默认配置角色。该服务角色用于提供 SCF 配置对接其他云上资源的权限，包括但不限于代码文件访问、触发器配置。配置角色的预设策略可支持函数执行的基本操作。如果不需要配置成 false 即可。[相关文档](https://cloud.tencent.com/document/product/583/32389#.E8.A7.92.E8.89.B2.E8.AF.A6.E6.83.85) |
+| src                      | 是       |              | 函数代码路径。如果是对象,配置参数参考 [执行目录](#执行目录)                                                                                                                                                                                                                                                                               |
+| handler                  | 是       |              | 函数处理方法名称，名称格式支持 "文件名称.方法名称" 形式，文件名称和函数名称之间以"."隔开，文件名称和函数名称要求以字母开始和结尾，中间允许插入字母、数字、下划线和连接符，文件名称和函数名字的长度要求是 2-60 个字符                                                                                                                      |
+| runtime                  | 是       |              | 函数运行环境，目前仅支持 Python2.7，Python3.6，Nodejs6.10，Nodejs8.9，Nodejs10.15，Nodejs12.16， PHP5， PHP7，Go1 和 Java8，默认 Python2.7                                                                                                                                                                                                |
+| region                   | 否       | ap-guangzhou | 云函数所在区域。详见产品支持的 [地域列表](https://cloud.tencent.com/document/api/583/17238#.E5.9C.B0.E5.9F.9F.E5.88.97.E8.A1.A8)。                                                                                                                                                                                                        |
+| description              | 否       |              | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                                                                                                                                                                                                                                           |
+| memorySize               | 否       | 128M         | 函数运行时内存大小，默认为 128M，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                                                                                                                                                                                                                                           |
+| timeout                  | 否       | 3S           | 函数最长执行时间，单位为秒，可选值范围 1-900 秒，默认为 3 秒                                                                                                                                                                                                                                                                              |
+| [environment](#环境变量) | 否       |              | 函数的环境变量                                                                                                                                                                                                                                                                                                                            |
+| [vpcConfig](#私有网络)   | 否       |              | 函数的私有网络配置，配置参数参考[私有网络]()                                                                                                                                                                                                                                                                                              |
+| layers                   | 否       |              | 云函数绑定的 layer, 配置参数参考[层配置](#层配置)                                                                                                                                                                                                                                                                                         |
+| deadLetter               | 否       |              | 死信队列参数                                                                                                                                                                                                                                                                                                                              |
+| cls                      | 否       |              | 函数日志                                                                                                                                                                                                                                                                                                                                  |
+| eip                      | 否       | false        | 固定出口 IP。默认为 false，即不启用                                                                                                                                                                                                                                                                                                       |
+| tags                     | 否       |              | 标签设置。可设置多对 key-value 的键值对                                                                                                                                                                                                                                                                                                   |
+| events                   | 否       |              | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考触发器。                                                                                                                                                                         |
 
 ### 执行目录
 
 | 参数名称 | 是否必选 |      类型       | 默认值 | 描述                                                                                                                                                                                 |
 | -------- | :------: | :-------------: | :----: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | src      |    否    |     String      |        | 代码路径。与 object 不能同时存在。                                                                                                                                                   |
-| exclude  |    否    | Array of String |        | 不包含的文件或路径, 遵守 [glob 语法](https:# github.com/isaacs/node-glob)                                                                                                            |
+| exclude  |    否    | Array of String |        | 不包含的文件或路径, 遵守 [glob 语法](https://github.com/isaacs/node-glob)                                                                                                            |
 | bucket   |    否    |     String      |        | bucket 名称。如果配置了 src，表示部署 src 的代码并压缩成 zip 后上传到 bucket-appid 对应的存储桶中；如果配置了 object，表示获取 bucket-appid 对应存储桶中 object 对应的代码进行部署。 |
 | object   |    否    |     String      |        | 部署的代码在存储桶中的路径。                                                                                                                                                         |
 
@@ -183,7 +183,7 @@ inputs:
 
 | 参数名称  | 类型                                                                           | 描述                                      |
 | --------- | ------------------------------------------------------------------------------ | ----------------------------------------- |
-| variables | Array of [Variable](https:# cloud.tencent.com/document/api/583/17244#Variable) | 环境变量参数，包含多对 key-value 的键值对 |
+| variables | Array of [Variable](https://cloud.tencent.com/document/api/583/17244#Variable) | 环境变量参数，包含多对 key-value 的键值对 |
 
 ### 私有网络
 
@@ -216,7 +216,7 @@ inputs:
 
 ### 触发器
 
-参考： https:# cloud.tencent.com/document/product/583/39901
+参考： https://cloud.tencent.com/document/product/583/39901
 
 触发器为数组。支持以下触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）。
 
@@ -227,24 +227,24 @@ inputs:
 
 ##### timer 触发器参数
 
-参考： https:# cloud.tencent.com/document/product/583/9708
+参考： https://cloud.tencent.com/document/product/583/9708
 
 | 参数名称       | 是否必选 |  类型   | 默认值 | 描述                                                                                                            |
 | -------------- | :------: | :-----: | :----: | :-------------------------------------------------------------------------------------------------------------- |
-| cronExpression |    是    | Number  |   3    | 触发时间，为[crons](https:# cloud.tencent.com/document/product/583/9708#cron-.E8.A1.A8.E8.BE.BE.E5.BC.8F)表达式 |
+| cronExpression |    是    | Number  |   3    | 触发时间，为[crons](https://cloud.tencent.com/document/product/583/9708#cron-.E8.A1.A8.E8.BE.BE.E5.BC.8F)表达式 |
 | enable         |    否    | Boolean |  true  | 触发器是否启用。默认启用                                                                                        |
 | argument       |    否    | Object  |        | 入参参数。                                                                                                      |
 
 ##### cos 触发器参数
 
-参考： https:# cloud.tencent.com/document/product/583/9707
+参考： https://cloud.tencent.com/document/product/583/9707
 
 | 参数名称 | 是否必选 |                                    类型                                     | 默认值 | 描述                                                                                                                    |
 | -------- | :------: | :-------------------------------------------------------------------------: | :----: | :---------------------------------------------------------------------------------------------------------------------- |
 | bucket   |    是    |                                   String                                    |        | 配置的 COS Bucket，仅支持选择同地域下的 COS 存储桶                                                                      |
 | enable   |    否    |                                   Boolean                                   |  true  | 触发器是否启用。默认启用                                                                                                |
-| filter   |    是    | [CosFilter](https:# cloud.tencent.com/document/product/583/39901#CosFilter) |        | COS 文件名的过滤规则                                                                                                    |
-| events   |    是    |                                   String                                    |        | [COS 的事件类型](https:# cloud.tencent.com/document/product/583/9707#cos-.E8.A7.A6.E5.8F.91.E5.99.A8.E5.B1.9E.E6.80.A7) |
+| filter   |    是    | [CosFilter](https://cloud.tencent.com/document/product/583/39901#CosFilter) |        | COS 文件名的过滤规则                                                                                                    |
+| events   |    是    |                                   String                                    |        | [COS 的事件类型](https://cloud.tencent.com/document/product/583/9707#cos-.E8.A7.A6.E5.8F.91.E5.99.A8.E5.B1.9E.E6.80.A7) |
 
 ##### cmq 触发器参数
 
@@ -276,7 +276,7 @@ inputs:
 
 ##### endpoints 参数
 
-参考： https:# cloud.tencent.com/document/product/628/14886
+参考： https://cloud.tencent.com/document/product/628/14886
 
 | 参数名称       | 是否必选 |  类型   | 默认值 | 描述                                                                                                      |
 | -------------- | -------- | :-----: | :----- | :-------------------------------------------------------------------------------------------------------- |
@@ -312,7 +312,7 @@ inputs:
 
 - 使用计划
 
-参考: https:# cloud.tencent.com/document/product/628/14947
+参考: https://cloud.tencent.com/document/product/628/14947
 
 | 参数名称      | 是否必选 | 类型   | 描述                                                    |
 | ------------- | :------: | ------ | :------------------------------------------------------ |
@@ -323,7 +323,7 @@ inputs:
 
 - API 密钥配置
 
-参考: https:# cloud.tencent.com/document/product/628/14916
+参考: https://cloud.tencent.com/document/product/628/14916
 
 | 参数名称   | 类型   | 描述     |
 | ---------- | :----- | :------- |
