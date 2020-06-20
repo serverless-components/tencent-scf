@@ -42,8 +42,8 @@ inputs:
     variables: #  环境变量对象
       TEST: value
   vpcConfig: # 私有网络配置
-    subnetId: '' # 私有网络的Id
-    vpcId: '' # 子网ID
+    vpcId: '' # 私有网络的Id
+    subnetId: '' # 子网ID
   deadLetter: # 死信队列配置
     type: deadLetterType
     name: deadLetterName
