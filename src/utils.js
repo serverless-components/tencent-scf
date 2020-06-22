@@ -119,7 +119,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
 
     if (eventType === 'apigw') {
       if (apigwName.includes(currentEvent.name)) {
-        throw new TypeError('PARAMETER_SCF', `API Gateway name must be unique`)
+        throw new TypeError('PARAMETER_SCF_PREPAREINPUTS', `API Gateway name must be unique`)
       } else {
         currentEvent.parameters.serviceName =
           currentEvent.parameters.serviceName || currentEvent.name
