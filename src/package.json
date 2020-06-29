@@ -9,7 +9,7 @@
   "license": "Apache",
   "dependencies": {
     "download": "^8.0.0",
-    "tencent-component-toolkit": "^1.12.2",
+    "tencent-component-toolkit": "^1.12.3",
     "type": "^2.0.0"
   }
 }
