@@ -58,6 +58,7 @@ inputs:
   tags:
     key1: value1
     key2: value2 # tags 的key value
+  traffic: 0.9 # 配置默认流量中 $LATEST 版本比重：0 - 1
   events: # 触发器
     - timer: # 定时触发器
         name: timer
@@ -98,7 +99,7 @@ inputs:
                   desc: mytest
               function:
                 isIntegratedResponse: TRUE
-                functionQualifier: $LATEST
+                functionQualifier: $LATEST #  当配置 traffic 时，需要配置为 $DEFAUlt
               usagePlan:
                 usagePlanId: 1111
                 usagePlanName: slscmp
@@ -169,6 +170,7 @@ inputs:
 | eip                      | 否       | false        | 固定出口 IP。默认为 false，即不启用                                                                                                                                                                                                                                                                                                       |
 | tags                     | 否       |              | 标签设置。可设置多对 key-value 的键值对                                                                                                                                                                                                                                                                                                   |
 | events                   | 否       |              | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考触发器。                                                                                                                                                                         |
+| taffic                   | 否       | 1            | 配置默认流量中 `$LATEST` 版本比重，取值范围：0 ~ 1，比如 80%，可配置成 0.8。注意如果皮遏制灰度流量，需要配置对应的 API 网关触发器的 enpoints 的 `function.functionQualifier` 参数为 `$DEFAULT` (默认流量)                                                                                                                                 |
 
 ### 执行目录
 

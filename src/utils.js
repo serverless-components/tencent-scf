@@ -11,6 +11,20 @@ const generateId = () =>
     .toString(36)
     .substring(6)
 
+const getType = (obj) => {
+  return Object.prototype.toString.call(obj).slice(8, -1)
+}
+
+const validateTraffic = (num) => {
+  if (getType(num) !== 'Number') {
+    throw new TypeError('PARAMETER_SCF_TRAFFIC', 'traffic must be a number')
+  }
+  if (num < 0 || num > 1) {
+    throw new TypeError('PARAMETER_SCF_TRAFFIC', 'traffic must be a number between 0 and 1')
+  }
+  return true
+}
+
 /**
  * get default template zip file path
  */
@@ -135,6 +149,13 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     }
     return event
   })
+
+  // validate traffic config
+  if (inputs.traffic !== undefined) {
+    validateTraffic(inputs.traffic)
+  }
+
+  inputs.lastVersion = instance.state.lastVersion
 
   return {
     useDefault,

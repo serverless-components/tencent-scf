@@ -31,28 +31,32 @@
 
 ### 1. 安装
 
-通过 npm 安装最新版本的 Serverless Framework 
-```
+通过 npm 安装最新版本的 Serverless Framework
+
+```bash
 $ npm install -g serverless
 ```
 
 ### 2. 创建
 
 创建并进入一个全新目录：
-```
+
+```bash
 $ mkdir tencent-scf && cd tencent-scf
 ```
 
 通过如下命令和模板链接，快速创建一个 SCF 应用：
-```
+
+```bash
 $ serverless create --template-url https://github.com/serverless-components/tencent-scf/tree/v2/example
 $ cd example
 ```
 
 下载完毕后，目录结构如下所示：
+
 ```
 |- src
-|   └── index.py
+|   └── index.js
 └──  serverless.yml
 ```
 
@@ -72,7 +76,7 @@ $ cd example
 
 以下是腾讯云 SCF 组件的 `serverless.yml`完整配置说明：
 
-```yml
+```yaml
 # serverless.yml
 
 component: scf # (必填) 引用 component 的名称，当前用到的是 tencent-scf 组件
@@ -102,7 +106,7 @@ inputs:
               method: GET
 ```
 
-点此查看[全量配置及配置说明](https://github.com/serverless-components/tencent-scf/blob/v2/doc/serverless.yaml)
+点此查看[全量配置及配置说明](./docs/config.md)
 
 当你根据该配置文件更新配置字段后，再次运行 `serverless deploy` 或者 `serverless` 就可以更新配置到云端。
 
@@ -120,7 +124,7 @@ inputs:
 
 在`serverless.yml`文件所在的目录下，通过如下命令查看部署状态：
 
-```
+```bash
 $ serverless info
 ```
 
@@ -128,7 +132,7 @@ $ serverless info
 
 在`serverless.yml`文件所在的目录下，通过以下命令移除部署 SCF 应用。移除后该组件会对应删除云上部署时所创建的所有相关资源。
 
-```
+```bash
 $ serverless remove
 ```
 
@@ -138,7 +142,7 @@ $ serverless remove
 
 当前默认支持 CLI 扫描二维码登录，如您希望配置持久的环境变量/秘钥信息，也可以本地创建 `.env` 文件
 
-```console
+```bash
 $ touch .env # 腾讯云的配置信息
 ```
 
@@ -148,7 +152,7 @@ $ touch .env # 腾讯云的配置信息
 
 如果已有腾讯云账号，可以在[API 密钥管理](https://console.cloud.tencent.com/cam/capi)中获取 `SecretId` 和`SecretKey`.
 
-```
+```dotenv
 # .env
 TENCENT_SECRET_ID=123
 TENCENT_SECRET_KEY=123
