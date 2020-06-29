@@ -17,10 +17,16 @@ const getType = (obj) => {
 
 const validateTraffic = (num) => {
   if (getType(num) !== 'Number') {
-    throw new TypeError('PARAMETER_SCF_TRAFFIC', 'traffic must be a number')
+    throw new TypeError(
+      `PARAMETER_${CONFIGS.compName.toUpperCase()}_TRAFFIC`,
+      'traffic must be a number'
+    )
   }
   if (num < 0 || num > 1) {
-    throw new TypeError('PARAMETER_SCF_TRAFFIC', 'traffic must be a number between 0 and 1')
+    throw new TypeError(
+      `PARAMETER_${CONFIGS.compName.toUpperCase()}_TRAFFIC`,
+      'traffic must be a number between 0 and 1'
+    )
   }
   return true
 }
@@ -73,7 +79,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     bucket: tempSrc.bucket ? tempSrc.bucket : `sls-cloudfunction-${region}-code`,
     object: tempSrc.object
       ? tempSrc.object
-      : `/scf_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
+      : `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
   }
   const cos = new Cos(credentials, region)
   const bucket = `${code.bucket}-${appId}`
@@ -116,7 +122,9 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
 
   const oldState = instance.state
   inputs.name =
-    inputs.name || (oldState.function && oldState.function.FunctionName) || `scf-${generateId()}`
+    inputs.name ||
+    (oldState.function && oldState.function.FunctionName) ||
+    `${CONFIGS.compName}_component_${generateId()}`
   inputs.description = inputs.description || CONFIGS.description
   inputs.code = code
   inputs.events = inputs.events || []
@@ -133,7 +141,10 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
 
     if (eventType === 'apigw') {
       if (apigwName.includes(currentEvent.name)) {
-        throw new TypeError('PARAMETER_SCF_PREPAREINPUTS', `API Gateway name must be unique`)
+        throw new TypeError(
+          `PARAMETER_${CONFIGS.compName.toUpperCase()}_APIGW_TRIGGER`,
+          `API Gateway name must be unique`
+        )
       } else {
         currentEvent.parameters.serviceName =
           currentEvent.parameters.serviceName || currentEvent.name

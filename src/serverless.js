@@ -54,22 +54,22 @@ class ServerlessComponent extends Component {
     const scfOutput = await scf.deploy(scfInputs)
 
     const outputs = {
-      FunctionName: scfOutput.FunctionName,
-      Description: scfOutput.Description,
-      Region: scfOutput.Region,
-      Namespace: scfOutput.Namespace,
-      Runtime: scfOutput.Runtime,
-      Handler: scfOutput.Handler,
-      MemorySize: scfOutput.MemorySize
+      functionName: scfOutput.FunctionName,
+      description: scfOutput.Description,
+      region: scfOutput.Region,
+      namespace: scfOutput.Namespace,
+      runtime: scfOutput.Runtime,
+      handler: scfOutput.Handler,
+      memorySize: scfOutput.MemorySize
     }
 
     if (scfOutput.LastVersion) {
-      outputs.LastVersion = scfOutput.LastVersion
+      outputs.lastVersion = scfOutput.LastVersion
       this.state.lastVersion = scfOutput.LastVersion
     }
 
     if (scfOutput.Traffic) {
-      outputs.Traffic = scfOutput.Traffic
+      outputs.traffic = scfOutput.Traffic
       this.state.functionTraffic = scfOutput.Traffic
     }
 
