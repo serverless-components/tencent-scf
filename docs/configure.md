@@ -128,7 +128,7 @@ inputs:
           filter:
             prefix: filterdir/
             suffix: .jpg
-          events: cos:ObjectCreated:*
+          events: 'cos:ObjectCreated:*'
           enable: true
     - cmq: # CMQ Topic 触发器
         name: cmq_trigger
