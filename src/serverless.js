@@ -63,15 +63,25 @@ class ServerlessComponent extends Component {
       memorySize: scfOutput.MemorySize
     }
 
-    if (scfOutput.LastVersion) {
-      outputs.lastVersion = scfOutput.LastVersion
-      this.state.lastVersion = scfOutput.LastVersion
+    // default version is $LATEST
+    outputs.lastVersion = scfOutput.LastVersion
+      ? scfOutput.LastVersion
+      : this.state.lastVersion || '$LATEST'
+
+    // default traffic is 1.0, it can also be 0, so we should compare to undefined
+    outputs.traffic = scfOutput.Traffic
+      ? scfOutput.Traffic
+      : this.state.traffic !== undefined
+      ? this.state.traffic
+      : 1
+
+    if (outputs.traffic !== 1 && scfOutput.ConfigTrafficVersion) {
+      outputs.configTrafficVersion = scfOutput.ConfigTrafficVersion
+      this.state.configTrafficVersion = scfOutput.ConfigTrafficVersion
     }
 
-    if (scfOutput.Traffic) {
-      outputs.traffic = scfOutput.Traffic
-      this.state.functionTraffic = scfOutput.Traffic
-    }
+    this.state.lastVersion = outputs.lastVersion
+    this.state.traffic = outputs.traffic
 
     // handle apigw event outputs
     if (existApigwTrigger) {
