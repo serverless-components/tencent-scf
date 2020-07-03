@@ -170,7 +170,7 @@ inputs:
 | eip                      | 否       | false        | 固定出口 IP。默认为 false，即不启用                                                                                                                                                                                                                                                                                                       |
 | tags                     | 否       |              | 标签设置。可设置多对 key-value 的键值对                                                                                                                                                                                                                                                                                                   |
 | events                   | 否       |              | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考触发器。                                                                                                                                                                         |
-| traffic                  | 否       | 1            | 配置默认流量中 `$LATEST` 版本比重，取值范围：0 ~ 1，比如 80%，可配置成 0.8。注意如果配置灰度流量，需要配置对应的 API 网关触发器的 endpoints 的 `function.functionQualifier` 参数为 `$DEFAULT` (默认流量)                                                                                                                                |
+| traffic                  | 否       | 1            | 配置默认流量中 `$LATEST` 版本比重，取值范围：0 ~ 1，比如 80%，可配置成 0.8。注意如果配置灰度流量，需要配置对应的 API 网关触发器的 endpoints 的 `function.functionQualifier` 参数为 `$DEFAULT` (默认流量)                                                                                                                                  |
 
 ### 执行目录
 
