@@ -106,7 +106,7 @@ inputs:
               method: GET
 ```
 
-点此查看[全量配置及配置说明](./docs/config.md)
+点此查看[全量配置及配置说明](./docs/configure.md)
 
 当你根据该配置文件更新配置字段后，再次运行 `serverless deploy` 或者 `serverless` 就可以更新配置到云端。
 
