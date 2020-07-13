@@ -4,7 +4,23 @@ const CONFIGS = {
   region: 'ap-guangzhou',
   compName: 'scf',
   componentFullname: 'SCF',
-  description: 'Created by serverless component'
+  runtime: 'Nodejs10.15',
+  handler: 'index.main_handler',
+  description: 'Created by Serverless Component',
+  defaultApigw: {
+    name: `serverless_api`,
+    parameters: {
+      protocols: ['http', 'https'],
+      description: 'Created By Serverless Component',
+      environment: 'release',
+      endpoints: [
+        {
+          path: '/',
+          method: 'GET'
+        }
+      ]
+    }
+  }
 }
 
 module.exports = CONFIGS

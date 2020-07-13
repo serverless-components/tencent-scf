@@ -126,12 +126,15 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     (oldState.function && oldState.function.FunctionName) ||
     `${CONFIGS.compName}_component_${generateId()}`
   inputs.description = inputs.description || CONFIGS.description
+  inputs.handler = inputs.handler || CONFIGS.handler
+  inputs.runtime = inputs.runtime || CONFIGS.runtime
   inputs.code = code
   inputs.events = inputs.events || []
 
   const stateApigw = oldState.apigw
   const triggers = {}
   const apigwName = []
+
   let existApigwTrigger = false
   // initial apigw event parameters
   inputs.events = inputs.events.map((event) => {
@@ -160,6 +163,16 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     }
     return event
   })
+
+  // if not config apig trigger, and make autoCreateApi true
+  if (inputs.autoCreateApi && !existApigwTrigger) {
+    triggers.apigw = []
+    inputs.events.push({
+      apigw: CONFIGS.defaultApigw
+    })
+
+    existApigwTrigger = true
+  }
 
   // validate traffic config
   if (inputs.traffic !== undefined) {
