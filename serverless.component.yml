@@ -8,3 +8,4 @@ repo: https://github.com/serverless-components/tencent-scf/tree/v2
 readme: https://github.com/serverless-components/tencent-scf/tree/v2/README.md
 license: MIT
 main: ./src
+webDeployable: true
