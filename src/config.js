@@ -1,6 +1,5 @@
 const CONFIGS = {
-  templateUrl:
-    'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/scf-demo-test.zip',
+  templateUrl: 'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/scf-demo.zip',
   region: 'ap-guangzhou',
   compName: 'scf',
   componentFullname: 'SCF',

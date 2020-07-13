@@ -1,12 +1,4 @@
 {
-  "name": "@serverless/scf",
-  "main": "./serverless.js",
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {},
-  "author": "anycodes",
-  "license": "Apache",
   "dependencies": {
     "download": "^8.0.0",
     "tencent-component-toolkit": "^1.12.10",
