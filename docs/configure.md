@@ -78,6 +78,7 @@ inputs:
             - path: /test/{abc}/{cde}
               apiId: api-id
               method: GET
+              apiName: test
               description: Serverless REST API
               enableCORS: TRUE
               responseType: HTML
@@ -277,19 +278,20 @@ inputs:
 
 参考： https://cloud.tencent.com/document/product/628/14886
 
-| 参数名称       | 是否必选 |  类型   | 默认值 | 描述                                                                                                      |
-| -------------- | -------- | :-----: | :----- | :-------------------------------------------------------------------------------------------------------- |
-| path           | 是       | String  |        | API 的前端路径，如/path。                                                                                 |
-| method         | 否       | String  |        | API 的前端请求方法，如 GET                                                                                |
-| apiId          | 否       | String  |        | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
-| description    | 否       | String  |        | API 描述                                                                                                  |
-| enableCORS     | 是       | Boolean | FALSE  | 是否需要开启跨域，TRUE 表示需要，FALSE 表示不需要。默认为 FALSE。                                         |
-| responseType   | 否       | String  |        | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
-| serviceTimeout | 是       |   Int   |        | API 的后端服务超时时间，单位是秒。                                                                        |
-| param          | 否       |         |        | 前端参数                                                                                                  |
-| function       | 否       |         |        | SCF 配置                                                                                                  |
-| usagePlan      | 否       |         |        | 使用计划                                                                                                  |
-| auth           | 否       |         |        | API 密钥配置                                                                                              |
+| 参数名称       | 是否必选 |  类型   | 默认值  | 描述                                                                                                      |
+| -------------- | -------- | :-----: | :------ | :-------------------------------------------------------------------------------------------------------- |
+| path           | 是       | String  |         | API 的前端路径，如/path。                                                                                 |
+| method         | 否       | String  |         | API 的前端请求方法，如 GET                                                                                |
+| apiId          | 否       | String  |         | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
+| apiName        | 否       | String  | `index` | API 名称                                                                                                  |
+| description    | 否       | String  |         | API 描述                                                                                                  |
+| enableCORS     | 是       | Boolean | `false` | 是否需要开启跨域，true 表示需要，false 表示不需要。                                                       |
+| responseType   | 否       | String  |         | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
+| serviceTimeout | 否       | Number  | `10`    | API 的后端服务超时时间，单位是秒。                                                                        |
+| param          | 否       |         |         | 前端参数                                                                                                  |
+| function       | 否       |         |         | SCF 配置                                                                                                  |
+| usagePlan      | 否       |         |         | 使用计划                                                                                                  |
+| auth           | 否       |         |         | API 密钥配置                                                                                              |
 
 - 前端参数
 
@@ -304,10 +306,10 @@ inputs:
 
 - SCF 配置
 
-| 参数名称             | 是否必选 | 类型    | 默认值 | 描述                                                   |
-| -------------------- | -------- | ------- | ------ | ------------------------------------------------------ |
-| isIntegratedResponse | 否       | Boolean | FALSE  | 是否启用 SCF 集成响应，TRUE 表示开启，FALSE 表示关闭。 |
-| functionQualifier    | 否       | String  |        | SCF 版本号，默认为 \$LATEST。                          |
+| 参数名称             | 是否必选 | 类型    | 默认值    | 描述                                                   |
+| -------------------- | -------- | ------- | --------- | ------------------------------------------------------ |
+| isIntegratedResponse | 否       | Boolean | `false`   | 是否启用 SCF 集成响应，true 表示开启，false 表示关闭。 |
+| functionQualifier    | 否       | String  | `$LATEST` | SCF 版本号。                                           |
 
 - 使用计划
 

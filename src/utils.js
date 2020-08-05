@@ -113,6 +113,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     } else {
       zipPath = inputs.src
     }
+    console.log(`Uploading code ${code.object} to bucket ${bucket}`)
     await cos.upload({
       bucket: bucket,
       file: zipPath,
