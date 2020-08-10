@@ -59,13 +59,11 @@ inputs:
     key2: value2 # tags 的key value
   events: # 触发器
     - timer: # 定时触发器
-        name: timer
         parameters:
           cronExpression: '*/5 * * * *' # 每5秒触发一次
           enable: true
           argument: argument # 额外的参数
     - apigw: # api网关触发器
-        name: serverless
         parameters:
           serviceId: service-8dsikiq6
           protocols:
@@ -110,7 +108,6 @@ inputs:
                 secretIds:
                   - xxx
     - apigw:
-        name: serverless_test
         parameters:
           serviceId: service-cyjmc4eg
           protocols:
@@ -121,7 +118,6 @@ inputs:
             - path: /users
               method: POST
     - cos: # cos触发器
-        name: cli-appid.cos.ap-beijing.myqcloud.com
         parameters:
           bucket: cli-appid.cos.ap-beijing.myqcloud.com
           filter:
@@ -130,12 +126,10 @@ inputs:
           events: 'cos:ObjectCreated:*'
           enable: true
     - cmq: # CMQ Topic 触发器
-        name: cmq_trigger
         parameters:
           name: test-topic-queue
           enable: true
     - ckafka: # ckafka触发器
-        name: ckafka_trigger
         parameters:
           name: ckafka-2o10hua5
           topic: test

@@ -31,6 +31,22 @@ const validateTraffic = (num) => {
   return true
 }
 
+const getDefaultFunctionName = (instance) => {
+  return `${instance.name}-${instance.stage}-${instance.app}-${instance.org}`
+}
+
+const getDefaultTriggerName = (type, instance) => {
+  return `${type}-${instance.name}-${instance.stage}`
+}
+
+const getDefaultServiceName = (instance) => {
+  return `${instance.name}_${instance.stage}`
+}
+
+const getDefaultServiceDescription = (instance) => {
+  return `${instance.name}-${instance.stage}-${instance.app}-${instance.org}`
+}
+
 /**
  * get default template zip file path
  */
@@ -125,7 +141,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   inputs.name =
     inputs.name ||
     (oldState.function && oldState.function.FunctionName) ||
-    `${CONFIGS.compName}_component_${generateId()}`
+    getDefaultFunctionName(instance)
   inputs.description = inputs.description || CONFIGS.description
   inputs.handler = inputs.handler || CONFIGS.handler
   inputs.runtime = inputs.runtime || CONFIGS.runtime
@@ -151,7 +167,12 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
         )
       } else {
         currentEvent.parameters.serviceName =
-          currentEvent.parameters.serviceName || currentEvent.name
+          currentEvent.parameters.serviceName ||
+          currentEvent.name ||
+          getDefaultServiceName(instance)
+        currentEvent.parameters.description =
+          currentEvent.parameters.description || getDefaultServiceDescription(instance)
+        currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
         if (stateApigw && stateApigw[currentEvent.name]) {
           currentEvent.parameters.serviceId =
             currentEvent.parameters.serviceId || stateApigw[currentEvent.name]
@@ -160,6 +181,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
       }
       existApigwTrigger = true
     } else {
+      currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
       triggers[eventType].push(currentEvent.name)
     }
     return event
