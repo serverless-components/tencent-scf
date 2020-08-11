@@ -56,13 +56,13 @@ inputs:
     key2: value2 # tags 的key value
   events: # 触发器
     - timer: # 定时触发器
-        name: #触发器名称，默认timer-${name}-${stage}-${app}-${org}
+        name: #触发器名称，默认timer-${name}-${stage}
         parameters:
           cronExpression: '*/5 * * * *' # 每5秒触发一次
           enable: true
           argument: argument # 额外的参数
     - apigw: # api网关触发器，已有apigw服务，配置触发器
-    	name: #触发器名称，默认apigw-${name}-${stage}-${app}-${org}
+    	name: #触发器名称，默认apigw-${name}-${stage}
         parameters:
           serviceName: apigw-service-xxxx
           serviceId: service-8dsikiq6
@@ -95,7 +95,7 @@ inputs:
                   desc: mytest
               function:
                 isIntegratedResponse: TRUE
-                functionQualifier: $LATEST #  当配置 traffic 时，需要配置为 $DEFAUlt
+                functionQualifier: $DEFAUlt 
               usagePlan:
                 usagePlanId: 1111
                 usagePlanName: slscmp
@@ -107,7 +107,7 @@ inputs:
                 secretIds:
                   - xxx
     - apigw: # api网关触发器，无apigw服务，自动创建服务
-    	name:  #触发器名称，默认apigw-${name}-${stage}-${app}-${org}
+    	name:  #触发器名称，默认apigw-${name}-${stage}
         parameters:
           serviceName: apigw-xxxx
           protocols:
@@ -118,7 +118,7 @@ inputs:
             - path: /users
               method: POST
     - cos: # cos触发器
-    	name:  #触发器名称，默认cos-${name}-${stage}-${app}-${org}
+    	name:  #触发器名称，默认cos-${name}-${stage}
         parameters:
           bucket: cli-appid.cos.ap-beijing.myqcloud.com
           filter:
@@ -127,12 +127,12 @@ inputs:
           events: 'cos:ObjectCreated:*'
           enable: true
     - cmq: # CMQ Topic 触发器
-    	name:  #触发器名称，默认cmq-${name}-${stage}-${app}-${org} 
+    	name:  #触发器名称，默认cmq-${name}-${stage}
         parameters:
           name: test-topic-queue
           enable: true
     - ckafka: # ckafka触发器
-    	name:   #触发器名称，默认ckafka-${name}-${stage}-${app}-${org} 
+    	name:   #触发器名称，默认ckafka-${name}-${stage} 
         parameters:
           name: ckafka-2o10hua5
           topic: test
@@ -151,7 +151,7 @@ inputs:
 | ------------------------ | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | name                     | 是       | ${name}-${stage}-${app}-${org}                               | 创建的函数名称。函数名称支持 26 个英文字母大小写、数字、连接符和下划线，第一个字符只能以字母开头，最后一个字符不能为连接符或者下划线，名称长度 2-60。**云函数名称又是资源ID，为了保证资源的唯一性，默认采用${name}-${stage}-${app}-${org}变量方式。** |
 | namesapce                | 否       | default                                                      | 函数命名空间。云函数旧版本会以命名空间作为环境隔离，SCF组件保留此参数，但不推荐使用此方式进行隔离。 |
-| role                     | 否       | SCF_QcsRole                                                  | 函数绑定的角色。                                             |
+| role                     | 否       |                                                              | 云函数绑定的运行角色。                                       |
 | enableRoleAuth           | 否       | true                                                         | 默认会尝试创建 SCF_QcsRole 角色。SCF_QcsRole 为 SCF 默认配置角色。该服务角色用于提供 SCF 配置对接其他云上资源的权限，包括但不限于代码文件访问、触发器配置。配置角色的预设策略可支持函数执行的基本操作。如果不需要配置成 false 即可。[相关文档](https://cloud.tencent.com/document/product/583/32389#.E8.A7.92.E8.89.B2.E8.AF.A6.E6.83.85) |
 | src                      | 是       |                                                              | 函数代码路径。如果是对象,配置参数参考 [执行目录](#执行目录)  |
 | handler                  | 否       | 默认值与runtime相关。Pyton/Php/Nodejs默认值为index.main_handler，Java默认值为example.Hello::mainHandler，Go默认值为main | 函数处理方法名称，名称格式支持 "文件名称.方法名称" 形式，文件名称和函数名称之间以"."隔开，文件名称和函数名称要求以字母开始和结尾，中间允许插入字母、数字、下划线和连接符，文件名称和函数名字的长度要求是 2-60 个字符。 |
@@ -221,10 +221,10 @@ inputs:
 
 支持以下触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）。
 
-| 参数名称 | 是否必选 |  类型  |                  默认值                   | 描述                                   |
-| -------- | :------: | :----: | :---------------------------------------: | :------------------------------------- |
-| name     |    是    | String | 触发器类型-${name}-${stage}-${app}-${org} | 触发器名称。                           |
-| param    |    是    | Object |                                           | 根据触发器类型，参考以下触发器参数表。 |
+| 参数名称 | 是否必选 |  类型  |           默认值            | 描述                                   |
+| -------- | :------: | :----: | :-------------------------: | :------------------------------------- |
+| name     |    是    | String | 触发器类型-${name}-${stage} | 触发器名称。                           |
+| param    |    是    | Object |                             | 根据触发器类型，参考以下触发器参数表。 |
 
 #### timer 触发器参数
 
@@ -306,10 +306,10 @@ inputs:
 
 - SCF 配置
 
-| 参数名称             | 是否必选 | 类型    | 默认值 | 描述                                                   |
-| -------------------- | -------- | ------- | ------ | ------------------------------------------------------ |
-| isIntegratedResponse | 否       | Boolean | FALSE  | 是否启用 SCF 集成响应，TRUE 表示开启，FALSE 表示关闭。 |
-| functionQualifier    | 否       | String  |        | SCF 版本号，默认为 \$LATEST。                          |
+| 参数名称             | 是否必选 | 类型    | 默认值   | 描述                                                   |
+| -------------------- | -------- | ------- | -------- | ------------------------------------------------------ |
+| isIntegratedResponse | 否       | Boolean | FALSE    | 是否启用 SCF 集成响应，TRUE 表示开启，FALSE 表示关闭。 |
+| functionQualifier    | 否       | String  | \$LATEST | 触发器关联的SCF 版本 。                                |
 
 - 使用计划
 
