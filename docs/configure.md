@@ -5,12 +5,19 @@
 ```yml
 # serverless.yml
 
-component: scf # (必选) 组件名称，在该实例中为scf
-name: scfdemo # (必选) 组件实例名称.
+#应用组织信息
+org: '' #组织名称。留空则则使用默认值为用户appid
+app: ''  #应用名称。留空则默认取当前组件的实例名称为app名称。
+stage: ''  #环境名称。默认值是 dev。建议使用${env.STAGE}变量定义环境名称
 
+#组件信息
+component: scf # (必选) 组件名称，在该实例中为scf
+name: scfdemo # (必选) 组件实例名称。
+
+#组件参数配置
 inputs:
   name: ${name}-${stage}-${app}-${org} # 云函数名称
- # namesapce: default 
+  namesapce: default 
   role: exRole # 云函数执行角色
   enableRoleAuth: true # 默认会尝试创建 SCF_QcsRole 角色，如果不需要配置成 false 即可
   # 1. 默认写法，新建特定命名的 cos bucket 并上传
@@ -44,14 +51,14 @@ inputs:
     type: deadLetterType
     name: deadLetterName
     filterType: deadLetterFilterType
-  layers:
+  layers: #layer配置
     - name: scfLayer #  layer名称
       version: 1 #  版本
   cls: # 函数日志
     logsetId: ClsLogsetId
     topicId: ClsTopicId
   eip: true/false # 是否开启固定IP
-  tags:
+  tags: #标签配置
     key1: value1
     key2: value2 # tags 的key value
   events: # 触发器
@@ -63,7 +70,7 @@ inputs:
           argument: argument # 额外的参数
     - apigw: # api网关触发器，已有apigw服务，配置触发器
     	name: #触发器名称，默认apigw-${name}-${stage}
-        parameters:
+        parameters: 
           serviceName: apigw-service-xxxx
           serviceId: service-8dsikiq6
           protocols:
