@@ -9,3 +9,217 @@ readme: https://github.com/serverless-components/tencent-scf/tree/master/README.
 license: MIT
 main: ./src
 webDeployable: true
+
+actions:
+  deploy:
+    definition: Deploy your Express.js application to Tencent SCF
+    inputs:
+      src:
+        type: src
+        required: true
+        description: The folder containing the source code of your Express.js application.
+      name:
+        type: string
+        description: The name of Tencent SCF function.
+        regex: '^[a-z][a-z0-9\-]{0,61}[A-Za-z0-9]$'
+      handler:
+        type: string
+        default: 'index.main_handler'
+        description: The handler of Tencent SCF function.
+      runtime:
+        type: string
+        description: SCF runtime
+        default: Nodejs10.15
+        allow: # The values that are allowed for this
+          - Python2.7
+          - Python3.6
+          - Nodejs6.10
+          - Nodejs8.9
+          - Nodejs10.15
+          - Nodejs12.16
+          - Php5
+          - Php7
+          - Go1
+          - Java8
+      region:
+        type: string
+        default: ap-guangzhou
+        description: Region for SCF deployed to
+        allow: # The values that are allowed for this
+          - ap-guangzhou
+          - ap-shanghai
+          - ap-hongkong
+          - ap-beijing
+          - ap-chengdu
+          - ap-tokyo
+          - ap-mumbai
+          - ap-singapore
+          - na-siliconvalley
+          - na-toronto
+      memorySize:
+        type: number
+        description: SCF memory size
+        default: 128 # The default value
+        min: 64 # Minimum number allowed
+        max: 3072 # Maximum number allowed
+        allow: # The values that are allowed for this
+          - 64
+          - 128
+          - 256
+          - 384
+          - 512
+          - 640
+          - 768
+          - 896
+          - 1024
+          - 1152
+          - 1280
+          - 1408
+          - 1536
+          - 1664
+          - 1792
+          - 1920
+          - 2048
+          - 2176
+          - 2304
+          - 2432
+          - 2560
+          - 2688
+          - 2816
+          - 2944
+          - 3072
+      environment:
+        type: object
+        description: SCF environment
+        keys:
+          variables:
+            type: object
+      vpcConfig:
+        type: object
+        keys:
+          vpcId:
+            type: string
+          subnetId:
+            type: string
+      events:
+        type: array
+        items:
+          - type: object
+            keys:
+              timer:
+                type: object
+                keys:
+                  parameters:
+                    type: object
+                    keys:
+                      enable:
+                        type: boolean
+                        default: true
+                      cronExpression:
+                        type: string
+                      argument:
+                        type: string
+              apigw:
+                type: object
+                keys:
+                  parameters:
+                    type: object
+                    keys:
+                      protocols:
+                        type: array
+                        items:
+                          - type: string
+                            allow:
+                              - http
+                              - https
+                      netTypes:
+                        type: array
+                        default:
+                          - OUTER
+                        items:
+                          - type: string
+                            allow:
+                              - OUTER
+                              - INNER
+                      description:
+                        type: string
+                      environment:
+                        type: string
+                        allow:
+                          - release
+                          - test
+                          - prepub
+                      endpoints:
+                        type: array
+                        items:
+                          - type: object
+                            keys:
+                              path:
+                                type: string
+                              method:
+                                type: string
+                              enableCORS:
+                                type: boolean
+                      serviceId:
+                        type: string
+                      serviceName:
+                        type: string
+                        regex: '^[a-zA-Z][a-zA-Z0-9(_)]{0,48}[a-zA-Z0-9]?$'
+              cos:
+                type: object
+                keys:
+                  enable:
+                    type: boolean
+                    default: true
+                  bucket:
+                    type: string
+                  filter:
+                    prefix:
+                      type: string
+                    suffix:
+                      type: string
+                  events:
+                    type: string
+                    allow:
+                      - 'cos:ObjectCreated:*'
+                      - 'cos:ObjectCreated:Put'
+                      - 'cos:ObjectCreated:Post'
+                      - 'cos:ObjectCreated:Copy'
+                      - 'cos:ObjectCreated:CompleteMultipartUpload'
+                      - 'cos:ObjectCreated:Origin'
+                      - 'cos:ObjectCreated:Replication'
+                      - 'cos:ObjectRemove:*'
+                      - 'cos:ObjectRemove:Delete'
+                      - 'cos:ObjectRemove:DeleteMarkerCreated'
+                      - 'cos:ObjectRestore:Post'
+                      - 'cos:ObjectRestore:Completed'
+              ckafka:
+                type: object
+                keys:
+                  enable:
+                    type: boolean
+                    default: true
+                  name:
+                    type: string
+                  topic:
+                    type: string
+                  maxMsgNum:
+                    type: number
+                    min: 1
+                    max: 10000
+                  offset:
+                    type: string
+                    allow:
+                      - latest
+                      - earliest
+                      - timestamp
+              cmq:
+                type: object
+                keys:
+                  enable:
+                    type: boolean
+                    default: true
+                  name:
+                    type: string
+  remove:
+    definition: Remove your Express.js application

@@ -34,7 +34,7 @@ class ServerlessComponent extends Component {
   }
 
   async deploy(inputs) {
-    console.log(`Deploying Tencent ${CONFIGS.componentFullname}...`)
+    console.log(`Deploying Tencent ${CONFIGS.compFullname}...`)
 
     const credentials = this.getCredentials()
     const appId = this.getAppId()
@@ -115,7 +115,7 @@ class ServerlessComponent extends Component {
 
     await this.save()
 
-    console.log(`Deployed Tencent ${CONFIGS.componentFullname}...`)
+    console.log(`Deployed Tencent ${CONFIGS.compFullname}...`)
 
     return outputs
   }
@@ -126,13 +126,13 @@ class ServerlessComponent extends Component {
     const { region } = this.state
     const functionInfo = this.state.function
 
-    console.log(`Removing Tencent ${CONFIGS.componentFullname}...`)
+    console.log(`Removing Tencent ${CONFIGS.compFullname}...`)
     const scf = new Scf(credentials, region)
     if (functionInfo && functionInfo.FunctionName) {
       await scf.remove(functionInfo)
     }
     this.state = {}
-    console.log(`Removed Tencent ${CONFIGS.componentFullname}`)
+    console.log(`Removed Tencent ${CONFIGS.compFullname}`)
   }
 }
 

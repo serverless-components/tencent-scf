@@ -1,8 +1,5 @@
-org: orgDemo
-app: appDemo
-stage: dev
 component: scf
-name: scfDemo
+name: scfdemo
 
 inputs:
   src: ./src
@@ -11,12 +8,10 @@ inputs:
   handler: index.main_handler
   events:
     - apigw:
-        name: serverless_api
         parameters:
           protocols:
             - http
             - https
-          description: The service of Serverless Framework
           environment: release
           endpoints:
             - path: /

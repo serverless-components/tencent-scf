@@ -51,20 +51,23 @@ const getDefaultServiceDescription = (instance) => {
  * get default template zip file path
  */
 const getDefaultZipPath = async () => {
-  console.log(`Packaging ${CONFIGS.componentFullname} application...`)
+  console.log(`Packaging ${CONFIGS.compFullname} application...`)
 
   // unzip source zip file
   // add default template
   const downloadPath = `/tmp/${generateId()}`
   const filename = 'template'
 
-  console.log(`Installing Default ${CONFIGS.componentFullname} App...`)
+  console.log(`Installing Default ${CONFIGS.compFullname} App...`)
   try {
     await download(CONFIGS.templateUrl, downloadPath, {
       filename: `${filename}.zip`
     })
   } catch (e) {
-    throw new TypeError(`DOWNLOAD_TEMPLATE`, 'Download default template failed.')
+    throw new TypeError(
+      `DOWNLOAD_${CONFIGS.compName.toUpperCase()}_TEMPLATE`,
+      'Download default template failed.'
+    )
   }
   const zipPath = `${downloadPath}/${filename}.zip`
 
@@ -92,10 +95,10 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
       : {}
 
   const code = {
-    bucket: tempSrc.bucket ? tempSrc.bucket : `sls-cloudfunction-${region}-code`,
-    object: tempSrc.object
-      ? tempSrc.object
-      : `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
+    bucket: tempSrc.bucket || `sls-cloudfunction-${region}-code`,
+    object:
+      tempSrc.object ||
+      `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
   }
   const cos = new Cos(credentials, region)
   const bucket = `${code.bucket}-${appId}`
@@ -142,9 +145,9 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     inputs.name ||
     (oldState.function && oldState.function.FunctionName) ||
     getDefaultFunctionName(instance)
-  inputs.description = inputs.description || CONFIGS.description
-  inputs.handler = inputs.handler || CONFIGS.handler
   inputs.runtime = inputs.runtime || CONFIGS.runtime
+  inputs.handler = inputs.handler || CONFIGS.handler(inputs.runtime)
+  inputs.description = inputs.description || CONFIGS.description(instance.app)
   inputs.code = code
   inputs.events = inputs.events || []
 
@@ -156,6 +159,13 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   // initial apigw event parameters
   inputs.events = inputs.events.map((event) => {
     const eventType = Object.keys(event)[0]
+    // check trigger type
+    if (CONFIGS.triggerTypes.indexOf(eventType) === -1) {
+      throw new TypeError(
+        `PARAMETER_${CONFIGS.compName.toUpperCase()}_APIGW_TRIGGER`,
+        `Unknow trigger type ${eventType}, must be one of ${JSON.stringify(CONFIGS.triggerTypes)}`
+      )
+    }
     const currentEvent = event[eventType]
     triggers[eventType] = triggers[eventType] || []
 
