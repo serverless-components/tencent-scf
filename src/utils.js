@@ -32,7 +32,7 @@ const validateTraffic = (num) => {
 }
 
 const getDefaultFunctionName = (instance) => {
-  return `${instance.name}-${instance.stage}-${instance.app}-${instance.org}`
+  return `${instance.name}-${instance.stage}-${instance.app}`
 }
 
 const getDefaultTriggerName = (type, instance) => {
@@ -44,7 +44,7 @@ const getDefaultServiceName = (instance) => {
 }
 
 const getDefaultServiceDescription = (instance) => {
-  return `${instance.name}-${instance.stage}-${instance.app}-${instance.org}`
+  return `${instance.name}-${instance.stage}-${instance.app}`
 }
 
 /**
