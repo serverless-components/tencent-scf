@@ -39,7 +39,6 @@ const CONFIGS = {
   },
   triggerTypes: ['apigw', 'cos', 'timer', 'cmq', 'ckafka'],
   defaultApigw: {
-    name: `serverless_api`,
     parameters: {
       protocols: ['http', 'https'],
       description: 'Created By Serverless Component',

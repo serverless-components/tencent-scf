@@ -200,8 +200,11 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   // if not config apig trigger, and make autoCreateApi true
   if (inputs.autoCreateApi && !existApigwTrigger) {
     triggers.apigw = []
+    const { defaultApigw } = CONFIGS
+    defaultApigw.parameters.serviceName = getDefaultServiceName(instance)
+    defaultApigw.parameters.description = getDefaultServiceDescription(instance)
     inputs.events.push({
-      apigw: CONFIGS.defaultApigw
+      apigw: defaultApigw
     })
 
     existApigwTrigger = true
