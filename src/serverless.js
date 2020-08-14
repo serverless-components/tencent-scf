@@ -90,11 +90,21 @@ class ServerlessComponent extends Component {
         if (apigwTrigger.serviceId) {
           stateApigw[apigwTrigger.serviceName] = apigwTrigger.serviceId
           apigwTrigger.apiList.forEach((endpoint) => {
-            triggers['apigw'].push(
-              `${this.getDefaultProtocol(apigwTrigger.protocols)}://${apigwTrigger.subDomain}/${
-                apigwTrigger.environment
-              }${endpoint.path}`
-            )
+            if (typeof apigwTrigger.subDomain !== 'string') {
+              apigwTrigger.subDomain.forEach((item) => {
+                triggers['apigw'].push(
+                  `${this.getDefaultProtocol(apigwTrigger.protocols)}://${item}/${
+                    apigwTrigger.environment
+                  }${endpoint.path}`
+                )
+              })
+            } else {
+              triggers['apigw'].push(
+                `${this.getDefaultProtocol(apigwTrigger.protocols)}://${apigwTrigger.subDomain}/${
+                  apigwTrigger.environment
+                }${endpoint.path}`
+              )
+            }
           })
         }
       })
