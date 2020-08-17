@@ -1,7 +1,7 @@
 const { Component } = require('@serverless/core')
 const { Scf } = require('tencent-component-toolkit')
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
-const { prepareInputs } = require('./utils')
+const { prepareInputs, getType } = require('./utils')
 const CONFIGS = require('./config')
 
 class ServerlessComponent extends Component {
@@ -90,7 +90,7 @@ class ServerlessComponent extends Component {
         if (apigwTrigger.serviceId) {
           stateApigw[apigwTrigger.serviceName] = apigwTrigger.serviceId
           apigwTrigger.apiList.forEach((endpoint) => {
-            if (typeof apigwTrigger.subDomain !== 'string') {
+            if (getType(apigwTrigger.subDomain) === 'Array') {
               apigwTrigger.subDomain.forEach((item) => {
                 triggers['apigw'].push(
                   `${this.getDefaultProtocol(apigwTrigger.protocols)}://${item}/${

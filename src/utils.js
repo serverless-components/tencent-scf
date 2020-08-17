@@ -226,6 +226,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
 }
 
 module.exports = {
+  getType,
   generateId,
   prepareInputs,
   getDefaultZipPath
