@@ -41,6 +41,7 @@ actions:
           - Php7
           - Go1
           - Java8
+          - CustomRuntime
       region:
         type: string
         default: ap-guangzhou
