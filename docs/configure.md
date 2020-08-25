@@ -6,9 +6,9 @@
 # serverless.yml
 
 #应用组织信息
-org: '' #组织名称。留空则则使用默认值为用户appid
-app: ''  #应用名称。留空则默认取当前组件的实例名称为app名称。
-stage: ''  #环境名称。默认值是 dev。建议使用${env.STAGE}变量定义环境名称
+org:  #组织名称。留空则则使用默认值为用户appid
+app:   #应用名称。留空则默认取当前组件的实例名称为app名称。
+stage:   #环境名称。默认值是 dev。建议使用${env.STAGE}变量定义环境名称
 
 #组件信息
 component: scf # (必选) 组件名称，在该实例中为scf
@@ -16,7 +16,7 @@ name: scfdemo # (必选) 组件实例名称。
 
 #组件参数配置
 inputs:
-  name: ${name}-${stage}-${app}-${org} # 云函数名称
+  name: ${name}-${stage}-${app} # 云函数名称
   namesapce: default 
   role: exRole # 云函数执行角色
   enableRoleAuth: true # 默认会尝试创建 SCF_QcsRole 角色，如果不需要配置成 false 即可
@@ -47,6 +47,11 @@ inputs:
   vpcConfig: # 私有网络配置
     vpcId: '' # 私有网络的Id
     subnetId: '' # 子网ID
+  cfs: # cfs配置
+    - cfsId: cfs-123
+      mountInsId: cfs-123
+      localMountDir: /mnt/
+      remoteMountDir: /
   deadLetter: # 死信队列配置
     type: deadLetterType
     name: deadLetterName
@@ -156,13 +161,13 @@ inputs:
 
 | 参数名称                 | 是否必选 | 默认值                                                       | 描述                                                         |
 | ------------------------ | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| name                     | 是       | ${name}-${stage}-${app}-${org}                               | 创建的函数名称。函数名称支持 26 个英文字母大小写、数字、连接符和下划线，第一个字符只能以字母开头，最后一个字符不能为连接符或者下划线，名称长度 2-60。**云函数名称又是资源ID，为了保证资源的唯一性，默认采用${name}-${stage}-${app}-${org}变量方式。** |
+| name                     | 是       | ${name}-${stage}-${app}                                      | 创建的函数名称。函数名称支持 26 个英文字母大小写、数字、连接符和下划线，第一个字符只能以字母开头，最后一个字符不能为连接符或者下划线，名称长度 2-60。**云函数名称又是资源ID，为了保证资源的唯一性，默认采用${name}-${stage}-${app}变量方式。** |
 | namesapce                | 否       | default                                                      | 函数命名空间。云函数旧版本会以命名空间作为环境隔离，SCF组件保留此参数，但不推荐使用此方式进行隔离。 |
 | role                     | 否       |                                                              | 云函数绑定的运行角色。                                       |
 | enableRoleAuth           | 否       | true                                                         | 默认会尝试创建 SCF_QcsRole 角色。SCF_QcsRole 为 SCF 默认配置角色。该服务角色用于提供 SCF 配置对接其他云上资源的权限，包括但不限于代码文件访问、触发器配置。配置角色的预设策略可支持函数执行的基本操作。如果不需要配置成 false 即可。[相关文档](https://cloud.tencent.com/document/product/583/32389#.E8.A7.92.E8.89.B2.E8.AF.A6.E6.83.85) |
 | src                      | 是       |                                                              | 函数代码路径。如果是对象,配置参数参考 [执行目录](#执行目录)  |
 | handler                  | 否       | 默认值与runtime相关。Pyton/Php/Nodejs默认值为index.main_handler，Java默认值为example.Hello::mainHandler，Go默认值为main | 函数处理方法名称，名称格式支持 "文件名称.方法名称" 形式，文件名称和函数名称之间以"."隔开，文件名称和函数名称要求以字母开始和结尾，中间允许插入字母、数字、下划线和连接符，文件名称和函数名字的长度要求是 2-60 个字符。 |
-| runtime                  | 否       | Python2.7                                                    | 函数运行环境，目前仅支持 Python2.7，Python3.6，Nodejs6.10，Nodejs8.9，Nodejs10.15，Nodejs12.16， PHP5， PHP7，Go1 和 Java8，默认 Python2.7 |
+| runtime                  | 否       | Python2.7                                                    | 函数运行环境，目前仅支持 Python2.7，Python3.6，Nodejs6.10，Nodejs8.9，Nodejs10.15，Nodejs12.16， PHP5， PHP7，Go1 ， Java8和CustomRuntime，默认 Python2.7。使用CustomRuntime部署参考[CustomRuntime](https://cloud.tencent.com/document/product/583/47274) |
 | region                   | 否       | ap-guangzhou                                                 | 云函数所在区域。详见产品支持的 [地域列表](https://cloud.tencent.com/document/api/583/17238#.E5.9C.B0.E5.9F.9F.E5.88.97.E8.A1.A8)。 |
 | description              | 否       | This is a function in ${app} application.                    | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文 |
 | memorySize               | 否       | 128M                                                         | 函数运行时内存大小，默认为 128M，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯 |
@@ -174,6 +179,7 @@ inputs:
 | [cls](#函数日子)         | 否       |                                                              | 函数日志配置，配置参数参考[函数日志](#函数日志)              |
 | eip                      | 否       | false                                                        | 固定出口 IP。默认为 false，即不启用。                        |
 | tags                     | 否       |                                                              | 标签设置。可设置多对 key-value 的键值对                      |
+| [cfs](文件系统)          | 否       |                                                              | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](文件系统)。 |
 | [events](#触发器)        | 否       |                                                              | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考[触发器](#触发器)。 |
 
 ### 执行目录
@@ -220,6 +226,17 @@ inputs:
 | logsetId |    否    | String | 函数日志投递到的 CLS LogsetID |
 | topicId  |    否    | String | 函数日志投递到的 CLS TopicID  |
 
+### 文件系统
+
+使用文件系统必须配置[私有网络](#私有网络)，并保证cfs文件系统与云函数在同一个私有网络下。
+
+| 参数名称       | 是否必选 |  类型  | 描述             |
+| -------------- | :------: | :----: | :--------------- |
+| cfsId          |    是    | String | 文件系统实例id   |
+| mountInsId     |    是    | String | 文件系统挂载点id |
+| localMountDir  |    是    | String | 本地挂载点       |
+| remoteMountDir |    是    | String | 远程挂载点       |
+
 ### 触发器
 
 参考： https://cloud.tencent.com/document/product/583/39901
@@ -228,10 +245,10 @@ inputs:
 
 支持以下触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）。
 
-| 参数名称 | 是否必选 |  类型  |           默认值            | 描述                                   |
-| -------- | :------: | :----: | :-------------------------: | :------------------------------------- |
-| name     |    是    | String | 触发器类型-${name}-${stage} | 触发器名称。                           |
-| param    |    是    | Object |                             | 根据触发器类型，参考以下触发器参数表。 |
+| 参数名称 | 是否必选 |  类型  |              默认值               | 描述                                   |
+| -------- | :------: | :----: | :-------------------------------: | :------------------------------------- |
+| name     |    是    | String | 触发器类型-${name}-${stage}-{app} | 触发器名称。                           |
+| param    |    是    | Object |                                   | 根据触发器类型，参考以下触发器参数表。 |
 
 #### timer 触发器参数
 
@@ -273,32 +290,32 @@ inputs:
 
 #### apigw 触发器参数
 
-| 参数名称    | 是否必选 |   类型   | 默认值   | 描述                                                         |
-| ----------- | -------- | :------: | :------- | :----------------------------------------------------------- |
-| serviceId   | 否       |  String  |          | Apigw Service ID（不传入则新建一个 Service）                 |
-| protocols   | 否       | String[] | ['http'] | 前端请求的类型，如 http，https，http 与 https                |
-| serviceName | 否       |  String  |          | Apigw API 名称。如果不传递则默认新建一个名称与触发器名称相同的Apigw API 名称。 |
-| description | 否       |  String  |          | Apigw API 描述                                               |
-| environment | 是       |  String  | release  | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release` |
-| endpoints   | 是       | Object[] |          | 参考 endpoint 参数。                                         |
+| 参数名称    | 是否必选 |   类型   | 默认值     | 描述                                                         |
+| ----------- | -------- | :------: | :--------- | :----------------------------------------------------------- |
+| serviceId   | 否       |  String  |            | Apigw Service ID（不传入则新建一个 Service）                 |
+| protocols   | 否       | String[] | ['http']   | 前端请求的类型，如 http，https，http 与 https                |
+| serviceName | 否       |  String  | serverless | Apigw API 名称。                                             |
+| description | 否       |  String  |            | Apigw API 描述。                                             |
+| environment | 否       |  String  | release    | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release` |
+| endpoints   | 是       | Object[] |            | 参考 endpoint 参数。                                         |
 
 ##### **endpoints 参数**
 
 参考： https://cloud.tencent.com/document/product/628/14886
 
-| 参数名称       | 是否必选 |  类型   | 默认值 | 描述                                                                                                      |
-| -------------- | -------- | :-----: | :----- | :-------------------------------------------------------------------------------------------------------- |
-| path           | 是       | String  |        | API 的前端路径，如/path。                                                                                 |
-| method         | 否       | String  |        | API 的前端请求方法，如 GET                                                                                |
-| apiId          | 否       | String  |        | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
-| description    | 否       | String  |        | API 描述                                                                                                  |
-| enableCORS     | 是       | Boolean | FALSE  | 是否需要开启跨域，TRUE 表示需要，FALSE 表示不需要。默认为 FALSE。                                         |
+| 参数名称       | 是否必选 |  类型   | 默认值 | 描述                                                         |
+| -------------- | -------- | :-----: | :----- | :----------------------------------------------------------- |
+| path           | 是       | String  |        | API 的前端路径，如/path。                                    |
+| method         | 是       | String  |        | API 的前端请求方法，如 GET                                   |
+| apiId          | 否       | String  |        | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。 |
+| description    | 否       | String  |        | API 描述                                                     |
+| enableCORS     | 否       | Boolean | FALSE  | 是否需要开启跨域，TRUE 表示需要，FALSE 表示不需要。默认为 FALSE。 |
 | responseType   | 否       | String  |        | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
-| serviceTimeout | 是       |   Int   |        | API 的后端服务超时时间，单位是秒。                                                                        |
-| param          | 否       |         |        | 前端参数                                                                                                  |
-| function       | 否       |         |        | SCF 配置                                                                                                  |
-| usagePlan      | 否       |         |        | 使用计划                                                                                                  |
-| auth           | 否       |         |        | API 密钥配置                                                                                              |
+| serviceTimeout | 否       |   Int   |        | API 的后端服务超时时间，单位是秒。                           |
+| param          | 否       |         |        | 前端参数                                                     |
+| function       | 否       |         |        | SCF 配置                                                     |
+| usagePlan      | 否       |         |        | 使用计划                                                     |
+| auth           | 否       |         |        | API 密钥配置                                                 |
 
 - 前端参数
 
