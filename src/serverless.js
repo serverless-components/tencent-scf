@@ -1,7 +1,7 @@
 const { Component } = require('@serverless/core')
 const { Scf } = require('tencent-component-toolkit')
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
-const { prepareInputs, getType } = require('./utils')
+const { prepareInputs, getType, getDefaultProtocol } = require('./utils')
 const CONFIGS = require('./config')
 
 class ServerlessComponent extends Component {
@@ -24,13 +24,6 @@ class ServerlessComponent extends Component {
 
   getAppId() {
     return this.credentials.tencent.tmpSecrets.appId
-  }
-
-  getDefaultProtocol(protocols) {
-    if (String(protocols).includes('https')) {
-      return 'https'
-    }
-    return 'http'
   }
 
   async deploy(inputs) {
@@ -61,6 +54,13 @@ class ServerlessComponent extends Component {
       runtime: scfOutput.Runtime,
       handler: scfOutput.Handler,
       memorySize: scfOutput.MemorySize
+    }
+
+    if (scfOutput.Layers && scfOutput.Layers.length > 0) {
+      outputs.layers = scfOutput.Layers.map((item) => ({
+        name: item.LayerName,
+        version: item.LayerVersion
+      }))
     }
 
     // default version is $LATEST
@@ -94,14 +94,14 @@ class ServerlessComponent extends Component {
             if (getType(apigwTrigger.subDomain) === 'Array') {
               apigwTrigger.subDomain.forEach((item) => {
                 triggers['apigw'].push(
-                  `${this.getDefaultProtocol(apigwTrigger.protocols)}://${item}/${
+                  `${getDefaultProtocol(apigwTrigger.protocols)}://${item}/${
                     apigwTrigger.environment
                   }${endpoint.path}`
                 )
               })
             } else {
               triggers['apigw'].push(
-                `${this.getDefaultProtocol(apigwTrigger.protocols)}://${apigwTrigger.subDomain}/${
+                `${getDefaultProtocol(apigwTrigger.protocols)}://${apigwTrigger.subDomain}/${
                   apigwTrigger.environment
                 }${endpoint.path}`
               )

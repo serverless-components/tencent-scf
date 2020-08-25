@@ -95,6 +95,17 @@ actions:
         keys:
           variables:
             type: object
+      layers:
+        type: array
+        items:
+          - type: object
+            keys:
+              name:
+                type: string
+                required: true
+              version:
+                type: number
+                required: true
       vpcConfig:
         type: object
         keys:

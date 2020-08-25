@@ -47,6 +47,11 @@ inputs:
   vpcConfig: # 私有网络配置
     vpcId: '' # 私有网络的Id
     subnetId: '' # 子网ID
+  cfs: # cfs配置
+    - cfsId: cfs-123
+      mountInsId: cfs-123
+      localMountDir: /mnt/
+      remoteMountDir: /
   deadLetter: # 死信队列配置
     type: deadLetterType
     name: deadLetterName
@@ -71,7 +76,7 @@ inputs:
     - apigw: # api网关触发器，已有apigw服务，配置触发器
     	name: #触发器名称，默认apigw-${name}-${stage}
         parameters:
-          serviceName: apigw-service-xxxx
+          serviceName: serverless
           serviceId: service-8dsikiq6
           protocols:
             - http
@@ -176,6 +181,7 @@ inputs:
 | [cls](#函数日子)         | 否       |                                                                                                                | 函数日志配置，配置参数参考[函数日志](#函数日志)                                                                                                                                                                                                                    |
 | eip                      | 否       | `false`                                                                                                        | 固定出口 IP。默认为 false，即不启用。                                                                                                                                                                                                                              |
 | tags                     | 否       |                                                                                                                | 标签设置。可设置多对 key-value 的键值对                                                                                                                                                                                                                            |
+| [cfs](文件系统)          | 否       |                                                                                                                | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                                                                                                                                                                      |
 | [events](#触发器)        | 否       |                                                                                                                | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考[触发器](#触发器)。                                                                                       |
 
 ### 执行目录
@@ -213,7 +219,7 @@ inputs:
 | 参数名称 | 是否必选 |  类型  | 描述     |
 | -------- | :------: | :----: | :------- |
 | name     |    是    | string | 层名称   |
-| version  |    是    | string | 层版本号 |
+| version  |    是    | number | 层版本号 |
 
 ### 函数日志
 
@@ -221,6 +227,17 @@ inputs:
 | -------- | :------: | :----: | :---------------------------- |
 | logsetId |    否    | string | 函数日志投递到的 CLS LogsetID |
 | topicId  |    否    | string | 函数日志投递到的 CLS TopicID  |
+
+### 文件系统
+
+使用文件系统必须配置[私有网络](#私有网络)，并保证 cfs 文件系统与云函数在同一个私有网络下。
+
+| 参数名称       | 是否必选 |  类型  | 描述              |
+| -------------- | :------: | :----: | :---------------- |
+| cfsId          |    是    | String | 文件系统实例 id   |
+| mountInsId     |    是    | String | 文件系统挂载点 id |
+| localMountDir  |    是    | String | 本地挂载点        |
+| remoteMountDir |    是    | String | 远程挂载点        |
 
 ### 触发器
 
@@ -277,7 +294,7 @@ inputs:
 
 | 参数名称    | 是否必选 |   类型   | 默认值      | 描述                                                                           |
 | ----------- | -------- | :------: | :---------- | :----------------------------------------------------------------------------- |
-| environment | 是       |  string  | `release`   | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release`          |
+| environment | 否       |  string  | `release`   | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release`          |
 | serviceId   | 否       |  string  |             | 网关 Service ID（不传入则新建一个 Service）                                    |
 | protocols   | 否       | string[] | `['http']`  | 前端请求的类型，如 http，https，http 与 https                                  |
 | netTypes    | 否       | string[] | `['OUTER']` | 网络类型，如 `['OUTER']`, `['INNER']` 与`['OUTER', 'INNER']`                   |

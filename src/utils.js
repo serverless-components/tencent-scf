@@ -31,6 +31,10 @@ const validateTraffic = (num) => {
   return true
 }
 
+const getDefaultProtocol = (protocols) => {
+  return String(protocols).includes('https') ? 'https' : 'http'
+}
+
 const getDefaultFunctionName = (instance) => {
   return `${instance.name}-${instance.stage}-${instance.app}`
 }
@@ -39,12 +43,12 @@ const getDefaultTriggerName = (type, instance) => {
   return `${type}-${instance.name}-${instance.stage}`
 }
 
-const getDefaultServiceName = (instance) => {
-  return `${instance.name}_${instance.stage}`
+const getDefaultServiceName = () => {
+  return 'serverless'
 }
 
 const getDefaultServiceDescription = (instance) => {
-  return `${instance.name}-${instance.stage}-${instance.app}`
+  return `The service of serverless scf: ${instance.name}-${instance.stage}-${instance.app}`
 }
 
 /**
@@ -183,11 +187,11 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
         currentEvent.parameters.description =
           currentEvent.parameters.description || getDefaultServiceDescription(instance)
         currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
-        if (stateApigw && stateApigw[currentEvent.name]) {
+        if (stateApigw && stateApigw[currentEvent.parameters.serviceName]) {
           currentEvent.parameters.serviceId =
-            currentEvent.parameters.serviceId || stateApigw[currentEvent.name]
+            currentEvent.parameters.serviceId || stateApigw[currentEvent.parameters.serviceName]
         }
-        apigwName.push(currentEvent.name)
+        apigwName.push(currentEvent.parameters.serviceName)
       }
       existApigwTrigger = true
     } else {
@@ -227,6 +231,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
 
 module.exports = {
   getType,
+  getDefaultProtocol,
   generateId,
   prepareInputs,
   getDefaultZipPath

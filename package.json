@@ -1,6 +1,5 @@
 {
   "name": "@serverless/scf",
-  "version": "0.1.3",
   "main": "src/serverless.js",
   "publishConfig": {
     "access": "public"
