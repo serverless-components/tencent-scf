@@ -1,4 +1,4 @@
-component: scf
+component: scf@dev
 name: scfdemo
 
 inputs:
