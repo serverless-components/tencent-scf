@@ -1,3 +1,10 @@
+## [0.1.5](https://github.com/serverless-components/tencent-scf/compare/v0.1.4...v0.1.5) (2020-08-31)
+
+
+### Bug Fixes
+
+* update deps for uniform error message ([63a0bd2](https://github.com/serverless-components/tencent-scf/commit/63a0bd2d08801c21db94b98831bcff6f8c96a234))
+
 ## [0.1.4](https://github.com/serverless-components/tencent-scf/compare/v0.1.3...v0.1.4) (2020-08-26)
 
 
