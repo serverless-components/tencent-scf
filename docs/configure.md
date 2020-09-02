@@ -145,6 +145,10 @@ inputs:
         parameters:
           name: test-topic-queue
           enable: true
+          filterType: 1 # 消息过滤类型，1为标签类型，2为路由匹配类型
+          filterKey: # 当 filterType 为1时表示消息过滤标签，当 filterType 为2时表示 Binding Key
+            - key1
+            - key2
     - ckafka: # ckafka触发器
     	name:   #触发器名称，默认ckafka-${name}-${stage}
         parameters:
@@ -275,10 +279,12 @@ inputs:
 
 #### cmq 触发器参数
 
-| 参数名称 | 是否必选 | 类型    | 默认值 | 描述                     |
-| -------- | -------- | ------- | ------ | :----------------------- |
-| name     | 是       | string  |        | CMQ Topic 主题队列名称   |
-| enable   | 否       | boolean | `true` | 触发器是否启用。默认启用 |
+| 参数名称   | 是否必选 | 类型     | 默认值 | 描述                                                                         |
+| ---------- | -------- | -------- | ------ | :--------------------------------------------------------------------------- |
+| name       | 是       | string   |        | CMQ Topic 主题队列名称                                                       |
+| enable     | 否       | boolean  | `true` | 触发器是否启用。默认启用                                                     |
+| filterType | 否       | number   |        | 消息过滤类型，1 为标签类型，2 为路由匹配类型                                 |
+| filterKey  | 否       | string[] |        | 当 filterType 为 1 时表示消息过滤标签，当 filterType 为 2 时表示 Binding Key |
 
 #### ckafka 触发器参数
 
