@@ -1,3 +1,10 @@
+## [0.1.7](https://github.com/serverless-components/tencent-scf/compare/v0.1.6...v0.1.7) (2020-09-03)
+
+
+### Bug Fixes
+
+* update deps ([022dcac](https://github.com/serverless-components/tencent-scf/commit/022dcacde18945279aeb5f5ed2a7b835be30d7a2))
+
 ## [0.1.6](https://github.com/serverless-components/tencent-scf/compare/v0.1.5...v0.1.6) (2020-09-02)
 
 
