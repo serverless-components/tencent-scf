@@ -44,6 +44,7 @@ inputs:
   environment: #  环境变量
     variables: #  环境变量对象
       TEST: value
+  publicAccess: true # 是否开启公网访问
   vpcConfig: # 私有网络配置
     vpcId: '' # 私有网络的Id
     subnetId: '' # 子网ID
@@ -178,6 +179,8 @@ inputs:
 | description              | 否       | `This is a function in ${app} application`                                                                     | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                                                                                                                                                                    |
 | memorySize               | 否       | `128`                                                                                                          | 函数运行时内存大小，默认为 128M，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                                                                                                                                                                    |
 | timeout                  | 否       | `3`                                                                                                            | 函数最长执行时间，单位为秒，可选值范围 1-900 秒，默认为 3 秒                                                                                                                                                                                                       |
+| eip                      | 否       | `false`                                                                                                        | 是否[固定出口 IP][固定出口ip]                                                                                                                                                                                                                                      |
+| publicAccess             | 否       | `true`                                                                                                         | 是否开启公网访问                                                                                                                                                                                                                                                   |
 | [environment](#环境变量) | 否       |                                                                                                                | 函数的环境变量，配置参考[环境变量](#环境变量)                                                                                                                                                                                                                      |
 | [vpcConfig](#私有网络)   | 否       |                                                                                                                | 函数的私有网络配置，配置参数参考[私有网络](#私有网络)                                                                                                                                                                                                              |
 | [layers](#层配置)        | 否       |                                                                                                                | 云函数绑定的 layer, 配置参数参考[层配置](#层配置)                                                                                                                                                                                                                  |
@@ -373,3 +376,4 @@ inputs:
 [定时触发器-cron表达式]: https://cloud.tencent.com/document/product/583/9708#cron-.E8.A1.A8.E8.BE.BE.E5.BC.8F
 [cos过滤规则]: https://cloud.tencent.com/document/product/583/39901#CosFilter
 [cos事件类型]: https://cloud.tencent.com/document/product/583/9707#cos-.E8.A7.A6.E5.8F.91.E5.99.A8.E5.B1.9E.E6.80.A7
+[固定出口ip]: https://cloud.tencent.com/document/product/583/38198
