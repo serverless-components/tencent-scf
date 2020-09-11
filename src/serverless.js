@@ -1,7 +1,7 @@
 const { Component } = require('@serverless/core')
 const { Scf } = require('tencent-component-toolkit')
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
-const { prepareInputs } = require('./utils')
+const { prepareInputs, getType, getDefaultProtocol } = require('./utils')
 const CONFIGS = require('./config')
 
 class ServerlessComponent extends Component {
@@ -26,15 +26,8 @@ class ServerlessComponent extends Component {
     return this.credentials.tencent.tmpSecrets.appId
   }
 
-  getDefaultProtocol(protocols) {
-    if (String(protocols).includes('https')) {
-      return 'https'
-    }
-    return 'http'
-  }
-
   async deploy(inputs) {
-    console.log(`Deploying Tencent ${CONFIGS.componentFullname}...`)
+    console.log(`Deploying Tencent ${CONFIGS.compFullname}...`)
 
     const credentials = this.getCredentials()
     const appId = this.getAppId()
@@ -63,17 +56,25 @@ class ServerlessComponent extends Component {
       memorySize: scfOutput.MemorySize
     }
 
+    if (scfOutput.Layers && scfOutput.Layers.length > 0) {
+      outputs.layers = scfOutput.Layers.map((item) => ({
+        name: item.LayerName,
+        version: item.LayerVersion
+      }))
+    }
+
     // default version is $LATEST
     outputs.lastVersion = scfOutput.LastVersion
       ? scfOutput.LastVersion
       : this.state.lastVersion || '$LATEST'
 
     // default traffic is 1.0, it can also be 0, so we should compare to undefined
-    outputs.traffic = scfOutput.Traffic
-      ? scfOutput.Traffic
-      : this.state.traffic !== undefined
-      ? this.state.traffic
-      : 1
+    outputs.traffic =
+      scfOutput.Traffic !== undefined
+        ? scfOutput.Traffic
+        : this.state.traffic !== undefined
+        ? this.state.traffic
+        : 1
 
     if (outputs.traffic !== 1 && scfOutput.ConfigTrafficVersion) {
       outputs.configTrafficVersion = scfOutput.ConfigTrafficVersion
@@ -90,11 +91,21 @@ class ServerlessComponent extends Component {
         if (apigwTrigger.serviceId) {
           stateApigw[apigwTrigger.serviceName] = apigwTrigger.serviceId
           apigwTrigger.apiList.forEach((endpoint) => {
-            triggers['apigw'].push(
-              `${this.getDefaultProtocol(apigwTrigger.protocols)}://${apigwTrigger.subDomain}/${
-                apigwTrigger.environment
-              }${endpoint.path}`
-            )
+            if (getType(apigwTrigger.subDomain) === 'Array') {
+              apigwTrigger.subDomain.forEach((item) => {
+                triggers['apigw'].push(
+                  `${getDefaultProtocol(apigwTrigger.protocols)}://${item}/${
+                    apigwTrigger.environment
+                  }${endpoint.path}`
+                )
+              })
+            } else {
+              triggers['apigw'].push(
+                `${getDefaultProtocol(apigwTrigger.protocols)}://${apigwTrigger.subDomain}/${
+                  apigwTrigger.environment
+                }${endpoint.path}`
+              )
+            }
           })
         }
       })
@@ -115,7 +126,7 @@ class ServerlessComponent extends Component {
 
     await this.save()
 
-    console.log(`Deployed Tencent ${CONFIGS.componentFullname}...`)
+    console.log(`Deployed Tencent ${CONFIGS.compFullname}...`)
 
     return outputs
   }
@@ -126,13 +137,13 @@ class ServerlessComponent extends Component {
     const { region } = this.state
     const functionInfo = this.state.function
 
-    console.log(`Removing Tencent ${CONFIGS.componentFullname}...`)
+    console.log(`Removing Tencent ${CONFIGS.compFullname}...`)
     const scf = new Scf(credentials, region)
     if (functionInfo && functionInfo.FunctionName) {
       await scf.remove(functionInfo)
     }
     this.state = {}
-    console.log(`Removed Tencent ${CONFIGS.componentFullname}`)
+    console.log(`Removed Tencent ${CONFIGS.compFullname}`)
   }
 }
 

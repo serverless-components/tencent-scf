@@ -7,7 +7,7 @@ jest.setTimeout(600000)
 const instanceYaml = {
   org: 'orgDemo',
   app: 'appDemo',
-  component: 'scf@dev',
+  component: 'scf',
   name: `scf-integration-tests-${generateId()}`,
   stage: 'dev',
   inputs: {

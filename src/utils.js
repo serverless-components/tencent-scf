@@ -31,24 +31,47 @@ const validateTraffic = (num) => {
   return true
 }
 
+const getDefaultProtocol = (protocols) => {
+  return String(protocols).includes('https') ? 'https' : 'http'
+}
+
+const getDefaultFunctionName = (instance) => {
+  return `${instance.name}-${instance.stage}-${instance.app}`
+}
+
+const getDefaultTriggerName = (type, instance) => {
+  return `${type}-${instance.name}-${instance.stage}`
+}
+
+const getDefaultServiceName = () => {
+  return 'serverless'
+}
+
+const getDefaultServiceDescription = (instance) => {
+  return `The service of serverless scf: ${instance.name}-${instance.stage}-${instance.app}`
+}
+
 /**
  * get default template zip file path
  */
 const getDefaultZipPath = async () => {
-  console.log(`Packaging ${CONFIGS.componentFullname} application...`)
+  console.log(`Packaging ${CONFIGS.compFullname} application...`)
 
   // unzip source zip file
   // add default template
   const downloadPath = `/tmp/${generateId()}`
   const filename = 'template'
 
-  console.log(`Installing Default ${CONFIGS.componentFullname} App...`)
+  console.log(`Installing Default ${CONFIGS.compFullname} App...`)
   try {
     await download(CONFIGS.templateUrl, downloadPath, {
       filename: `${filename}.zip`
     })
   } catch (e) {
-    throw new TypeError(`DOWNLOAD_TEMPLATE`, 'Download default template failed.')
+    throw new TypeError(
+      `DOWNLOAD_${CONFIGS.compName.toUpperCase()}_TEMPLATE`,
+      'Download default template failed.'
+    )
   }
   const zipPath = `${downloadPath}/${filename}.zip`
 
@@ -76,10 +99,10 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
       : {}
 
   const code = {
-    bucket: tempSrc.bucket ? tempSrc.bucket : `sls-cloudfunction-${region}-code`,
-    object: tempSrc.object
-      ? tempSrc.object
-      : `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
+    bucket: tempSrc.bucket || `sls-cloudfunction-${region}-code`,
+    object:
+      tempSrc.object ||
+      `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
   }
   const cos = new Cos(credentials, region)
   const bucket = `${code.bucket}-${appId}`
@@ -113,6 +136,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     } else {
       zipPath = inputs.src
     }
+    console.log(`Uploading code ${code.object} to bucket ${bucket}`)
     await cos.upload({
       bucket: bucket,
       file: zipPath,
@@ -124,10 +148,10 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   inputs.name =
     inputs.name ||
     (oldState.function && oldState.function.FunctionName) ||
-    `${CONFIGS.compName}_component_${generateId()}`
-  inputs.description = inputs.description || CONFIGS.description
-  inputs.handler = inputs.handler || CONFIGS.handler
+    getDefaultFunctionName(instance)
   inputs.runtime = inputs.runtime || CONFIGS.runtime
+  inputs.handler = inputs.handler || CONFIGS.handler(inputs.runtime)
+  inputs.description = inputs.description || CONFIGS.description(instance.app)
   inputs.code = code
   inputs.events = inputs.events || []
 
@@ -139,6 +163,13 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   // initial apigw event parameters
   inputs.events = inputs.events.map((event) => {
     const eventType = Object.keys(event)[0]
+    // check trigger type
+    if (CONFIGS.triggerTypes.indexOf(eventType) === -1) {
+      throw new TypeError(
+        `PARAMETER_${CONFIGS.compName.toUpperCase()}_APIGW_TRIGGER`,
+        `Unknow trigger type ${eventType}, must be one of ${JSON.stringify(CONFIGS.triggerTypes)}`
+      )
+    }
     const currentEvent = event[eventType]
     triggers[eventType] = triggers[eventType] || []
 
@@ -150,15 +181,21 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
         )
       } else {
         currentEvent.parameters.serviceName =
-          currentEvent.parameters.serviceName || currentEvent.name
-        if (stateApigw && stateApigw[currentEvent.name]) {
+          currentEvent.parameters.serviceName ||
+          currentEvent.name ||
+          getDefaultServiceName(instance)
+        currentEvent.parameters.description =
+          currentEvent.parameters.description || getDefaultServiceDescription(instance)
+        currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
+        if (stateApigw && stateApigw[currentEvent.parameters.serviceName]) {
           currentEvent.parameters.serviceId =
-            currentEvent.parameters.serviceId || stateApigw[currentEvent.name]
+            currentEvent.parameters.serviceId || stateApigw[currentEvent.parameters.serviceName]
         }
-        apigwName.push(currentEvent.name)
+        apigwName.push(currentEvent.parameters.serviceName)
       }
       existApigwTrigger = true
     } else {
+      currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
       triggers[eventType].push(currentEvent.name)
     }
     return event
@@ -167,8 +204,11 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   // if not config apig trigger, and make autoCreateApi true
   if (inputs.autoCreateApi && !existApigwTrigger) {
     triggers.apigw = []
+    const { defaultApigw } = CONFIGS
+    defaultApigw.parameters.serviceName = getDefaultServiceName(instance)
+    defaultApigw.parameters.description = getDefaultServiceDescription(instance)
     inputs.events.push({
-      apigw: CONFIGS.defaultApigw
+      apigw: defaultApigw
     })
 
     existApigwTrigger = true
@@ -190,6 +230,8 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
 }
 
 module.exports = {
+  getType,
+  getDefaultProtocol,
   generateId,
   prepareInputs,
   getDefaultZipPath
