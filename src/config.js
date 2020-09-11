@@ -1,13 +1,44 @@
+const LANGS = ['Nodejs', 'Python', 'Go', 'Php', 'Java']
+const getLang = (runtime) => {
+  for (let i = 0; i < LANGS.length; i++) {
+    if (runtime.indexOf(LANGS[i]) === 0) {
+      return LANGS[i]
+    }
+  }
+  return 'Nodejs'
+}
+
 const CONFIGS = {
   templateUrl: 'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/scf-demo.zip',
   region: 'ap-guangzhou',
   compName: 'scf',
-  componentFullname: 'SCF',
+  compFullname: 'SCF',
   runtime: 'Nodejs10.15',
-  handler: 'index.main_handler',
-  description: 'Created by Serverless Component',
+  handler(runtime) {
+    let handler = 'index.main_handler'
+    const lang = getLang(runtime)
+    switch (lang) {
+      case 'Nodejs':
+      case 'Php':
+      case 'Python':
+        handler = 'index.main_handler'
+        break
+      case 'Go':
+        handler = 'main'
+        break
+      case 'Java':
+        handler = 'example.Hello::mainHandler'
+        break
+      default:
+        break
+    }
+    return handler
+  },
+  description(app) {
+    return `This is a function in ${app} application`
+  },
+  triggerTypes: ['apigw', 'cos', 'timer', 'cmq', 'ckafka'],
   defaultApigw: {
-    name: `serverless_api`,
     parameters: {
       protocols: ['http', 'https'],
       description: 'Created By Serverless Component',
