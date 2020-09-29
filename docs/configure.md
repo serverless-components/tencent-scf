@@ -92,7 +92,7 @@ inputs:
               apiId: api-id
               method: GET
               description: Serverless REST API
-              enableCORS: TRUE
+              enableCORS: true
               responseType: HTML
               serviceTimeout: 10
               param:
@@ -109,7 +109,7 @@ inputs:
                   defaultValue: abc
                   desc: mytest
               function:
-                isIntegratedResponse: TRUE
+                isIntegratedResponse: true
                 functionQualifier: $DEFAUlt
               usagePlan:
                 usagePlanId: 1111
