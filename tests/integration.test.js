@@ -1,3 +1,7 @@
+const path = require('path')
+require('dotenv').config({
+  path: path.join(__dirname, '..', '.env.test')
+})
 const { generateId, getServerlessSdk } = require('./utils')
 
 // set enough timeout for deployment to finish
@@ -46,16 +50,18 @@ const instanceYaml = {
   }
 }
 
-// get credentials from process.env but need to init empty credentials object
 const credentials = {
-  tencent: {}
+  tencent: {
+    SecretId: process.env.TENCENT_SECRET_ID,
+    SecretKey: process.env.TENCENT_SECRET_KEY,
+  }
 }
 
 // get serverless construct sdk
 const sdk = getServerlessSdk(instanceYaml.org)
 
 it('should successfully deploy scf service', async () => {
-  const instance = await sdk.deploy(instanceYaml, { tencent: {} })
+  const instance = await sdk.deploy(instanceYaml, credentials)
 
   expect(instance).toBeDefined()
   expect(instance.instanceName).toEqual(instanceYaml.name)
