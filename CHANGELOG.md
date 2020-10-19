@@ -1,3 +1,10 @@
+## [0.1.8](https://github.com/serverless-components/tencent-scf/compare/v0.1.7...v0.1.8) (2020-10-19)
+
+
+### Bug Fixes
+
+* support retry for ckafka trigger ([afcff9e](https://github.com/serverless-components/tencent-scf/commit/afcff9e12ad0a6387ef0b40ab56d55f77cde9deb))
+
 ## [0.1.7](https://github.com/serverless-components/tencent-scf/compare/v0.1.6...v0.1.7) (2020-09-03)
 
 
