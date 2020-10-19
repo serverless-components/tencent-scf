@@ -5,8 +5,7 @@
     "access": "public"
   },
   "scripts": {
-    "int-test": "jest ./tests/integration.test.js --testEnvironment node",
-    "test": "npm run lint && npm run prettier && npm run int-test",
+    "test": "jest ./tests/integration.test.js --testEnvironment node",
     "commitlint": "commitlint -f HEAD@{15}",
     "lint": "eslint --ext .js,.ts,.tsx .",
     "lint:fix": "eslint --fix --ext .js,.ts,.tsx .",
