@@ -158,6 +158,7 @@ inputs:
           maxMsgNum: 999
           offset: latest
           enable: true
+          retry: 10000
 ```
 
 ## 配置描述
@@ -297,6 +298,7 @@ inputs:
 | topic     | 是       | string  |        | 支持在 CKafka 实例中已经创建的 Topic。                     |
 | maxMsgNum | 是       | number  |        | 5 秒内每汇聚 maxMsgNum 条 Ckafka 消息，则触发一次函数调用  |
 | offset    | 是       | string  |        | offset 为开始消费 Ckafka 消息的位置，目前只能填写 `latest` |
+| retry     | 是       | number  |        | 重试次数，函数调用失败时的最大重试次数。                   |
 | enable    | 否       | boolean | `true` | 触发器是否启用。默认启用                                   |
 
 #### apigw 触发器参数
