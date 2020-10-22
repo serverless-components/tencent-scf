@@ -24,7 +24,7 @@
 sls init scf-demo
 ```
 
-> **说明**：命令中的 `scf-demo` 可以更换成其他语言模板。目前 SCF 组件支持的模板有：go1-helloworld 、nodejs1015-helloworld、php72-helloworld、python36-helloworld。
+> **说明**：命令中的 `scf-demo` 可以更换成其他语言模板。目前 SCF 组件支持的模板有：go1-helloworld 、nodejs105-helloworld、php7-helloworld、python3-helloworld。
 
 #### 部署
 
