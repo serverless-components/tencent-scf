@@ -21,14 +21,16 @@
 - 方式二：直接使用 `serverless init` 命令创建。快速创建一个 nodejs 的 SCF 示例：
 
 ```
-serverless init scf-starter
+```bash
+$ serverless init scf-starter --name example
+$ cd example
 ```
 
 > **说明**：命令中的 `scf-starter` 可以更换成其他语言模板。目前 SCF 组件支持的模板有：`scf-golang`、`scf-nodejs`、`scf-php`、`scf-python`。
 
 #### 部署
 
-执行以下命令，将会弹出二维码，直接扫码授权进行部署：
+在 `serverless.yml` 文件所在的项目根目录，运行以下指令，将会弹出二维码，直接扫码授权进行部署:
 
 ```
 serverless deploy
