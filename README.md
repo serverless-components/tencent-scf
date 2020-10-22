@@ -18,20 +18,22 @@
 #### 创建
 
 - 方式一：按照 [快速部署](https://cloud.tencent.com/document/product/1154/41775) 操作，选择 SCF 项目模板进行创建。
-- 方式二：直接使用 `sls init` 命令创建。快速创建一个 nodejs 的 SCF 示例：
+- 方式二：直接使用 `serverless init` 命令创建。快速创建一个 nodejs 的 SCF 示例：
 
 ```
-sls init scf-demo
+```bash
+$ serverless init scf-starter --name example
+$ cd example
 ```
 
-> **说明**：命令中的 `scf-demo` 可以更换成其他语言模板。目前 SCF 组件支持的模板有：go1-helloworld 、nodejs105-helloworld、php7-helloworld、python3-helloworld。
+> **说明**：命令中的 `scf-starter` 可以更换成其他语言模板。目前 SCF 组件支持的模板有：`scf-golang`、`scf-nodejs`、`scf-php`、`scf-python`。
 
 #### 部署
 
-执行以下命令，将会弹出二维码，直接扫码授权进行部署：
+在 `serverless.yml` 文件所在的项目根目录，运行以下指令，将会弹出二维码，直接扫码授权进行部署:
 
 ```
-sls deploy
+serverless deploy
 ```
 
 > **说明**：如果鉴权失败，请参考 [权限配置](https://cloud.tencent.com/document/product/1154/43006) 进行授权。
@@ -41,7 +43,7 @@ sls deploy
 执行以下命令，查看您部署的项目信息：
 
 ```
-sls info
+serverless info
 ```
 
 #### 移除
@@ -49,14 +51,14 @@ sls info
 执行以下命令，移除您已经部署的项目：
 
 ```
-sls remove
+serverless remove
 ```
 
 ## 进阶指导
 
 ### serverless.yml
 
-执行 `sls deploy` 时，根据 serverless.yml 文件中的配置对云函数资源进行创建或更新。一份简单的 serverlesss.yml 文件如下：
+执行 `serverless deploy` 时，根据 serverless.yml 文件中的配置对云函数资源进行创建或更新。一份简单的 serverlesss.yml 文件如下：
 
 > **说明**：配置详情请参考 [全量配置文档](https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md)。
 
@@ -89,7 +91,7 @@ serverless.yml 文件包含的信息：
 
 | 组件名    | 是否必选 | 说明                                                       |
 | --------- | -------- | ---------------------------------------------------------- |
-| component | 必填     | component 的名称，使用`sls registry`查询您可以引入的组件。 |
+| component | 必填     | component 的名称，使用`serverless registry`查询您可以引入的组件。 |
 | name      | 必填     | 创建的实例名称，每个组件在部署时将创建一个实例。           |
 
 #### 参数信息
@@ -116,7 +118,7 @@ inputs 下的参数为组件配置参数。一个最简单 SCF 组件参数配�
 
 ### 开发调试
 
-在 `serverless.yml`文件所在的目录下运行 `sls dev` 可以实时输出云端日志，每次部署完毕后，对项目进行访问，即可在命令行中实时输出调用日志，便于查看业务情况和排障。nodejs 支持开启开发调试能力，将会对本地代码的改动进行检测和自动上传。详情请参考 [开发与调试](https://cloud.tencent.com/document/product/1154/43220)。
+在 `serverless.yml`文件所在的目录下运行 `serverless dev` 可以实时输出云端日志，每次部署完毕后，对项目进行访问，即可在命令行中实时输出调用日志，便于查看业务情况和排障。nodejs 支持开启开发调试能力，将会对本地代码的改动进行检测和自动上传。详情请参考 [开发与调试](https://cloud.tencent.com/document/product/1154/43220)。
 
 ### 应用管理
 
