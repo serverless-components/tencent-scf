@@ -163,16 +163,16 @@ class ServerlessComponent extends Component {
       console.log(`list alias for function ${inputs.function}...`)
 
       const aliases = scfOutput.Aliases
-      let listAlias = {
+      const listAlias = {
         alias: []
       }
 
       for (let i = 0; i < aliases.length; i++) {
-        let mainVersion = aliases[i].FunctionVersion
-        let addWeights = aliases[i].RoutingConfig.AdditionalVersionWeights[0] || { Weight: 0 }
-        let otherVersion = addWeights.Version || null
-        let otherWeight = Number(addWeights.Weight).toFixed(1) || 0
-        let mainWeight = (1 - otherWeight).toFixed(1)
+        const mainVersion = aliases[i].FunctionVersion
+        const addWeights = aliases[i].RoutingConfig.AdditionalVersionWeights[0] || { Weight: 0 }
+        const otherVersion = addWeights.Version || null
+        const otherWeight = Number(addWeights.Weight).toFixed(1) || 0
+        const mainWeight = (1 - otherWeight).toFixed(1)
 
         const alias_unit = {}
         alias_unit[aliases[i].Name] = {}
@@ -210,7 +210,7 @@ class ServerlessComponent extends Component {
 
       console.log(`Creating alias for function ${inputs.function}...`)
       const scf = new Scf(credentials, region)
-      const scfOutput = await scf.createAlias(alias_params)
+      await scf.createAlias(alias_params)
       console.log(`Creating alias for function ${inputs.function}...`)
 
       const aliasOutput = await scf.getAlias(alias_params)
