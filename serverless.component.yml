@@ -1,5 +1,5 @@
 name: scf
-version: 0.1.9
+version: 0.1.10
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploy a serverless cloud function on Tencent Cloud.
@@ -95,6 +95,42 @@ actions:
         keys:
           variables:
             type: object
+      timeout:
+        type: number
+        min: 1
+      cfs:
+        type: array
+        items:
+          - type: object
+            keys:
+              cfsId:
+                type: string
+                required: true
+              mountInsId:
+                type: string
+              localMountDir:
+                type: string
+                required: true
+              remoteMountDir:
+                type: string
+                required: true
+      cls:
+        type: object
+        keys:
+          logsetId:
+            type: string
+            required: true
+          topicId:
+            type: string
+            required: true
+      publicAccess:
+        type: boolean
+      eip:
+        type: boolean
+      l5Enable:
+        type: boolean
+      tags:
+        type: object
       layers:
         type: array
         items:
@@ -121,6 +157,8 @@ actions:
               timer:
                 type: object
                 keys:
+                  name:
+                    type: string
                   parameters:
                     type: object
                     keys:
@@ -134,6 +172,8 @@ actions:
               apigw:
                 type: object
                 keys:
+                  name:
+                    type: string
                   parameters:
                     type: object
                     keys:
@@ -180,59 +220,79 @@ actions:
               cos:
                 type: object
                 keys:
-                  enable:
-                    type: boolean
-                    default: true
-                  bucket:
+                  name:
                     type: string
-                  filter:
-                    prefix:
-                      type: string
-                    suffix:
-                      type: string
-                  events:
-                    type: string
-                    allow:
-                      - 'cos:ObjectCreated:*'
-                      - 'cos:ObjectCreated:Put'
-                      - 'cos:ObjectCreated:Post'
-                      - 'cos:ObjectCreated:Copy'
-                      - 'cos:ObjectCreated:CompleteMultipartUpload'
-                      - 'cos:ObjectCreated:Origin'
-                      - 'cos:ObjectCreated:Replication'
-                      - 'cos:ObjectRemove:*'
-                      - 'cos:ObjectRemove:Delete'
-                      - 'cos:ObjectRemove:DeleteMarkerCreated'
-                      - 'cos:ObjectRestore:Post'
-                      - 'cos:ObjectRestore:Completed'
+                  parameters:
+                    type: object
+                    keys:
+                      enable:
+                        type: boolean
+                        default: true
+                      bucket:
+                        type: string
+                      filter:
+                        type: object
+                        keys:
+                          prefix:
+                            type: string
+                          suffix:
+                            type: string
+                      events:
+                        type: string
+                        allow:
+                          - 'cos:ObjectCreated:*'
+                          - 'cos:ObjectCreated:Put'
+                          - 'cos:ObjectCreated:Post'
+                          - 'cos:ObjectCreated:Copy'
+                          - 'cos:ObjectCreated:CompleteMultipartUpload'
+                          - 'cos:ObjectCreated:Origin'
+                          - 'cos:ObjectCreated:Replication'
+                          - 'cos:ObjectRemove:*'
+                          - 'cos:ObjectRemove:Delete'
+                          - 'cos:ObjectRemove:DeleteMarkerCreated'
+                          - 'cos:ObjectRestore:Post'
+                          - 'cos:ObjectRestore:Completed'
+
               ckafka:
                 type: object
                 keys:
-                  enable:
-                    type: boolean
-                    default: true
                   name:
                     type: string
-                  topic:
-                    type: string
-                  maxMsgNum:
-                    type: number
-                    min: 1
-                    max: 10000
-                  offset:
-                    type: string
-                    allow:
-                      - latest
-                      - earliest
-                      - timestamp
+                  parameters:
+                    type: object
+                    keys:
+                      enable:
+                        type: boolean
+                        default: true
+                      name:
+                        type: string
+                      topic:
+                        type: string
+                      retry:
+                        type: number
+                      maxMsgNum:
+                        type: number
+                        min: 1
+                        max: 10000
+                      offset:
+                        type: string
+                        allow:
+                          - latest
+                          - earliest
+                          - timestamp
               cmq:
                 type: object
                 keys:
-                  enable:
-                    type: boolean
-                    default: true
                   name:
                     type: string
+                  parameters:
+                    type: object
+                    keys:
+                      enable:
+                        type: boolean
+                        default: true
+                      name:
+                        type: string
   remove:
     definition: Remove your Express.js application
   list_alias:

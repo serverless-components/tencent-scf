@@ -87,22 +87,22 @@ class ServerlessComponent extends Component {
     // handle apigw event outputs
     if (existApigwTrigger) {
       const stateApigw = {}
-      scfOutput.Triggers.forEach((apigwTrigger) => {
-        if (apigwTrigger.serviceId) {
-          stateApigw[apigwTrigger.serviceName] = apigwTrigger.serviceId
-          apigwTrigger.apiList.forEach((endpoint) => {
-            if (getType(apigwTrigger.subDomain) === 'Array') {
-              apigwTrigger.subDomain.forEach((item) => {
+      scfOutput.Triggers.forEach((trigger) => {
+        if (trigger.serviceId) {
+          stateApigw[trigger.serviceName] = trigger.serviceId
+          trigger.apiList.forEach((endpoint) => {
+            if (getType(trigger.subDomain) === 'Array') {
+              trigger.subDomain.forEach((item) => {
                 triggers['apigw'].push(
-                  `${getDefaultProtocol(apigwTrigger.protocols)}://${item}/${
-                    apigwTrigger.environment
-                  }${endpoint.path}`
+                  `${getDefaultProtocol(trigger.protocols)}://${item}/${trigger.environment}${
+                    endpoint.path
+                  }`
                 )
               })
             } else {
               triggers['apigw'].push(
-                `${getDefaultProtocol(apigwTrigger.protocols)}://${apigwTrigger.subDomain}/${
-                  apigwTrigger.environment
+                `${getDefaultProtocol(trigger.protocols)}://${trigger.subDomain}/${
+                  trigger.environment
                 }${endpoint.path}`
               )
             }
