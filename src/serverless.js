@@ -293,6 +293,8 @@ class ServerlessComponent extends Component {
       const scfOutput = await scf.publishVersion(publish_params)
       console.log(`published version for function ${inputs.function}...`)
 
+      await scf.isOperationalStatus(scfOutput.Namespace, inputs.function, scfOutput.FunctionVersion)
+
       this.state.lastVersion = scfOutput.FunctionVersion
       await this.save()
       scfOutput.lastVersion = scfOutput.FunctionVersion
