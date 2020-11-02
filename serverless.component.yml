@@ -1,5 +1,5 @@
 name: scf
-version: 0.1.8
+version: 0.1.9
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploy a serverless cloud function on Tencent Cloud.
@@ -235,3 +235,15 @@ actions:
                     type: string
   remove:
     definition: Remove your Express.js application
+  list_alias:
+    definition: Show your aliases
+  create_alias:
+    definition: Create alias for function
+  update_alias:
+    definition: Update alias for function
+  delete_alias:
+    definition: Delete alias for function
+  publish_ver:
+    definition: Publish a new version of function
+  invoke:
+    definition: Invoke function synchronously

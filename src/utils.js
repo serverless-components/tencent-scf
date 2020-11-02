@@ -229,10 +229,101 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   }
 }
 
+const prepareAliasInputs = (inputs) => {
+  const outputs = {}
+
+  if (typeof inputs.name == 'undefined') {
+    outputs.isPramasError = true
+    outputs.message = 'The parameter "name" is missing'
+    return outputs
+  } else if (typeof inputs.name != 'string') {
+    outputs.isPramasError = true
+    outputs.message = 'The type of parameter "name" is string'
+    return outputs
+  }
+
+  if (typeof inputs.function == 'undefined') {
+    outputs.isPramasError = true
+    outputs.message = 'The parameter "function" is missing'
+    return outputs
+  } else if (typeof inputs.function != 'string') {
+    outputs.isPramasError = true
+    outputs.message = 'The type of parameter "function" is string'
+    return outputs
+  }
+
+  if (typeof inputs.version == 'undefined') {
+    outputs.isPramasError = true
+    outputs.message = 'The parameter "version" is missing'
+    return outputs
+  } else if (typeof inputs.version != 'number' && typeof inputs.version != 'string') {
+    outputs.isPramasError = true
+    outputs.message = 'The type of parameter "version" is number or string'
+    return outputs
+  }
+
+  if (!inputs.namespace) {
+    inputs.namespace = 'default'
+  } else if (typeof inputs.namespace != 'string') {
+    outputs.isPramasError = true
+    outputs.message = 'The type of parameter "namespace" is string'
+    return outputs
+  }
+
+  if (!inputs.description) {
+    inputs.description = ''
+  } else if (typeof inputs.description != 'string') {
+    outputs.isPramasError = true
+    outputs.message = 'The type of parameter "description" is string'
+    return outputs
+  }
+
+  if (typeof inputs.config == 'undefined') {
+    outputs.isPramasError = true
+    outputs.message = 'The parameter "config" is missing'
+    return outputs
+  } else if (typeof inputs.config != 'object') {
+    outputs.isPramasError = true
+    outputs.message =
+      'The parameter "config" is not illegal. The right format is like that：config=\'{"weights":{"2":0.1}}\''
+    return outputs
+  }
+
+  if (typeof inputs.config.weights != 'object') {
+    outputs.isPramasError = true
+    outputs.message =
+      'The parameter "config" is not illegal. The right format is like that：config=\'{"weights":{"2":0.1}}\''
+    return outputs
+  }
+
+  let lastVersion, traffic
+  try {
+    lastVersion = Object.keys(inputs.config.weights)[0]
+    traffic = Object.values(inputs.config.weights)[0]
+  } catch (e) {
+    outputs.isPramasError = true
+    outputs.message =
+      'The parameter "config" is not illegal. The right format is like that：config=\'{"weights":{"2":0.1}}\''
+    return outputs
+  }
+
+  outputs.isPramasError = false
+  outputs.aliasName = inputs.name
+  outputs.functionName = inputs.function
+  outputs.namespace = inputs.namespace
+  outputs.functionVersion = inputs.version
+  outputs.description = inputs.description
+  outputs.lastVersion = lastVersion
+  outputs.traffic = traffic
+
+  return outputs
+}
+
 module.exports = {
   getType,
   getDefaultProtocol,
   generateId,
   prepareInputs,
+  prepareAliasInputs,
   getDefaultZipPath
 }

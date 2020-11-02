@@ -1,7 +1,7 @@
 const { Component } = require('@serverless/core')
 const { Scf } = require('tencent-component-toolkit')
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
-const { prepareInputs, getType, getDefaultProtocol } = require('./utils')
+const { prepareInputs, prepareAliasInputs, getType, getDefaultProtocol } = require('./utils')
 const CONFIGS = require('./config')
 
 class ServerlessComponent extends Component {
@@ -144,6 +144,194 @@ class ServerlessComponent extends Component {
     }
     this.state = {}
     console.log(`Removed Tencent ${CONFIGS.compFullname}`)
+  }
+
+  async list_alias(inputs) {
+    try {
+      const credentials = this.getCredentials()
+      const region = inputs.region || CONFIGS.region
+
+      const alias_params = {}
+      alias_params.functionName = inputs.function
+      alias_params.functionVersion = inputs.version
+      alias_params.namesapce = inputs.namespace
+
+      console.log(`list alias for function ${inputs.function}...`)
+      const scf = new Scf(credentials, region)
+
+      const scfOutput = await scf.listAlias(alias_params)
+      console.log(`list alias for function ${inputs.function}...`)
+
+      const aliases = scfOutput.Aliases
+      const listAlias = {
+        alias: []
+      }
+
+      for (let i = 0; i < aliases.length; i++) {
+        const mainVersion = aliases[i].FunctionVersion
+        const addWeights = aliases[i].RoutingConfig.AdditionalVersionWeights[0] || { Weight: 0 }
+        const otherVersion = addWeights.Version || null
+        const otherWeight = Number(addWeights.Weight).toFixed(1) || 0
+        const mainWeight = (1 - otherWeight).toFixed(1)
+
+        const alias_unit = {}
+        alias_unit[aliases[i].Name] = {}
+        const weight = {}
+        weight[mainVersion] = mainWeight
+        if (otherVersion) {
+          weight[otherVersion] = otherWeight
+        }
+        alias_unit[aliases[i].Name].weight = JSON.stringify(weight)
+
+        listAlias.alias.push(alias_unit)
+      }
+      console.log(listAlias)
+      return listAlias
+    } catch (e) {
+      return {
+        requestId: e.reqId,
+        message: e.message
+      }
+    }
+  }
+
+  async create_alias(inputs) {
+    try {
+      const credentials = this.getCredentials()
+      const region = inputs.region || CONFIGS.region
+
+      const alias_params = prepareAliasInputs(inputs)
+
+      if (alias_params.isPramasError) {
+        return {
+          message: alias_params.message
+        }
+      }
+
+      console.log(`Creating alias for function ${inputs.function}...`)
+      const scf = new Scf(credentials, region)
+      await scf.createAlias(alias_params)
+      console.log(`Creating alias for function ${inputs.function}...`)
+
+      const aliasOutput = await scf.getAlias(alias_params)
+
+      return aliasOutput
+    } catch (e) {
+      return {
+        requestId: e.reqId,
+        message: e.message
+      }
+    }
+  }
+
+  async update_alias(inputs) {
+    try {
+      const credentials = this.getCredentials()
+      const region = inputs.region || CONFIGS.region
+
+      const alias_params = prepareAliasInputs(inputs)
+
+      if (alias_params.isPramasError) {
+        return {
+          ErrMsg: alias_params.message
+        }
+      }
+
+      console.log(`Updating alias for function ${inputs.function}...`)
+      const scf = new Scf(credentials, region)
+
+      await scf.updateAlias(alias_params)
+      console.log(`Updated alias for function ${inputs.function}...`)
+
+      const aliasOutput = await scf.getAlias(alias_params)
+
+      return aliasOutput
+    } catch (e) {
+      return {
+        requestId: e.reqId,
+        message: e.message
+      }
+    }
+  }
+
+  async delete_alias(inputs) {
+    try {
+      const credentials = this.getCredentials()
+      const region = inputs.region || CONFIGS.region
+
+      const alias_params = {}
+      alias_params.functionName = inputs.function
+      alias_params.aliasName = inputs.name
+      alias_params.namesapce = inputs.namespace
+
+      console.log(`delete alias for function ${inputs.function}...`)
+      const scf = new Scf(credentials, region)
+
+      const scfOutput = await scf.deleteAlias(alias_params)
+      console.log(`deleted alias for function ${inputs.function}...`)
+      return scfOutput
+    } catch (e) {
+      return {
+        requestId: e.reqId,
+        message: e.message
+      }
+    }
+  }
+
+  async publish_ver(inputs) {
+    try {
+      const credentials = this.getCredentials()
+      const region = inputs.region || CONFIGS.region
+
+      const publish_params = {}
+      publish_params.functionName = inputs.function
+      publish_params.namespace = inputs.namespace
+      publish_params.description = inputs.description
+
+      const scf = new Scf(credentials, region)
+
+      const scfOutput = await scf.publishVersion(publish_params)
+      console.log(`published version for function ${inputs.function}...`)
+
+      await scf.isOperationalStatus(scfOutput.Namespace, inputs.function, scfOutput.FunctionVersion)
+
+      this.state.lastVersion = scfOutput.FunctionVersion
+      await this.save()
+      scfOutput.lastVersion = scfOutput.FunctionVersion
+      delete scfOutput.FunctionVersion
+
+      return scfOutput
+    } catch (e) {
+      return {
+        requestId: e.reqId,
+        message: e.message
+      }
+    }
+  }
+
+  async invoke(inputs) {
+    try {
+      const credentials = this.getCredentials()
+      const region = inputs.region || CONFIGS.region
+
+      const invoke_params = {}
+      invoke_params.functionName = inputs.function
+      invoke_params.namespace = inputs.namespace
+      invoke_params.invocationType = 'RequestResponse'
+      invoke_params.clientContext = inputs.clientContext || {}
+
+      console.log(`invoke for function ${inputs.function}...`)
+      const scf = new Scf(credentials, region)
+
+      const scfOutput = await scf.invoke(invoke_params)
+      console.log(`invoke for function ${inputs.function}...`)
+      return scfOutput
+    } catch (e) {
+      return {
+        requestId: e.reqId,
+        message: e.message
+      }
+    }
   }
 }
 
