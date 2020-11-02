@@ -1,3 +1,10 @@
+## [0.1.9](https://github.com/serverless-components/tencent-scf/compare/v0.1.8...v0.1.9) (2020-11-02)
+
+
+### Bug Fixes
+
+* add commands for SCF Alias ([#39](https://github.com/serverless-components/tencent-scf/issues/39)) ([e939be3](https://github.com/serverless-components/tencent-scf/commit/e939be32ef0209e5f8e5f6b01cdb2096f04b792c))
+
 ## [0.1.8](https://github.com/serverless-components/tencent-scf/compare/v0.1.7...v0.1.8) (2020-10-19)
 
 
