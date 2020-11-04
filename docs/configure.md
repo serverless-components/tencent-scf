@@ -76,7 +76,7 @@ inputs:
           enable: true
           argument: argument # 额外的参数
     - apigw: # api网关触发器，已有apigw服务，配置触发器
-    	  name: #触发器名称，默认apigw-${name}-${stage}
+        name: #触发器名称，默认apigw-${name}-${stage}
         parameters:
           serviceName: serverless
           serviceId: service-8dsikiq6
@@ -123,7 +123,7 @@ inputs:
                 secretIds:
                   - xxx
     - apigw: # api网关触发器，无apigw服务，自动创建服务
-    	  name:  #触发器名称，默认apigw-${name}-${stage}
+        name: #触发器名称，默认apigw-${name}-${stage}
         parameters:
           serviceName: apigw-xxxx
           protocols:
@@ -134,7 +134,7 @@ inputs:
             - path: /users
               method: POST
     - cos: # cos触发器
-      	name:  #触发器名称，默认cos-${name}-${stage}
+        name: #触发器名称，默认cos-${name}-${stage}
         parameters:
           qualifier: $DEFAULT # 别名配置
           bucket: cli-appid.cos.ap-beijing.myqcloud.com
@@ -144,7 +144,7 @@ inputs:
           events: 'cos:ObjectCreated:*'
           enable: true
     - cmq: # CMQ Topic 触发器
-    	  name:  #触发器名称，默认cmq-${name}-${stage}
+        name: #触发器名称，默认cmq-${name}-${stage}
         parameters:
           qualifier: $DEFAULT # 别名配置
           name: test-topic-queue
@@ -154,7 +154,7 @@ inputs:
             - key1
             - key2
     - ckafka: # ckafka触发器
-    	  name:   #触发器名称，默认ckafka-${name}-${stage}
+        name: #触发器名称，默认ckafka-${name}-${stage}
         parameters:
           qualifier: $DEFAULT # 别名配置
           name: ckafka-2o10hua5
