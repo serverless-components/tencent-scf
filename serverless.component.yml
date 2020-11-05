@@ -1,5 +1,5 @@
 name: scf
-version: 0.1.10
+version: 0.1.11
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploy a serverless cloud function on Tencent Cloud.
@@ -119,10 +119,8 @@ actions:
         keys:
           logsetId:
             type: string
-            required: true
           topicId:
             type: string
-            required: true
       publicAccess:
         type: boolean
       eip:
