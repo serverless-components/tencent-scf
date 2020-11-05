@@ -46,8 +46,8 @@ inputs:
       TEST: value
   publicAccess: true # 是否开启公网访问
   vpcConfig: # 私有网络配置
-    vpcId: '' # 私有网络的Id
-    subnetId: '' # 子网ID
+    vpcId: vpc-xxx # 私有网络的Id
+    subnetId: subnet-xxx # 子网ID
   cfs: # cfs配置
     - cfsId: cfs-123
       mountInsId: cfs-123
@@ -63,7 +63,7 @@ inputs:
   cls: # 函数日志
     logsetId: ClsLogsetId
     topicId: ClsTopicId
-  eip: true/false # 是否开启固定IP
+  eip: false # 是否开启固定IP
   tags: #标签配置
     key1: value1
     key2: value2 # tags 的key value
