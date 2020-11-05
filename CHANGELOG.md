@@ -1,3 +1,10 @@
+## [0.1.11](https://github.com/serverless-components/tencent-scf/compare/v0.1.10...v0.1.11) (2020-11-05)
+
+
+### Bug Fixes
+
+* remove cls validate ([ea19377](https://github.com/serverless-components/tencent-scf/commit/ea19377b8fb19c97404816739905e923a700462a))
+
 ## [0.1.10](https://github.com/serverless-components/tencent-scf/compare/v0.1.9...v0.1.10) (2020-11-03)
 
 
