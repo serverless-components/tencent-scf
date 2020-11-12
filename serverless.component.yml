@@ -1,5 +1,5 @@
 name: scf
-version: 0.1.12
+version: 0.1.13
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploy a serverless cloud function on Tencent Cloud.
@@ -155,11 +155,11 @@ actions:
               timer:
                 type: object
                 keys:
-                  name:
-                    type: string
                   parameters:
                     type: object
                     keys:
+                      name:
+                        type: string
                       enable:
                         type: boolean
                         default: true
@@ -170,8 +170,6 @@ actions:
               apigw:
                 type: object
                 keys:
-                  name:
-                    type: string
                   parameters:
                     type: object
                     keys:
@@ -218,8 +216,6 @@ actions:
               cos:
                 type: object
                 keys:
-                  name:
-                    type: string
                   parameters:
                     type: object
                     keys:
@@ -254,8 +250,6 @@ actions:
               ckafka:
                 type: object
                 keys:
-                  name:
-                    type: string
                   parameters:
                     type: object
                     keys:
@@ -281,8 +275,6 @@ actions:
               cmq:
                 type: object
                 keys:
-                  name:
-                    type: string
                   parameters:
                     type: object
                     keys:
