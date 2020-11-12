@@ -1,3 +1,10 @@
+## [0.1.13](https://github.com/serverless-components/tencent-scf/compare/v0.1.12...v0.1.13) (2020-11-12)
+
+
+### Bug Fixes
+
+* simple trigger name config ([55d467d](https://github.com/serverless-components/tencent-scf/commit/55d467d47cc5c75b791414d9cdda4730dc017d93))
+
 ## [0.1.12](https://github.com/serverless-components/tencent-scf/compare/v0.1.11...v0.1.12) (2020-11-10)
 
 
