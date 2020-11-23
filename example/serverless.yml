@@ -2,7 +2,10 @@ component: scf
 name: scfdemo
 
 inputs:
-  src: ./src
+  src:
+    src: ./src
+    exclude:
+      - .env
   # 此处注释部分将自动使用默认值
   # region: ap-guangzhou
   # runtime: Nodejs10.15

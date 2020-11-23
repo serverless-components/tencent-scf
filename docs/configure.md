@@ -117,7 +117,6 @@ inputs:
                 usagePlanDesc: sls create
                 maxRequestNum: 1000
               auth:
-                serviceTimeout: 15
                 secretName: secret
                 secretIds:
                   - xxx
