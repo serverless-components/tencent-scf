@@ -180,18 +180,22 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
           `API Gateway name must be unique`
         )
       } else {
-        currentEvent.parameters.serviceName =
+        const serviceName =
           currentEvent.parameters.serviceName ||
           currentEvent.name ||
           getDefaultServiceName(instance)
+
+        currentEvent.parameters.serviceName = serviceName
         currentEvent.parameters.description =
           currentEvent.parameters.description || getDefaultServiceDescription(instance)
         currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
-        if (stateApigw && stateApigw[currentEvent.parameters.serviceName]) {
+        if (stateApigw && stateApigw[serviceName]) {
+          currentEvent.parameters.oldState = stateApigw[serviceName]
           currentEvent.parameters.serviceId =
-            currentEvent.parameters.serviceId || stateApigw[currentEvent.parameters.serviceName]
+            currentEvent.parameters.serviceId || stateApigw[serviceName].serviceId
+          currentEvent.parameters.created = stateApigw[serviceName].created
         }
-        apigwName.push(currentEvent.parameters.serviceName)
+        apigwName.push(serviceName)
       }
       existApigwTrigger = true
     } else {
@@ -205,8 +209,15 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   if (inputs.autoCreateApi && !existApigwTrigger) {
     triggers.apigw = []
     const { defaultApigw } = CONFIGS
-    defaultApigw.parameters.serviceName = getDefaultServiceName(instance)
+    const serviceName = getDefaultServiceName(instance)
+    defaultApigw.parameters.serviceName = serviceName
     defaultApigw.parameters.description = getDefaultServiceDescription(instance)
+    if (stateApigw && stateApigw[serviceName]) {
+      defaultApigw.parameters.oldState = stateApigw[serviceName]
+      defaultApigw.parameters.serviceId =
+        defaultApigw.parameters.serviceId || stateApigw[serviceName].serviceId
+      defaultApigw.parameters.created = stateApigw[serviceName].created
+    }
     inputs.events.push({
       apigw: defaultApigw
     })
