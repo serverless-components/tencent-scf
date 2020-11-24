@@ -1,3 +1,10 @@
+## [0.1.14](https://github.com/serverless-components/tencent-scf/compare/v0.1.13...v0.1.14) (2020-11-24)
+
+
+### Bug Fixes
+
+* optimize apigw trigger remove ([#44](https://github.com/serverless-components/tencent-scf/issues/44)) ([639a42b](https://github.com/serverless-components/tencent-scf/commit/639a42b4cbf939357aa4125da5f1ec74837340f6))
+
 ## [0.1.13](https://github.com/serverless-components/tencent-scf/compare/v0.1.12...v0.1.13) (2020-11-12)
 
 
