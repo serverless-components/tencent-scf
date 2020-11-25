@@ -20,32 +20,23 @@ inputs:
   namespace: default
   role: exRole # 云函数执行角色
   enableRoleAuth: true # 默认会尝试创建 SCF_QcsRole 角色，如果不需要配置成 false 即可
-  # 1. 默认写法，新建特定命名的 cos bucket 并上传
-  src: ./src
-  # 2. src 为对象，并且制定忽略上传文件夹 node_modules
-  # src:
-  #   src: ./code
-  #   exclude:
-  #     - 'node_modules/**'
-  # 3. 指定 bucket name 和文件的方式，直接上传 cos 中的文件部署云函数
-  # src:
-  #    bucket: tinatest   # bucket name，当前会默认在bucket name后增加 appid 后缀, e.g. bucketname-appid
-  #    key: 'code.zip'      # bucket key 指定存储桶内的文件
-  # 4. 指定本地文件到 bucket
-  # src:
-  #   bucket: tinatest   # bucket name
-  #   src:         # 指定本地路径
+  src:
+    src: ./
+    exclude:
+      - 'node_modules/**'
+    # bucket: scf-bucket # 指定 bucket name 和文件的方式，直接上传 cos 中的文件部署云函数
+    # object: code.zip # 指定cos中用来部署的代码，此时不需要配置本地代码路径 src
   handler: index.main_handler #入口
   runtime: Nodejs10.15 # 运行环境 默认 Nodejs10.15
   region: ap-guangzhou # 函数所在区域
   description: This is a function in ${app} application.
   memorySize: 128 # 内存大小，单位MB
   timeout: 20 # 超时时间，单位秒
-  environment: #  环境变量
-    variables: #  环境变量对象
-      TEST: value
+  environments: #  环境变量
+    - envKey: TEST
+      envVal: value
   publicAccess: true # 是否开启公网访问
-  vpcConfig: # 私有网络配置
+  vpc: # 私有网络配置
     vpcId: vpc-xxx # 私有网络的Id
     subnetId: subnet-xxx # 子网ID
   cfs: # cfs配置
@@ -65,99 +56,93 @@ inputs:
     topicId: ClsTopicId
   eip: false # 是否开启固定IP
   tags: #标签配置
-    key1: value1
-    key2: value2 # tags 的key value
-  events: # 触发器
-    - timer: # 定时触发器
-        parameters:
-          # name: timer # 触发器名称，默认timer-${name}-${stage}
-          qualifier: $DEFAULT # 别名配置
-          cronExpression: '*/5 * * * * * *' # 每5秒触发一次
-          enable: true
-          argument: argument # 额外的参数
-    - apigw: # api网关触发器，已有apigw服务，配置触发器
-        parameters:
-          serviceName: serverless
-          serviceId: service-8dsikiq6
-          protocols:
-            - http
-          netTypes:
-            - OUTER
-          description: the serverless service
-          environment: release
-          endpoints:
-            - path: /users
-              method: POST
-            - path: /test/{abc}/{cde}
-              apiId: api-id
-              method: GET
-              description: Serverless REST API
-              enableCORS: true
-              responseType: HTML
-              serviceTimeout: 10
-              param:
-                - name: abc
-                  position: PATH
-                  required: true
-                  type: string
-                  defaultValue: abc
-                  desc: mytest
-                - name: cde
-                  position: PATH
-                  required: true
-                  type: string
-                  defaultValue: abc
-                  desc: mytest
-              function:
-                isIntegratedResponse: true
-                functionQualifier: $DEFAULT
-              usagePlan:
-                usagePlanId: 1111
-                usagePlanName: slscmp
-                usagePlanDesc: sls create
-                maxRequestNum: 1000
-              auth:
-                secretName: secret
-                secretIds:
-                  - xxx
-    - apigw: # api网关触发器，无apigw服务，自动创建服务
-        parameters:
-          serviceName: apigw-xxxx
-          protocols:
-            - http
-          description: the serverless service
-          environment: release
-          endpoints:
-            - path: /users
-              method: POST
-    - cos: # cos触发器
-        parameters:
-          qualifier: $DEFAULT # 别名配置
-          bucket: cli-appid.cos.ap-beijing.myqcloud.com
-          filter:
-            prefix: filterdir/
-            suffix: .jpg
-          events: 'cos:ObjectCreated:*'
-          enable: true
-    - cmq: # CMQ Topic 触发器
-        parameters:
-          qualifier: $DEFAULT # 别名配置
-          name: test-topic-queue
-          enable: true
-          filterType: 1 # 消息过滤类型，1为标签类型，2为路由匹配类型
-          filterKey: # 当 filterType 为1时表示消息过滤标签，当 filterType 为2时表示 Binding Key
-            - key1
-            - key2
-    - ckafka: # ckafka触发器
-        name: #触发器名称，默认ckafka-${name}-${stage}
-        parameters:
-          qualifier: $DEFAULT # 别名配置
-          name: ckafka-2o10hua5
-          topic: test
-          maxMsgNum: 999
-          offset: latest
-          enable: true
-          retry: 10000
+    - tagKey: key
+    - tagVal: value
+  triggers: # 触发器
+    - type: timer # 定时触发器
+      # name: timer # 触发器名称，默认timer-${name}-${stage}
+      qualifier: $DEFAULT # 别名配置
+      cronExpression: '*/5 * * * * * *' # 每5秒触发一次
+      enable: true
+      argument: argument # 额外的参数
+    - type: apigw # api网关触发器，已有apigw服务，配置触发器
+      id: service-8dsikiq6
+      name: serverless
+      protocols:
+        - http
+      netTypes:
+        - OUTER
+      description: the serverless service
+      environment: release
+      apis:
+        - path: /users
+          method: POST
+        - path: /test/{abc}/{cde}
+          method: GET
+          id: api-id
+          description: Serverless REST API
+          cors: true
+          timeout: 10
+          responseType: HTML
+          param:
+            - name: abc
+              position: PATH
+              required: true
+              type: string
+              defaultValue: abc
+              desc: mytest
+            - name: cde
+              position: PATH
+              required: true
+              type: string
+              defaultValue: abc
+              desc: mytest
+          function:
+            isIntegratedResponse: true
+            functionQualifier: $DEFAULT
+          usagePlan:
+            usagePlanId: 1111
+            usagePlanName: slscmp
+            usagePlanDesc: sls create
+            maxRequestNum: 1000
+          auth:
+            secretName: secret
+            secretIds:
+              - xxx
+    - type: apigw # api网关触发器，无apigw服务，自动创建服务
+      name: apigw-xxxx
+      protocols:
+        - http
+      description: the serverless service
+      environment: release
+      apis:
+        - path: /users
+          method: POST
+    - type: cos # cos触发器
+      qualifier: $DEFAULT # 别名配置
+      bucket: bucket-name
+      filter:
+        prefix: filterdir/
+        suffix: .jpg
+      events: 'cos:ObjectCreated:*'
+      enable: true
+
+    - type: cmq # CMQ Topic 触发器
+      qualifier: $DEFAULT # 别名配置
+      name: test-topic-queue
+      enable: true
+      filterType: 1 # 消息过滤类型，1为标签类型，2为路由匹配类型
+      filterKey: # 当 filterType 为1时表示消息过滤标签，当 filterType 为2时表示 Binding Key
+        - key1
+        - key2
+    - type: ckafka # ckafka触发器
+      qualifier: $DEFAULT # 别名配置
+      name: ckafka-2o10hua5
+      topic: test
+      maxMsgNum: 999
+      offset: latest
+      enable: true
+      retry: 10000
 ```
 
 ## 配置描述
@@ -306,35 +291,37 @@ inputs:
 
 #### apigw 触发器参数
 
-| 参数名称    | 必选 |   类型   | 默认值      | 描述                                                                           |
-| ----------- | ---- | :------: | :---------- | :----------------------------------------------------------------------------- |
-| environment | 否   |  string  | `release`   | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release`          |
-| serviceId   | 否   |  string  |             | 网关 Service ID（不传入则新建一个 Service）                                    |
-| protocols   | 否   | string[] | `['http']`  | 前端请求的类型，如 http，https，http 与 https                                  |
-| netTypes    | 否   | string[] | `['OUTER']` | 网络类型，如 `['OUTER']`, `['INNER']` 与`['OUTER', 'INNER']`                   |
-| serviceName | 否   |  string  |             | 网关 API 名称。如果不传递则默认新建一个名称与触发器名称相同的 Apigw API 名称。 |
-| description | 否   |  string  |             | 网关 API 描述                                                                  |
-| endpoints   | 是   | object[] |             | 参考 [endpoint](#endpoints-参数) 参数。                                        |
+| 参数名称    | 必选 |     类型      | 默认值      | 描述                                                                           |
+| ----------- | ---- | :-----------: | :---------- | :----------------------------------------------------------------------------- |
+| id          | 否   |    string     |             | 网关 Service ID（不传入则新建一个 Service）                                    |
+| name        | 否   |    string     |             | 网关 API 名称。如果不传递则默认新建一个名称与触发器名称相同的 Apigw API 名称。 |
+| environment | 否   |    string     | `release`   | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release`          |
+| protocols   | 否   |   string[]    | `['http']`  | 前端请求的类型，如 http，https，http 与 https                                  |
+| netTypes    | 否   |   string[]    | `['OUTER']` | 网络类型，如 `['OUTER']`, `['INNER']` 与`['OUTER', 'INNER']`                   |
+| description | 否   |    string     |             | 网关 API 描述                                                                  |
+| apis        | 是   | [Api](#Api)[] |             | API 列表                                                                       |
 
-##### endpoints 参数
+##### Api
 
 参考： https://cloud.tencent.com/document/product/628/14886
 
-| 参数名称       | 必选 |  类型   | 默认值  | 描述                                                                                                      |
-| -------------- | ---- | :-----: | :------ | :-------------------------------------------------------------------------------------------------------- |
-| path           | 是   | string  |         | API 的前端路径，如/path。                                                                                 |
-| method         | 否   | string  |         | API 的前端请求方法，如 GET                                                                                |
-| apiId          | 否   | string  |         | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
-| description    | 否   | string  |         | API 描述                                                                                                  |
-| enableCORS     | 是   | boolean | `false` | 是否需要开启跨域                                                                                          |
-| responseType   | 否   | string  |         | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
-| serviceTimeout | 是   | number  | `15`    | API 的后端服务超时时间，单位是秒。                                                                        |
-| param          | 否   |         |         | 前端参数                                                                                                  |
-| function       | 否   |         |         | SCF 配置                                                                                                  |
-| usagePlan      | 否   |         |         | 使用计划                                                                                                  |
-| auth           | 否   |         |         | API 密钥配置                                                                                              |
+| 参数名称     | 必选 |                 类型                  | 默认值  | 描述                                                             |
+| ------------ | ---- | :-----------------------------------: | :------ | :--------------------------------------------------------------- |
+| path         | 是   |                string                 |         | API 的前端路径，如/path。                                        |
+| method       | 是   |                string                 |         | API 的前端请求方法，如 GET                                       |
+| id           | 否   |                string                 |         | API ID                                                           |
+| description  | 否   |                string                 |         | API 描述                                                         |
+| cors         | 否   |                boolean                | `false` | 是否需要开启跨域                                                 |
+| timeout      | 否   |                number                 | `15`    | API 的后端服务超时时间，单位是秒。                               |
+| responseType | 否   |                string                 |         | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML |
+| param        | 否   | [FronentParameter](#FronentParameter) |         | 前端参数                                                         |
+| function     | 否   |   [FunctionConfig](#FunctionConfig)   |         | SCF 配置                                                         |
+| usagePlan    | 否   |        [UsagePlan](#UsagePlan)        |         | 使用计划                                                         |
+| auth         | 否   |          [ApiAuth](#ApiAuth)          |         | API 密钥配置                                                     |
 
-- 前端参数
+###### FronentParameter
+
+前端参数
 
 | 参数名称     | 必选 | 类型    | 默认值 | 描述                                                      |
 | ------------ | ---- | ------- | ------ | --------------------------------------------------------- |
@@ -345,14 +332,16 @@ inputs:
 | defaultValue | 否   | string  |        | API 的前端参数默认值。                                    |
 | desc         | 否   | string  |        | API 的前端参数备注。                                      |
 
-- SCF 配置
+###### FunctionConfig
+
+关联 SCF 配置
 
 | 参数名称             | 必选 | 类型    | 默认值     | 描述                     |
 | -------------------- | ---- | ------- | ---------- | ------------------------ |
 | isIntegratedResponse | 否   | boolean | `false`    | 是否启用 SCF 集成响应。  |
 | functionQualifier    | 否   | string  | `$DEFAULT` | 触发器关联的 SCF 版本 。 |
 
-- 使用计划
+###### UsagePlan
 
 参考: https://cloud.tencent.com/document/product/628/14947
 
@@ -363,7 +352,9 @@ inputs:
 | usagePlanDesc |  否  | string | 用户自定义的使用计划描述                                |
 | maxRequestNum |  否  | number | 请求配额总数，如果为空，将使用-1 作为默认值，表示不开启 |
 
-- API 密钥配置
+###### ApiAuth
+
+API 密钥配置
 
 参考: https://cloud.tencent.com/document/product/628/14916
 

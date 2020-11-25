@@ -1,7 +1,7 @@
 const download = require('download')
 const { Cos } = require('tencent-component-toolkit')
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
-const CONFIGS = require('./config')
+const { typeOf, deepClone } = require('@ygkit/object')
 
 /**
  * Generate random id
@@ -11,24 +11,21 @@ const generateId = () =>
     .toString(36)
     .substring(6)
 
-const getType = (obj) => {
-  return Object.prototype.toString.call(obj).slice(8, -1)
-}
-
-const validateTraffic = (num) => {
-  if (getType(num) !== 'Number') {
-    throw new TypeError(
-      `PARAMETER_${CONFIGS.compName.toUpperCase()}_TRAFFIC`,
-      'traffic must be a number'
-    )
+const validateTraffic = (framework, num) => {
+  if (typeOf(num) !== 'Number') {
+    throw new TypeError(`PARAMETER_${framework.toUpperCase()}_TRAFFIC`, 'traffic must be a number')
   }
   if (num < 0 || num > 1) {
     throw new TypeError(
-      `PARAMETER_${CONFIGS.compName.toUpperCase()}_TRAFFIC`,
+      `PARAMETER_${framework.toUpperCase()}_TRAFFIC`,
       'traffic must be a number between 0 and 1'
     )
   }
   return true
+}
+
+const getTimestamp = () => {
+  return Math.floor(Date.now() / 1000)
 }
 
 const getDefaultProtocol = (protocols) => {
@@ -47,35 +44,139 @@ const getDefaultServiceName = () => {
   return 'serverless'
 }
 
+const getDefaultBucketName = (region) => {
+  return `serverless-${region}-code`
+}
+
+const getDefaultObjectName = (inputs) => {
+  return `${inputs.name}-${getTimestamp()}.zip`
+}
+
 const getDefaultServiceDescription = (instance) => {
   return `The service of serverless scf: ${instance.name}-${instance.stage}-${instance.app}`
 }
 
-/**
- * get default template zip file path
- */
-const getDefaultZipPath = async () => {
-  console.log(`Packaging ${CONFIGS.compFullname} application...`)
+const removeAppid = (str, appId) => {
+  const suffix = `-${appId}`
+  if (!str || str.indexOf(suffix) === -1) {
+    return str
+  }
+  return str.slice(0, -suffix.length)
+}
+
+const formatCosTriggerBucket = (bucket, region, appId) => {
+  const suffix = `.cos.${region}.myqcloud.com`
+  if (bucket.indexOf(suffix) !== -1) {
+    return bucket
+  }
+  const bucketName = removeAppid(bucket, appId)
+  return `${bucketName}-${appId}${suffix}`
+}
+
+const getCodeZipPath = async (instance, inputs) => {
+  const { CONFIGS, framework } = instance
+  console.log(`Packaging ${framework} application`)
 
   // unzip source zip file
-  // add default template
-  const downloadPath = `/tmp/${generateId()}`
-  const filename = 'template'
+  let zipPath
+  if (!inputs.code.src) {
+    // add default template
+    const downloadPath = `/tmp/${generateId()}`
+    const filename = 'template'
 
-  console.log(`Installing Default ${CONFIGS.compFullname} App...`)
-  try {
-    await download(CONFIGS.templateUrl, downloadPath, {
-      filename: `${filename}.zip`
-    })
-  } catch (e) {
-    throw new TypeError(
-      `DOWNLOAD_${CONFIGS.compName.toUpperCase()}_TEMPLATE`,
-      'Download default template failed.'
-    )
+    console.log(`Downloading default ${framework} application`)
+    try {
+      await download(CONFIGS.templateUrl, downloadPath, {
+        filename: `${filename}.zip`
+      })
+    } catch (e) {
+      throw new TypeError(`DOWNLOAD_TEMPLATE`, 'Download default template failed.')
+    }
+    zipPath = `${downloadPath}/${filename}.zip`
+  } else {
+    zipPath = inputs.code.src
   }
-  const zipPath = `${downloadPath}/${filename}.zip`
 
   return zipPath
+}
+
+/**
+ * Upload code to COS
+ * @param {Component} instance serverless component instance
+ * @param {string} appId app id
+ * @param {object} credentials credentials
+ * @param {object} inputs component inputs parameters
+ * @param {string} region region
+ */
+const uploadCodeToCos = async (instance, appId, credentials, inputs, region) => {
+  const { CONFIGS } = instance
+  const bucketName = inputs.code.bucket || getDefaultBucketName(region)
+  const objectName = inputs.code.object || getDefaultObjectName(inputs)
+  const bucket = `${bucketName}-${appId}`
+
+  const zipPath = await getCodeZipPath(instance, inputs)
+  console.log(`Code zip path ${zipPath}`)
+
+  // save the zip path to state for lambda to use it
+  instance.state.zipPath = zipPath
+
+  const cos = new Cos(credentials, region)
+
+  if (!inputs.code.bucket) {
+    // create default bucket
+    await cos.deploy({
+      force: true,
+      bucket: bucketName + '-' + appId,
+      lifecycle: CONFIGS.cos.lifecycle
+    })
+  }
+  if (!inputs.code.object) {
+    console.log(`Getting cos upload url for bucket ${bucketName}`)
+    const uploadUrl = await cos.getObjectUrl({
+      bucket: bucket,
+      object: objectName,
+      method: 'PUT'
+    })
+
+    // if shims and sls sdk entries had been injected to zipPath, no need to injected again
+    console.log(`Uploading code to bucket ${bucketName}`)
+
+    await instance.uploadSourceZipToCOS(zipPath, uploadUrl, {}, {})
+    console.log(`Upload ${objectName} to bucket ${bucketName} success`)
+  }
+
+  // save bucket state
+  instance.state.bucket = bucketName
+  instance.state.object = objectName
+
+  return {
+    bucket: bucketName,
+    object: objectName
+  }
+}
+
+const yamlToSdkInputs = (inputs, region, appId) => {
+  const sdkInputs = deepClone(inputs)
+  if (sdkInputs.triggers) {
+    sdkInputs.triggers = sdkInputs.triggers.map((trigger) => {
+      if (trigger.type === 'apigw') {
+        if (trigger.apis) {
+          trigger.apis = trigger.apis.map((api) => {
+            api.apiId = api.id
+            api.apiName = api.name
+            api.enableCORS = api.cors
+            api.apiDesc = api.description
+            api.serviceTimeout = api.timeout
+          })
+        }
+      }
+      if (trigger.type === 'cos') {
+        // format bucket
+        trigger.bucket = formatCosTriggerBucket(trigger.bucket, region, appId)
+      }
+    })
+  }
+  return sdkInputs
 }
 
 /**
@@ -85,162 +186,96 @@ const getDefaultZipPath = async () => {
  * @param {string} appId app id
  * @param {object} inputs yml inputs
  */
-const prepareInputs = async (instance, credentials, appId, inputs) => {
-  // 默认值
+const initializeInputs = async (instance, inputs, appId) => {
+  const { CONFIGS, framework } = instance
   const region = inputs.region || CONFIGS.region
-  inputs.srcOriginal = inputs.srcOriginal || inputs.src
-  const tempSrc =
-    typeof inputs.srcOriginal === 'object'
-      ? inputs.srcOriginal
-      : typeof inputs.srcOriginal === 'string'
-      ? {
-          src: inputs.srcOriginal
-        }
-      : {}
 
-  const code = {
-    bucket: tempSrc.bucket || `sls-cloudfunction-${region}-code`,
-    object:
-      tempSrc.object ||
-      `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
-  }
-  const cos = new Cos(credentials, region)
-  const bucket = `${code.bucket}-${appId}`
-
-  // create new bucket, and setup lifecycle for it
-  if (!tempSrc.bucket) {
-    await cos.deploy({
-      bucket: bucket,
-      force: true,
-      lifecycle: [
-        {
-          status: 'Enabled',
-          id: 'deleteObject',
-          filter: '',
-          expiration: { days: '10' },
-          abortIncompleteMultipartUpload: { daysAfterInitiation: '10' }
-        }
-      ]
-    })
-  }
-
-  let useDefault
-  if (!tempSrc.object) {
-    // whether use default template, if so, download it
-    // get default template code
-    let zipPath
-    if (!tempSrc.src) {
-      useDefault = true
-      zipPath = await getDefaultZipPath()
-      inputs.src = zipPath
-    } else {
-      zipPath = inputs.src
-    }
-    console.log(`Uploading code ${code.object} to bucket ${bucket}`)
-    await cos.upload({
-      bucket: bucket,
-      file: zipPath,
-      key: code.object
-    })
+  inputs.code = {
+    src: inputs.src && inputs.src.src,
+    bucket: inputs.srcOriginal && inputs.srcOriginal.bucket,
+    object: inputs.srcOriginal && inputs.srcOriginal.object
   }
 
   const oldState = instance.state
-  inputs.name =
-    inputs.name ||
-    (oldState.function && oldState.function.FunctionName) ||
-    getDefaultFunctionName(instance)
+  const stateFaasName = oldState.function && oldState.function.FunctionName
+  inputs.name = inputs.name || stateFaasName || getDefaultFunctionName(instance)
   inputs.runtime = inputs.runtime || CONFIGS.runtime
   inputs.handler = inputs.handler || CONFIGS.handler(inputs.runtime)
   inputs.description = inputs.description || CONFIGS.description(instance.app)
-  inputs.code = code
-  inputs.events = inputs.events || []
 
   const stateApigw = oldState.apigw
-  const triggers = {}
+  const outputTriggers = {}
   const apigwName = []
 
   let existApigwTrigger = false
   // initial apigw event parameters
-  inputs.events = inputs.events.map((event) => {
-    const eventType = Object.keys(event)[0]
+  inputs.triggers = (inputs.triggers || []).map((currentEvent) => {
+    const eventType = currentEvent.type
     // check trigger type
     if (CONFIGS.triggerTypes.indexOf(eventType) === -1) {
       throw new TypeError(
-        `PARAMETER_${CONFIGS.compName.toUpperCase()}_APIGW_TRIGGER`,
+        `PARAMETER_${framework.toUpperCase()}_APIGW_TRIGGER`,
         `Unknow trigger type ${eventType}, must be one of ${JSON.stringify(CONFIGS.triggerTypes)}`
       )
     }
-    const currentEvent = event[eventType]
-    triggers[eventType] = triggers[eventType] || []
+    outputTriggers[eventType] = outputTriggers[eventType] || []
 
     if (eventType === 'apigw') {
       if (apigwName.includes(currentEvent.name)) {
         throw new TypeError(
-          `PARAMETER_${CONFIGS.compName.toUpperCase()}_APIGW_TRIGGER`,
+          `PARAMETER_${framework.toUpperCase()}_APIGW_TRIGGER`,
           `API Gateway name must be unique`
         )
       } else {
-        const serviceName =
-          currentEvent.parameters.serviceName ||
-          currentEvent.name ||
-          getDefaultServiceName(instance)
-
-        currentEvent.parameters.serviceName = serviceName
-        currentEvent.parameters.description =
-          currentEvent.parameters.description || getDefaultServiceDescription(instance)
-        currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
-        if (stateApigw && stateApigw[serviceName]) {
-          currentEvent.parameters.oldState = stateApigw[serviceName]
-          currentEvent.parameters.serviceId =
-            currentEvent.parameters.serviceId || stateApigw[serviceName].serviceId
-          currentEvent.parameters.created = stateApigw[serviceName].created
+        currentEvent.name = currentEvent.name || getDefaultServiceName(instance)
+        currentEvent.description =
+          currentEvent.description || getDefaultServiceDescription(instance)
+        if (stateApigw && stateApigw[currentEvent.name]) {
+          currentEvent.oldState = stateApigw[currentEvent.name]
+          currentEvent.id = currentEvent.id || stateApigw[currentEvent.name]
         }
-        apigwName.push(serviceName)
+        apigwName.push(currentEvent.name)
       }
       existApigwTrigger = true
     } else {
       currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
-      triggers[eventType].push(currentEvent.name)
+      outputTriggers[eventType].push(currentEvent.name)
     }
-    return event
+    return currentEvent
   })
 
   // if not config apig trigger, and make autoCreateApi true
   if (inputs.autoCreateApi && !existApigwTrigger) {
-    triggers.apigw = []
+    outputTriggers.apigw = []
     const { defaultApigw } = CONFIGS
     const serviceName = getDefaultServiceName(instance)
-    defaultApigw.parameters.serviceName = serviceName
-    defaultApigw.parameters.description = getDefaultServiceDescription(instance)
+    defaultApigw.name = serviceName
+    defaultApigw.description = getDefaultServiceDescription(instance)
     if (stateApigw && stateApigw[serviceName]) {
-      defaultApigw.parameters.oldState = stateApigw[serviceName]
-      defaultApigw.parameters.serviceId =
-        defaultApigw.parameters.serviceId || stateApigw[serviceName].serviceId
-      defaultApigw.parameters.created = stateApigw[serviceName].created
+      defaultApigw.oldState = stateApigw[serviceName]
+      defaultApigw.id = defaultApigw.id || stateApigw[serviceName].id
+      defaultApigw.created = stateApigw[serviceName].created
     }
-    inputs.events.push({
-      apigw: defaultApigw
-    })
+    inputs.triggers.push(defaultApigw)
 
     existApigwTrigger = true
   }
 
   // validate traffic config
   if (inputs.traffic !== undefined) {
-    validateTraffic(inputs.traffic)
+    validateTraffic(framework, inputs.traffic)
   }
 
   inputs.lastVersion = instance.state.lastVersion
 
   return {
-    useDefault,
+    outputTriggers,
     existApigwTrigger,
-    scfInputs: inputs,
-    triggers
+    scfInputs: yamlToSdkInputs(inputs, region, appId)
   }
 }
 
-const prepareAliasInputs = (inputs) => {
+const initializeAliasInputs = (inputs) => {
   const outputs = {}
 
   if (typeof inputs.name == 'undefined') {
@@ -331,10 +366,9 @@ const prepareAliasInputs = (inputs) => {
 }
 
 module.exports = {
-  getType,
   getDefaultProtocol,
   generateId,
-  prepareInputs,
-  prepareAliasInputs,
-  getDefaultZipPath
+  uploadCodeToCos,
+  initializeInputs,
+  initializeAliasInputs
 }

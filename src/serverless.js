@@ -1,7 +1,14 @@
 const { Component } = require('@serverless/core')
 const { Scf } = require('tencent-component-toolkit')
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
-const { prepareInputs, prepareAliasInputs, getType, getDefaultProtocol } = require('./utils')
+const { migrateFaas } = require('@slsplus/migrate')
+const { typeOf, deepClone } = require('@ygkit/object')
+const {
+  uploadCodeToCos,
+  initializeInputs,
+  initializeAliasInputs,
+  getDefaultProtocol
+} = require('./utils')
 const CONFIGS = require('./config')
 
 class ServerlessComponent extends Component {
@@ -26,25 +33,40 @@ class ServerlessComponent extends Component {
     return this.credentials.tencent.tmpSecrets.appId
   }
 
-  async deploy(inputs) {
-    console.log(`Deploying Tencent ${CONFIGS.compFullname}...`)
+  initialize(framework = 'scf') {
+    this.CONFIGS = CONFIGS
+    this.framework = framework
+    this.__TmpCredentials = this.getCredentials()
+  }
 
-    const credentials = this.getCredentials()
+  async deploy(inputs) {
+    this.initialize()
+    const { __TmpCredentials, framework } = this
+
+    console.log(`Deploying ${framework}`)
+    inputs = migrateFaas(inputs)
+
     const appId = this.getAppId()
 
     // 默认值
     const region = inputs.region || CONFIGS.region
 
     // prepare scf inputs parameters
-    const { scfInputs, existApigwTrigger, triggers, useDefault } = await prepareInputs(
+    const { scfInputs, existApigwTrigger, outputTriggers } = await initializeInputs(
       this,
-      credentials,
-      appId,
-      inputs
+      inputs,
+      appId
     )
 
-    const scf = new Scf(credentials, region)
-    const scfOutput = await scf.deploy(scfInputs)
+    const scf = new Scf(__TmpCredentials, region)
+
+    const code = await uploadCodeToCos(this, appId, __TmpCredentials, inputs, region)
+    const scfOutput = await scf.deploy(
+      deepClone({
+        ...scfInputs,
+        code
+      })
+    )
 
     const outputs = {
       functionName: scfOutput.FunctionName,
@@ -91,16 +113,16 @@ class ServerlessComponent extends Component {
         if (trigger.serviceId) {
           stateApigw[trigger.serviceName] = trigger
           trigger.apiList.forEach((endpoint) => {
-            if (getType(trigger.subDomain) === 'Array') {
+            if (typeOf(trigger.subDomain) === 'Array') {
               trigger.subDomain.forEach((item) => {
-                triggers['apigw'].push(
+                outputTriggers['apigw'].push(
                   `${getDefaultProtocol(trigger.protocols)}://${item}/${trigger.environment}${
                     endpoint.path
                   }`
                 )
               })
             } else {
-              triggers['apigw'].push(
+              outputTriggers['apigw'].push(
                 `${getDefaultProtocol(trigger.protocols)}://${trigger.subDomain}/${
                   trigger.environment
                 }${endpoint.path}`
@@ -112,9 +134,9 @@ class ServerlessComponent extends Component {
       this.state.apigw = stateApigw
     }
 
-    outputs.triggers = triggers
+    outputs.triggers = outputTriggers
 
-    if (useDefault) {
+    if (!scfInputs.code.src) {
       outputs.templateUrl = CONFIGS.templateUrl
     }
 
@@ -126,24 +148,29 @@ class ServerlessComponent extends Component {
 
     await this.save()
 
-    console.log(`Deployed Tencent ${CONFIGS.compFullname}...`)
+    console.log(`Deploy ${framework} success`)
 
     return outputs
   }
 
   // eslint-disable-next-line
-  async remove(inputs = {}) {
-    const credentials = this.getCredentials()
-    const { region } = this.state
-    const functionInfo = this.state.function
+  async remove() {
+    this.initialize()
 
-    console.log(`Removing Tencent ${CONFIGS.compFullname}...`)
-    const scf = new Scf(credentials, region)
+    const { __TmpCredentials, framework, state } = this
+
+    const { region } = state
+    const functionInfo = state.function
+
+    const scf = new Scf(__TmpCredentials, region)
     if (functionInfo && functionInfo.FunctionName) {
+      console.log(`Removing ${framework}`)
       await scf.remove(functionInfo)
+      console.log(`Removed ${framework} ${functionInfo.FunctionName}`)
     }
     this.state = {}
-    console.log(`Removed Tencent ${CONFIGS.compFullname}`)
+
+    return {}
   }
 
   async list_alias(inputs) {
@@ -200,7 +227,7 @@ class ServerlessComponent extends Component {
       const credentials = this.getCredentials()
       const region = inputs.region || CONFIGS.region
 
-      const alias_params = prepareAliasInputs(inputs)
+      const alias_params = initializeAliasInputs(inputs)
 
       if (alias_params.isPramasError) {
         return {
@@ -229,7 +256,7 @@ class ServerlessComponent extends Component {
       const credentials = this.getCredentials()
       const region = inputs.region || CONFIGS.region
 
-      const alias_params = prepareAliasInputs(inputs)
+      const alias_params = initializeAliasInputs(inputs)
 
       if (alias_params.isPramasError) {
         return {

@@ -7,12 +7,9 @@ const getLang = (runtime) => {
   }
   return 'Nodejs'
 }
-
 const CONFIGS = {
   templateUrl: 'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/scf-demo.zip',
   region: 'ap-guangzhou',
-  compName: 'scf',
-  compFullname: 'SCF',
   runtime: 'Nodejs10.15',
   handler(runtime) {
     let handler = 'index.main_handler'
@@ -38,18 +35,28 @@ const CONFIGS = {
     return `This is a function in ${app} application`
   },
   triggerTypes: ['apigw', 'cos', 'timer', 'cmq', 'ckafka'],
+  cos: {
+    lifecycle: [
+      {
+        status: 'Enabled',
+        id: 'deleteObject',
+        filter: '',
+        expiration: { days: '10' },
+        abortIncompleteMultipartUpload: { daysAfterInitiation: '10' }
+      }
+    ]
+  },
   defaultApigw: {
-    parameters: {
-      protocols: ['http', 'https'],
-      description: 'Created By Serverless Component',
-      environment: 'release',
-      endpoints: [
-        {
-          path: '/',
-          method: 'GET'
-        }
-      ]
-    }
+    type: 'apigw',
+    protocols: ['http', 'https'],
+    description: 'Created By Serverless Component',
+    environment: 'release',
+    apis: [
+      {
+        path: '/',
+        method: 'GET'
+      }
+    ]
   }
 }
 

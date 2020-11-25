@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@slsplus/migrate": "^0.0.1-beta-4",
+    "@ygkit/object": "^0.0.3",
     "download": "^8.0.0",
     "tencent-component-toolkit": "^1.18.7",
     "type": "^2.0.0"
