@@ -1,3 +1,10 @@
+## [0.1.15](https://github.com/serverless-components/tencent-scf/compare/v0.1.14...v0.1.15) (2020-12-01)
+
+
+### Bug Fixes
+
+* remove cls,vpc type check ([332240e](https://github.com/serverless-components/tencent-scf/commit/332240e7196d3325618c755bba002f77518bedb5))
+
 ## [0.1.14](https://github.com/serverless-components/tencent-scf/compare/v0.1.13...v0.1.14) (2020-11-24)
 
 
