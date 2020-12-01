@@ -40,7 +40,8 @@ inputs:
   region: ap-guangzhou # 函数所在区域
   description: This is a function in ${app} application.
   memorySize: 128 # 内存大小，单位MB
-  timeout: 20 # 超时时间，单位秒
+  timeout: 20 # 函数执行超时时间，单位秒
+  initTimeout: 3 # 初始化超时时间，单位秒
   environment: #  环境变量
     variables: #  环境变量对象
       TEST: value
@@ -179,6 +180,7 @@ inputs:
 | description              | 否   | `This is a function in ${app} application`                                                                     | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                                                                                                                                                                    |
 | memorySize               | 否   | `128`                                                                                                          | 函数运行时内存大小，默认为 128M，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                                                                                                                                                                    |
 | timeout                  | 否   | `3`                                                                                                            | 函数最长执行时间，单位为秒，可选值范围 1-900 秒，默认为 3 秒                                                                                                                                                                                                       |
+| initTimeout              | 否   | `3`                                                                                                            | 函数初始化超时时间，单位为秒，可选值范围 1-30 秒 秒                                                                                                                                                                                                                |
 | eip                      | 否   | `false`                                                                                                        | 是否[固定出口 IP][固定出口ip]                                                                                                                                                                                                                                      |
 | publicAccess             | 否   | `true`                                                                                                         | 是否开启公网访问                                                                                                                                                                                                                                                   |
 | [environment](#环境变量) | 否   |                                                                                                                | 函数的环境变量，配置参考[环境变量](#环境变量)                                                                                                                                                                                                                      |
