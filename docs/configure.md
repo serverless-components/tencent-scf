@@ -65,6 +65,7 @@ inputs:
     logsetId: ClsLogsetId
     topicId: ClsTopicId
   eip: false # 是否开启固定IP
+  asyncRunEnable: false # 是否支持长时间运行，目前只支持上海区
   tags: #标签配置
     key1: value1
     key2: value2 # tags 的key value
@@ -189,6 +190,7 @@ inputs:
 | [deadLetter](#死信队列)  | 否   |                                                                                                                | 死信队列配置，配置参数参考[死信队列](#死信队列)                                                                                                                                                                                                                    |
 | [cls](#函数日志)         | 否   |                                                                                                                | 函数日志配置，配置参数参考[函数日志](#函数日志)                                                                                                                                                                                                                    |
 | eip                      | 否   | `false`                                                                                                        | 固定出口 IP。默认为 false，即不启用。                                                                                                                                                                                                                              |
+| asyncRunEnable           | 否   | `false`                                                                                                        | 是否开启长时间运行，默认最大支持 `12小时`，`目前只支持上海区`，如果配置为 `true`，`cls`（函数日志配置） 必须，                                                                                                                                                     |
 | tags                     | 否   |                                                                                                                | 标签设置。可设置多对 key-value 的键值对                                                                                                                                                                                                                            |
 | [cfs](#文件系统)         | 否   |                                                                                                                | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                                                                                                                                                                      |
 | [events](#触发器)        | 否   |                                                                                                                | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考[触发器](#触发器)。                                                                                       |
