@@ -34,9 +34,9 @@ const instanceYaml = {
                 method: 'GET',
                 apiName: 'WS-SCF-API',
                 function: {
-                  transportFunctionName: 'myFunction',
-                  registerFunctionName: 'myFunction',
-                  cleanupFunctionName: 'myFunction'
+                  transportFunctionName: 'serverless-unit-test',
+                  registerFunctionName: 'serverless-unit-test',
+                  cleanupFunctionName: 'serverless-unit-test'
                 }
               }
             ]
