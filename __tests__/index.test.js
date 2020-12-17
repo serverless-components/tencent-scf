@@ -1,7 +1,3 @@
-const path = require('path')
-require('dotenv').config({
-  path: path.join(__dirname, '..', '.env.test')
-})
 const { generateId, getServerlessSdk } = require('./lib/utils')
 
 
@@ -67,7 +63,7 @@ it('should successfully deploy scf service', async () => {
   expect(instance.outputs.runtime).toEqual(instanceYaml.inputs.runtime)
   expect(instance.outputs.handler).toEqual(instanceYaml.inputs.handler)
   expect(instance.outputs.triggers).toBeDefined()
-  expect(instance.outputs.triggers.apigw).toBeDefined()
+  expect(instance.outputs.triggers.length).toBe(1)
 
   expect(instance.state).toBeDefined()
   expect(instance.state.region).toEqual(instanceYaml.inputs.region)
