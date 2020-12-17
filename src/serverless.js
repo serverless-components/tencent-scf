@@ -27,7 +27,7 @@ class ServerlessComponent extends Component {
   }
 
   async deploy(inputs) {
-    console.log(`Deploying Tencent ${CONFIGS.compFullname}...`)
+    console.log(`Deploying ${CONFIGS.compFullname}`)
 
     const credentials = this.getCredentials()
     const appId = this.getAppId()
@@ -36,12 +36,7 @@ class ServerlessComponent extends Component {
     const region = inputs.region || CONFIGS.region
 
     // prepare scf inputs parameters
-    const { scfInputs, existApigwTrigger, triggers, useDefault } = await prepareInputs(
-      this,
-      credentials,
-      appId,
-      inputs
-    )
+    const { scfInputs, useDefault } = await prepareInputs(this, credentials, appId, inputs)
 
     const scf = new Scf(credentials, region)
     const scfOutput = await scf.deploy(scfInputs)
@@ -84,35 +79,32 @@ class ServerlessComponent extends Component {
     this.state.lastVersion = outputs.lastVersion
     this.state.traffic = outputs.traffic
 
-    // handle apigw event outputs
-    if (existApigwTrigger) {
-      const stateApigw = {}
-      scfOutput.Triggers.forEach((trigger) => {
-        if (trigger.serviceId) {
-          stateApigw[trigger.serviceName] = trigger
-          trigger.apiList.forEach((endpoint) => {
-            if (getType(trigger.subDomain) === 'Array') {
-              trigger.subDomain.forEach((item) => {
-                triggers['apigw'].push(
-                  `${getDefaultProtocol(trigger.protocols)}://${item}/${trigger.environment}${
-                    endpoint.path
-                  }`
-                )
-              })
-            } else {
-              triggers['apigw'].push(
-                `${getDefaultProtocol(trigger.protocols)}://${trigger.subDomain}/${
-                  trigger.environment
-                }${endpoint.path}`
+    const stateApigw = {}
+    outputs.triggers = scfOutput.Triggers.map((item) => {
+      if (item.serviceId) {
+        stateApigw[item.serviceName] = item
+        item.urls = []
+        item.apiList.forEach((apiItem) => {
+          if (getType(item.subDomain) === 'Array') {
+            item.subDomain.forEach((domain) => {
+              item.urls.push(
+                `${getDefaultProtocol(item.protocols)}://${domain}/${item.environment}${
+                  apiItem.path
+                }`
               )
-            }
-          })
-        }
-      })
-      this.state.apigw = stateApigw
-    }
-
-    outputs.triggers = triggers
+            })
+          } else {
+            item.urls.push(
+              `${getDefaultProtocol(item.protocols)}://${item.subDomain}/${item.environment}${
+                apiItem.path
+              }`
+            )
+          }
+        })
+      }
+      return item
+    })
+    this.state.apigw = stateApigw
 
     if (useDefault) {
       outputs.templateUrl = CONFIGS.templateUrl
@@ -126,7 +118,7 @@ class ServerlessComponent extends Component {
 
     await this.save()
 
-    console.log(`Deployed Tencent ${CONFIGS.compFullname}...`)
+    console.log(`Deploy ${CONFIGS.compFullname} success`)
 
     return outputs
   }
@@ -137,13 +129,13 @@ class ServerlessComponent extends Component {
     const { region } = this.state
     const functionInfo = this.state.function
 
-    console.log(`Removing Tencent ${CONFIGS.compFullname}...`)
+    console.log(`Removing ${CONFIGS.compFullname}`)
     const scf = new Scf(credentials, region)
     if (functionInfo && functionInfo.FunctionName) {
       await scf.remove(functionInfo)
     }
     this.state = {}
-    console.log(`Removed Tencent ${CONFIGS.compFullname}`)
+    console.log(`Remove ${CONFIGS.compFullname} success`)
   }
 
   async list_alias(inputs) {

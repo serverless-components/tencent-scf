@@ -151,7 +151,6 @@ inputs:
             - key1
             - key2
     - ckafka: # ckafka触发器
-        name: #触发器名称，默认ckafka-${name}-${stage}
         parameters:
           qualifier: $DEFAULT # 别名配置
           name: ckafka-2o10hua5
@@ -160,6 +159,17 @@ inputs:
           offset: latest
           enable: true
           retry: 10000
+    - cls: # cls 触发器
+        parameters:
+          qualifier: '$DEFAULT' # 别名配置
+          topicId: '31d3ce01-228b-42f5-aab5-7f740cc2fb11' # 日志主题 ID
+          maxWait: 60 # 最长等待时间，单位秒
+          enable: true
+    - mps: # mps 触发器
+        parameters:
+          qualifier: '$DEFAULT' # 别名配置
+          type: EditMediaTask # 事件类型
+          enable: true
 ```
 
 ## 配置描述
@@ -375,6 +385,25 @@ inputs:
 | ---------- | :----- | :------- |
 | secretName | string | 密钥名称 |
 | secretIds  | string | 密钥 ID  |
+
+#### CLS 触发器
+
+| 参数名称  | 必选 | 类型    | 默认值     | 描述                                       |
+| --------- | ---- | ------- | ---------- | :----------------------------------------- |
+| qualifier | 否   | string  | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量` |
+| topicId   | 是   | string  |            | CLS 日志主题 ID                            |
+| maxWait   | 否   | number  | `60`       | 最长等待时间，单位秒                       |
+| enable    | 否   | boolean | `true`     | 触发器是否启用。默认启用                   |
+
+#### MPS 触发器
+
+| 参数名称  | 必选 | 类型    | 默认值     | 描述                                                                  |
+| --------- | ---- | ------- | ---------- | :-------------------------------------------------------------------- |
+| qualifier | 否   | string  | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量`                            |
+| type      | 是   | string  |            | 事件类型。`WorkflowTask - 工作流任务`，`EditMediaTask - 视频编辑任务` |
+| enable    | 否   | boolean | `true`     | 触发器是否启用。默认启用                                              |
+
+> 注意：添加 mps 触发器，需要给 `SLS_QcsRole` 添加 `QcloudMPSFullAccess` 策略。
 
 <!-- Refer links -->
 
