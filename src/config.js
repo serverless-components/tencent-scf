@@ -37,7 +37,7 @@ const CONFIGS = {
   description(app) {
     return `This is a function in ${app} application`
   },
-  triggerTypes: ['apigw', 'cos', 'timer', 'cmq', 'ckafka'],
+  triggerTypes: ['apigw', 'cos', 'timer', 'cmq', 'ckafka', 'cls', 'mps'],
   defaultApigw: {
     parameters: {
       protocols: ['http', 'https'],
