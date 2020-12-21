@@ -281,8 +281,8 @@ inputs:
 | -------------- | :--: | :-----: | :--------: | :----------------------------------------------- |
 | qualifier      |  否  | string  | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量`       |
 | cronExpression |  是  | number  |            | 触发时间，为 [Cron][定时触发器-cron表达式]表达式 |
-| enable         |  否  | boolean |   `true`   | 触发器是否启用。默认启用                         |
 | argument       |  否  | object  |            | 入参参数。                                       |
+| enable         |  否  | boolean |  `false`   | 触发器是否启用                                   |
 
 #### cos 触发器参数
 
@@ -292,9 +292,9 @@ inputs:
 | --------- | :--: | :----------------------: | :--------: | :------------------------------------------------- |
 | qualifier |  否  |          string          | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量`         |
 | bucket    |  是  |          string          |            | 配置的 COS Bucket，仅支持选择同地域下的 COS 存储桶 |
-| enable    |  否  |         boolean          |   `true`   | 触发器是否启用。默认启用                           |
 | filter    |  是  | [CosFilter][cos过滤规则] |            | COS 文件名的过滤规则                               |
 | events    |  是  |          string          |            | [COS 的事件类型][cos事件类型]                      |
+| enable    |  否  |         boolean          |  `false`   | 触发器是否启用                                     |
 
 #### cmq 触发器参数
 
@@ -302,9 +302,9 @@ inputs:
 | ---------- | ---- | -------- | ---------- | :--------------------------------------------------------------------------- |
 | qualifier  | 否   | string   | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量`                                   |
 | name       | 是   | string   |            | CMQ Topic 主题队列名称                                                       |
-| enable     | 否   | boolean  | `true`     | 触发器是否启用。默认启用                                                     |
 | filterType | 否   | number   |            | 消息过滤类型，1 为标签类型，2 为路由匹配类型                                 |
 | filterKey  | 否   | string[] |            | 当 filterType 为 1 时表示消息过滤标签，当 filterType 为 2 时表示 Binding Key |
+| enable     | 否   | boolean  | `false`    | 触发器是否启用                                                               |
 
 #### ckafka 触发器参数
 
@@ -316,7 +316,7 @@ inputs:
 | maxMsgNum | 是   | number  |            | 5 秒内每汇聚 maxMsgNum 条 Ckafka 消息，则触发一次函数调用  |
 | offset    | 是   | string  |            | offset 为开始消费 Ckafka 消息的位置，目前只能填写 `latest` |
 | retry     | 是   | number  |            | 重试次数，函数调用失败时的最大重试次数。                   |
-| enable    | 否   | boolean | `true`     | 触发器是否启用。默认启用                                   |
+| enable    | 否   | boolean | `false`    | 触发器是否启用                                             |
 
 #### apigw 触发器参数
 
@@ -393,7 +393,7 @@ inputs:
 | qualifier | 否   | string  | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量` |
 | topicId   | 是   | string  |            | CLS 日志主题 ID                            |
 | maxWait   | 否   | number  | `60`       | 最长等待时间，单位秒                       |
-| enable    | 否   | boolean | `true`     | 触发器是否启用。默认启用                   |
+| enable    | 否   | boolean | `false`    | 触发器是否启用                             |
 
 #### MPS 触发器
 
@@ -401,7 +401,7 @@ inputs:
 | --------- | ---- | ------- | ---------- | :-------------------------------------------------------------------- |
 | qualifier | 否   | string  | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量`                            |
 | type      | 是   | string  |            | 事件类型。`WorkflowTask - 工作流任务`，`EditMediaTask - 视频编辑任务` |
-| enable    | 否   | boolean | `true`     | 触发器是否启用。默认启用                                              |
+| enable    | 否   | boolean | `false`    | 触发器是否启用                                                        |
 
 > 注意：添加 mps 触发器，需要给 `SLS_QcsRole` 添加 `QcloudMPSFullAccess` 策略。
 
