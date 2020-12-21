@@ -1,3 +1,15 @@
+# [0.2.0](https://github.com/serverless-components/tencent-scf/compare/v0.1.15...v0.2.0) (2020-12-21)
+
+
+### Bug Fixes
+
+* support asyncRunEnable ([710516d](https://github.com/serverless-components/tencent-scf/commit/710516dc314a1d6a906a5be5e000b98efe39d41f))
+
+
+### Features
+
+* support mps and cls trigger ([65332bd](https://github.com/serverless-components/tencent-scf/commit/65332bd0548e0dfda2cfa85816d5fcbaf478cc06))
+
 ## [0.1.15](https://github.com/serverless-components/tencent-scf/compare/v0.1.14...v0.1.15) (2020-12-01)
 
 
