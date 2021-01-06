@@ -15,6 +15,14 @@ const getType = (obj) => {
   return Object.prototype.toString.call(obj).slice(8, -1)
 }
 
+const removeAppid = (str, appid) => {
+  const suffix = `-${appid}`
+  if (!str || str.indexOf(suffix) === -1) {
+    return str
+  }
+  return str.slice(0, -suffix.length)
+}
+
 const validateTraffic = (num) => {
   if (getType(num) !== 'Number') {
     throw new TypeError(
@@ -99,7 +107,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
       : {}
 
   const code = {
-    bucket: tempSrc.bucket || `sls-cloudfunction-${region}-code`,
+    bucket: removeAppid(tempSrc.bucket, appId) || `sls-cloudfunction-${region}-code`,
     object:
       tempSrc.object ||
       `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
