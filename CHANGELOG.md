@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/serverless-components/tencent-scf/compare/v0.2.0...v0.2.1) (2021-01-06)
+
+
+### Bug Fixes
+
+* tag create ([84ad603](https://github.com/serverless-components/tencent-scf/commit/84ad603027f435af480d067848dc4dd0f6fdb57b))
+
 # [0.2.0](https://github.com/serverless-components/tencent-scf/compare/v0.1.15...v0.2.0) (2020-12-21)
 
 
