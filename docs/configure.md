@@ -92,6 +92,7 @@ inputs:
               method: POST
             - path: /test/{abc}/{cde}
               apiId: api-id
+              apiName: index
               method: GET
               description: Serverless REST API
               enableCORS: true
