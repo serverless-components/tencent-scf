@@ -340,6 +340,7 @@ inputs:
 | path           | 是   | string  |         | API 的前端路径，如/path。                                                                                 |
 | method         | 否   | string  |         | API 的前端请求方法，如 GET                                                                                |
 | apiId          | 否   | string  |         | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
+| apiName        | 否   | string  |         | API 名称                                                                                                  |
 | description    | 否   | string  |         | API 描述                                                                                                  |
 | enableCORS     | 是   | boolean | `false` | 是否需要开启跨域                                                                                          |
 | responseType   | 否   | string  |         | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
