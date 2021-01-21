@@ -10,14 +10,13 @@ inputs:
   # region: ap-guangzhou
   # runtime: Nodejs10.15
   # handler: index.main_handler
-  autoCreateApi: true # 如果配置成 true，将自动创建以下配置的 API 网关
-  # events:
-  #   - apigw:
-  #       parameters:
-  #         protocols:
-  #           - http
-  #           - https
-  #         environment: release
-  #         endpoints:
-  #           - path: /
-  #             method: GET
+  events:
+    - apigw:
+        parameters:
+          protocols:
+            - http
+            - https
+          environment: release
+          endpoints:
+            - path: /
+              method: GET
