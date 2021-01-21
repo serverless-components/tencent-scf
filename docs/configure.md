@@ -65,7 +65,7 @@ inputs:
     logsetId: ClsLogsetId
     topicId: ClsTopicId
   eip: false # 是否开启固定IP
-  asyncRunEnable: false # 是否支持长时间运行，目前只支持上海区
+  asyncRunEnable: false # 是否支持长时间运行
   tags: #标签配置
     key1: value1
     key2: value2 # tags 的key value
@@ -98,6 +98,15 @@ inputs:
               enableCORS: true
               responseType: HTML
               serviceTimeout: 10
+              isBase64Encoded: false
+              isBase64Trigger: false
+              base64EncodedTriggerRules:
+                - name: Accept
+                  value:
+                    - image/jpeg
+                - name: Content_Type
+                  value:
+                    - image/jpeg
               param:
                 - name: abc
                   position: PATH
@@ -201,7 +210,7 @@ inputs:
 | [deadLetter](#死信队列)  | 否   |                                                                                                                | 死信队列配置，配置参数参考[死信队列](#死信队列)                                                                                                                                                                                                                    |
 | [cls](#函数日志)         | 否   |                                                                                                                | 函数日志配置，配置参数参考[函数日志](#函数日志)                                                                                                                                                                                                                    |
 | eip                      | 否   | `false`                                                                                                        | 固定出口 IP。默认为 false，即不启用。                                                                                                                                                                                                                              |
-| asyncRunEnable           | 否   | `false`                                                                                                        | 是否开启长时间运行，默认最大支持 `12小时`，`目前只支持上海区`，如果配置为 `true`，`cls`（函数日志配置） 必须，                                                                                                                                                     |
+| asyncRunEnable           | 否   | `false`                                                                                                        | 是否开启长时间运行，默认最大支持 `12小时`，如果配置为 `true`，`cls`（函数日志配置） 必须，                                                                                                                                                                         |
 | tags                     | 否   |                                                                                                                | 标签设置。可设置多对 key-value 的键值对                                                                                                                                                                                                                            |
 | [cfs](#文件系统)         | 否   |                                                                                                                | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                                                                                                                                                                      |
 | [events](#触发器)        | 否   |                                                                                                                | 触发器数组。支持以下几种触发器：timer（定时触发器）、apigw（网关触发器）、cos（COS 触发器）、cmq（CMQ Topic 触发器）、ckafka（CKafka 触发器）配置参数参考[触发器](#触发器)。                                                                                       |
@@ -335,22 +344,27 @@ inputs:
 
 参考： https://cloud.tencent.com/document/product/628/14886
 
-| 参数名称       | 必选 |  类型   | 默认值  | 描述                                                                                                      |
-| -------------- | ---- | :-----: | :------ | :-------------------------------------------------------------------------------------------------------- |
-| path           | 是   | string  |         | API 的前端路径，如/path。                                                                                 |
-| method         | 否   | string  |         | API 的前端请求方法，如 GET                                                                                |
-| apiId          | 否   | string  |         | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
-| apiName        | 否   | string  |         | API 名称                                                                                                  |
-| description    | 否   | string  |         | API 描述                                                                                                  |
-| enableCORS     | 是   | boolean | `false` | 是否需要开启跨域                                                                                          |
-| responseType   | 否   | string  |         | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
-| serviceTimeout | 是   | number  | `15`    | API 的后端服务超时时间，单位是秒。                                                                        |
-| param          | 否   |         |         | 前端参数                                                                                                  |
-| function       | 否   |         |         | SCF 配置                                                                                                  |
-| usagePlan      | 否   |         |         | 使用计划                                                                                                  |
-| auth           | 否   |         |         | API 密钥配置                                                                                              |
+| 参数名称                  | 必选 |            类型             | 默认值  | 描述                                                                                                      |
+| ------------------------- | ---- | :-------------------------: | :------ | :-------------------------------------------------------------------------------------------------------- |
+| path                      | 是   |           string            |         | API 的前端路径，如/path。                                                                                 |
+| method                    | 否   |           string            |         | API 的前端请求方法，如 GET                                                                                |
+| apiId                     | 否   |           string            |         | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
+| apiName                   | 否   |           string            |         | API 名称                                                                                                  |
+| description               | 否   |           string            |         | API 描述                                                                                                  |
+| enableCORS                | 是   |           boolean           | `false` | 是否需要开启跨域                                                                                          |
+| responseType              | 否   |           string            |         | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
+| serviceTimeout            | 是   |           number            | `15`    | API 的后端服务超时时间，单位是秒。                                                                        |
+| param                     | 否   |   [Parameter](#Parameter)   |         | 前端参数                                                                                                  |
+| function                  | 否   |    [Function](#Function)    |         | SCF 配置                                                                                                  |
+| usagePlan                 | 否   |   [UsagePlan](#UsagePlan)   |         | 使用计划                                                                                                  |
+| auth                      | 否   |        [Auth](#Auth)        |         | API 密钥配置                                                                                              |
+| isBase64Encoded           | 否   |           boolean           | `false` | 是否开启 Base64 编码，只有后端为 scf 时才会生效                                                           |
+| isBase64Trigger           | 否   |           boolean           | `false` | 是否开启 Base64 编码的 header 触发，只有后端为 scf 时才会生效                                             |
+| base64EncodedTriggerRules | 否   | [Base64Rule](#Base64Rule)[] | []      | Header 触发 Base64 编码规则，总规则数不能超过 10，只有 `isBase64Trigger` 设置为 `true` 才有效             |
 
-- 前端参数
+###### Parameter
+
+前端参数
 
 | 参数名称     | 必选 | 类型    | 默认值 | 描述                                                      |
 | ------------ | ---- | ------- | ------ | --------------------------------------------------------- |
@@ -361,14 +375,18 @@ inputs:
 | defaultValue | 否   | string  |        | API 的前端参数默认值。                                    |
 | desc         | 否   | string  |        | API 的前端参数备注。                                      |
 
-- SCF 配置
+###### Function
+
+SCF 配置
 
 | 参数名称             | 必选 | 类型    | 默认值     | 描述                     |
 | -------------------- | ---- | ------- | ---------- | ------------------------ |
 | isIntegratedResponse | 否   | boolean | `false`    | 是否启用 SCF 集成响应。  |
 | functionQualifier    | 否   | string  | `$DEFAULT` | 触发器关联的 SCF 版本 。 |
 
-- 使用计划
+###### UsagePlan
+
+使用计划
 
 参考: https://cloud.tencent.com/document/product/628/14947
 
@@ -379,7 +397,9 @@ inputs:
 | usagePlanDesc |  否  | string | 用户自定义的使用计划描述                                |
 | maxRequestNum |  否  | number | 请求配额总数，如果为空，将使用-1 作为默认值，表示不开启 |
 
-- API 密钥配置
+###### Auth
+
+API 密钥配置
 
 参考: https://cloud.tencent.com/document/product/628/14916
 
@@ -387,6 +407,24 @@ inputs:
 | ---------- | :----- | :------- |
 | secretName | string | 密钥名称 |
 | secretIds  | string | 密钥 ID  |
+
+###### Base64Rule
+
+Header 触发 Base64 编码规则，总规则数不能超过 10，只有 `isBase64Trigger` 设置为 `true` 才有效
+
+参考: https://tcloud-dev.oa.com/document/product/628/16924?!preview&preview_docmenu=1&lang=cn&!document=1#Base64EncodedTriggerRule
+
+| 参数名称 | 类型     | 描述                                                                                                                                          |
+| -------- | :------- | :-------------------------------------------------------------------------------------------------------------------------------------------- |
+| name     | string   | 进行编码触发的 header，可选值 "Accept"和"Content_Type" 对应实际数据流请求 header 中的 Accept 和 Content-Type                                  |
+| value    | string[] | 进行编码触发的 header 的可选值数组, 数组元素的字符串最大长度为 40，元素可以包括数字，英文字母以及特殊字符，特殊字符的可选值为： . + \* - / \_ |
+
+例如 `value` 可以配置为：
+
+```yaml
+value:
+  - application/zip
+```
 
 #### CLS 触发器
 
@@ -406,6 +444,13 @@ inputs:
 | enable    | 否   | boolean | `false`    | 触发器是否启用                                                        |
 
 > 注意：添加 mps 触发器，需要给 `SLS_QcsRole` 添加 `QcloudMPSFullAccess` 策略。
+
+## 关于 API 网关 Base64 编码
+
+> 注意：开启 API 网关 Base64 编码的后端必须是 `云函数`
+
+如果需要开启 API 网关 Base64 编码，必须配置 `isBase64Encoded` 为 `true`，此时每次请求的请求内容都会被 Base64 编码后再传递给云函数。如果想要部分请求 Base64 编码，可以通过配置 `isBase64Trigger` 为 `true`，配置 `base64EncodedTriggerRules` Header 触发规则，此时 API 网关将根据触发规则对请求头进行校验，只有拥有特定 Content-Type 或 Accept 请求头的请求会被 Base64 编码后再传递给云函数，不满足条件的请求将不进行 Base64 编码，直接传递给云函数。
+官方介绍文档：https://cloud.tencent.com/document/product/628/51799
 
 <!-- Refer links -->
 
