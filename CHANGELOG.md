@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/serverless-components/tencent-scf/compare/v0.2.1...v0.3.0) (2021-01-22)
+
+
+### Features
+
+* support apigw base64 encode ([1798295](https://github.com/serverless-components/tencent-scf/commit/17982951fd630efc789cfe7dedc9009a1cd88aa7))
+
 ## [0.2.1](https://github.com/serverless-components/tencent-scf/compare/v0.2.0...v0.2.1) (2021-01-06)
 
 
