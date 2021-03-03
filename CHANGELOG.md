@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/serverless-components/tencent-scf/compare/v0.3.0...v0.4.0) (2021-03-03)
+
+
+### Features
+
+* update apigw trigger deploy flow ([7c113b6](https://github.com/serverless-components/tencent-scf/commit/7c113b6a7250e13179f177843fb11ba01c97acba))
+
 # [0.3.0](https://github.com/serverless-components/tencent-scf/compare/v0.2.1...v0.3.0) (2021-01-22)
 
 
