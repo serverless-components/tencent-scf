@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/serverless-components/tencent-scf/compare/v0.4.0...v0.4.1) (2021-03-03)
+
+
+### Bug Fixes
+
+* apigw trigger subDomain undefined ([4cb694f](https://github.com/serverless-components/tencent-scf/commit/4cb694fbebd44607c833be3b811c2a5bbd66d0b5))
+
 # [0.4.0](https://github.com/serverless-components/tencent-scf/compare/v0.3.0...v0.4.0) (2021-03-03)
 
 
