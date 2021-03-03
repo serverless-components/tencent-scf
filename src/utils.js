@@ -1,6 +1,6 @@
 const download = require('download')
 const { Cos } = require('tencent-component-toolkit')
-const { TypeError } = require('tencent-component-toolkit/src/utils/error')
+const { ApiTypeError } = require('tencent-component-toolkit/lib/utils/error')
 const CONFIGS = require('./config')
 
 /**
@@ -25,13 +25,13 @@ const removeAppid = (str, appid) => {
 
 const validateTraffic = (num) => {
   if (getType(num) !== 'Number') {
-    throw new TypeError(
+    throw new ApiTypeError(
       `PARAMETER_${CONFIGS.compName.toUpperCase()}_TRAFFIC`,
       'traffic must be a number'
     )
   }
   if (num < 0 || num > 1) {
-    throw new TypeError(
+    throw new ApiTypeError(
       `PARAMETER_${CONFIGS.compName.toUpperCase()}_TRAFFIC`,
       'traffic must be a number between 0 and 1'
     )
@@ -76,7 +76,7 @@ const getDefaultZipPath = async () => {
       filename: `${filename}.zip`
     })
   } catch (e) {
-    throw new TypeError(
+    throw new ApiTypeError(
       `DOWNLOAD_${CONFIGS.compName.toUpperCase()}_TEMPLATE`,
       'Download default template failed.'
     )
@@ -173,7 +173,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     const eventType = Object.keys(event)[0]
     // check trigger type
     if (CONFIGS.triggerTypes.indexOf(eventType) === -1) {
-      throw new TypeError(
+      throw new ApiTypeError(
         `PARAMETER_${CONFIGS.compName.toUpperCase()}_APIGW_TRIGGER`,
         `Unknow trigger type ${eventType}, must be one of ${JSON.stringify(CONFIGS.triggerTypes)}`
       )
@@ -183,7 +183,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
 
     if (eventType === 'apigw') {
       if (apigwName.includes(currentEvent.name)) {
-        throw new TypeError(
+        throw new ApiTypeError(
           `PARAMETER_${CONFIGS.compName.toUpperCase()}_APIGW_TRIGGER`,
           `API Gateway name must be unique`
         )
@@ -193,16 +193,20 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
           currentEvent.name ||
           getDefaultServiceName(instance)
 
+        let { serviceId } = currentEvent.parameters
+        currentEvent.parameters.isInputServiceId = !!serviceId
         currentEvent.parameters.serviceName = serviceName
         currentEvent.parameters.description =
           currentEvent.parameters.description || getDefaultServiceDescription(instance)
         currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
+        // 由于用户并未配置 serviceId
+        // 此处通过 serviceName 来查询储存的 apigw 触发器 id
         if (stateApigw && stateApigw[serviceName]) {
           currentEvent.parameters.oldState = stateApigw[serviceName]
-          currentEvent.parameters.serviceId =
-            currentEvent.parameters.serviceId || stateApigw[serviceName].serviceId
+          serviceId = serviceId || stateApigw[serviceName].serviceId
           currentEvent.parameters.created = stateApigw[serviceName].created
         }
+        currentEvent.parameters.serviceId = serviceId
         apigwName.push(serviceName)
       }
       existApigwTrigger = true
