@@ -1,3 +1,10 @@
+## [0.4.2](https://github.com/serverless-components/tencent-scf/compare/v0.4.1...v0.4.2) (2021-03-05)
+
+
+### Bug Fixes
+
+* trigger updated by key ([1ebe2ff](https://github.com/serverless-components/tencent-scf/commit/1ebe2ff9b4e22044201798d7cb655aa4064a8331))
+
 ## [0.4.1](https://github.com/serverless-components/tencent-scf/compare/v0.4.0...v0.4.1) (2021-03-03)
 
 
