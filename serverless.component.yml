@@ -1,5 +1,5 @@
 name: scf
-version: 0.4.2
+version: 0.5.0
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploy a serverless cloud function on Tencent Cloud.
@@ -300,6 +300,35 @@ actions:
                         allow:
                           - WorkflowTask
                           - EditMediaTask
+              clb:
+                type: object
+                keys:
+                  parameters:
+                    type: object
+                    keys:
+                      loadBalanceId:
+                        type: string
+                        required: true
+                      protocol:
+                        type: string
+                        required: true
+                        allow:
+                          - HTTP
+                          - HTTPS
+                      port:
+                        type: number
+                        required: true
+                      domain:
+                        type: string
+                        required: true
+                      url:
+                        type: string
+                        required: true
+                      weight:
+                        type: number
+                        min: 0
+                        max: 100
+
   remove:
     definition: Remove your Express.js application
   list_alias:
