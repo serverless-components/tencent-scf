@@ -178,15 +178,6 @@ inputs:
           qualifier: '$DEFAULT' # 别名配置
           type: EditMediaTask # 事件类型
           enable: true
-    - clb:
-        parameters:
-          qualifier: '$DEFAULT' # 别名配置
-          loadBalanceId: 'lb-xxx'
-          protocol: 'HTTP'
-          domain: '127.0.0.1'
-          port: 80
-          url: '/'
-          weight: 20
 ```
 
 ## 配置描述
@@ -490,22 +481,6 @@ value:
 | enable    | 否   | boolean | `false`    | 触发器是否启用                                                        |
 
 > 注意：添加 MPS 触发器，需要给 `SLS_QcsRole` 添加 `QcloudMPSFullAccess` 策略。
-
-#### CLB 触发器
-
-| 参数名称      | 必选 | 类型   | 默认值     | 描述                                       |
-| ------------- | ---- | ------ | ---------- | :----------------------------------------- |
-| loadBalanceId | 是   | string |            | CLB 实例 ID                                |
-| protocol      | 是   | string |            | CLB 监听器协议，支持：HTTP、HTTPS          |
-| port          | 是   | number |            | CLB 监听器端口                             |
-| domain        | 是   | string |            | CLB 监听器转发规则域名                     |
-| url           | 是   | string |            | CLB 监听器转发规则 URL 路径                |
-| qualifier     | 否   | string | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量` |
-| weight        | 否   | number | `10`       | CLB 监听器转发规则权重                     |
-
-参考 [关于 CLB 重定向配置文档][clb重定向配置]
-
-> 注意：添加 CLB 触发器，需要给 `SLS_QcsRole` 添加 `QcloudCLBFullAccess` 策略。
 
 ## 关于 API 网关 Base64 编码
 
