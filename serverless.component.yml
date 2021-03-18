@@ -46,17 +46,6 @@ actions:
         type: string
         default: ap-guangzhou
         description: Region for SCF deployed to
-        allow: # The values that are allowed for this
-          - ap-guangzhou
-          - ap-shanghai
-          - ap-hongkong
-          - ap-beijing
-          - ap-chengdu
-          - ap-tokyo
-          - ap-mumbai
-          - ap-singapore
-          - na-siliconvalley
-          - na-toronto
       memorySize:
         type: number
         description: SCF memory size
@@ -96,6 +85,9 @@ actions:
           variables:
             type: object
       timeout:
+        type: number
+        min: 1
+      initTimeout:
         type: number
         min: 1
       cfs:
