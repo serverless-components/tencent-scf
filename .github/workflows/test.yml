@@ -43,5 +43,6 @@ jobs:
         env:
           SERVERLESS_PLATFORM_VENDOR: tencent
           GLOBAL_ACCELERATOR_NA: true
+          TENCENT_APP_ID: ${{ secrets.TENCENT_APP_ID }}
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
