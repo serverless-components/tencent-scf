@@ -151,7 +151,7 @@ class ServerlessComponent extends Component {
       console.log(`list alias for function ${inputs.function}...`)
       const scf = new Scf(credentials, region)
 
-      const scfOutput = await scf.listAlias(alias_params)
+      const scfOutput = await scf.alias.list(alias_params)
       console.log(`list alias for function ${inputs.function}...`)
 
       const aliases = scfOutput.Aliases
@@ -202,10 +202,10 @@ class ServerlessComponent extends Component {
 
       console.log(`Creating alias for function ${inputs.function}...`)
       const scf = new Scf(credentials, region)
-      await scf.createAlias(alias_params)
+      await scf.alias.create(alias_params)
       console.log(`Creating alias for function ${inputs.function}...`)
 
-      const aliasOutput = await scf.getAlias(alias_params)
+      const aliasOutput = await scf.alias.get(alias_params)
 
       return aliasOutput
     } catch (e) {
@@ -232,10 +232,10 @@ class ServerlessComponent extends Component {
       console.log(`Updating alias for function ${inputs.function}...`)
       const scf = new Scf(credentials, region)
 
-      await scf.updateAlias(alias_params)
+      await scf.alias.update(alias_params)
       console.log(`Updated alias for function ${inputs.function}...`)
 
-      const aliasOutput = await scf.getAlias(alias_params)
+      const aliasOutput = await scf.alias.get(alias_params)
 
       return aliasOutput
     } catch (e) {
@@ -259,7 +259,7 @@ class ServerlessComponent extends Component {
       console.log(`delete alias for function ${inputs.function}...`)
       const scf = new Scf(credentials, region)
 
-      const scfOutput = await scf.deleteAlias(alias_params)
+      const scfOutput = await scf.alias.delete(alias_params)
       console.log(`deleted alias for function ${inputs.function}...`)
       return scfOutput
     } catch (e) {
@@ -282,10 +282,13 @@ class ServerlessComponent extends Component {
 
       const scf = new Scf(credentials, region)
 
-      const scfOutput = await scf.publishVersion(publish_params)
-      console.log(`published version for function ${inputs.function}...`)
+      const scfOutput = await scf.version.publish(publish_params)
 
-      await scf.isOperationalStatus(scfOutput.Namespace, inputs.function, scfOutput.FunctionVersion)
+      await scf.scf.isOperational({
+        namespace: scfOutput.Namespace,
+        functionName: inputs.function,
+        qualifier: scfOutput.FunctionVersion
+      })
 
       this.state.lastVersion = scfOutput.FunctionVersion
       await this.save()
