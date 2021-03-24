@@ -83,6 +83,7 @@ class ServerlessComponent extends Component {
     outputs.triggers = scfOutput.Triggers.map((item) => {
       if (item.serviceId) {
         stateApigw[item.serviceName] = item
+        stateApigw[item.serviceId] = item
         item.urls = []
         item.apiList.forEach((apiItem) => {
           if (getType(item.subDomain) === 'Array') {
