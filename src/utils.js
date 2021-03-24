@@ -199,12 +199,16 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
         currentEvent.parameters.description =
           currentEvent.parameters.description || getDefaultServiceDescription(instance)
         currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)
-        // 由于用户并未配置 serviceId
-        // 此处通过 serviceName 来查询储存的 apigw 触发器 id
-        if (stateApigw && stateApigw[serviceName]) {
-          currentEvent.parameters.oldState = stateApigw[serviceName]
-          serviceId = serviceId || stateApigw[serviceName].serviceId
-          currentEvent.parameters.created = stateApigw[serviceName].created
+        // 用户并未配置 serviceId, 此处通过 serviceName 来查询储存的 apigw 触发器状态数据
+        // 用户并配置 serviceId, 此处通过 serviceId 来查询储存的 apigw 触发器状态数据
+        let curState = stateApigw && stateApigw[serviceName]
+        if (!curState) {
+          curState = stateApigw && stateApigw[serviceId]
+        }
+        if (curState) {
+          currentEvent.parameters.oldState = curState
+          serviceId = serviceId || curState.serviceId
+          currentEvent.parameters.created = curState.created
         }
         currentEvent.parameters.serviceId = serviceId
         apigwName.push(serviceName)
