@@ -1,3 +1,10 @@
+## [0.5.2](https://github.com/serverless-components/tencent-scf/compare/v0.5.1...v0.5.2) (2021-03-25)
+
+
+### Bug Fixes
+
+* ignore api path case ([2b164ee](https://github.com/serverless-components/tencent-scf/commit/2b164ee3b56422dea00774601475d5212be057d3))
+
 ## [0.5.1](https://github.com/serverless-components/tencent-scf/compare/v0.5.0...v0.5.1) (2021-03-23)
 
 
