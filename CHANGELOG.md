@@ -1,3 +1,10 @@
+## [0.5.3](https://github.com/serverless-components/tencent-scf/compare/v0.5.2...v0.5.3) (2021-04-01)
+
+
+### Bug Fixes
+
+* support traceEnable ([e32fb55](https://github.com/serverless-components/tencent-scf/commit/e32fb55c693dc9e0a4390d64e6c57f36ba7fd57a))
+
 ## [0.5.2](https://github.com/serverless-components/tencent-scf/compare/v0.5.1...v0.5.2) (2021-03-25)
 
 
