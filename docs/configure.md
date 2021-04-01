@@ -63,7 +63,8 @@ inputs:
     logsetId: ClsLogsetId
     topicId: ClsTopicId
   eip: false # 是否开启固定IP
-  asyncRunEnable: false # 是否支持长时间运行
+  asyncRunEnable: false # 是否启用异步执行（长时间运行）
+  traceEnable: false # 是否状态追踪
   tags: #标签配置
     key1: value1
     key2: value2 # tags 的key value
@@ -186,31 +187,32 @@ inputs:
 
 参考： https://cloud.tencent.com/document/product/583/18586
 
-| 参数名称       | 必选 | 类型                        | 默认值                                     | 描述                                                                                                           |
-| -------------- | ---- | --------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| name           | 是   | string                      | `${name}-${stage}-${app}`                  | 创建的函数名称。**云函数名称又是资源 ID，为了保证资源的唯一性，默认采用 `${name}-${stage}-${app}` 变量方式。** |
-| namespace      | 否   | string                      | `default`                                  | 函数命名空间。云函数旧版本会以命名空间作为环境隔离，SCF 组件保留此参数，但不推荐使用此方式进行隔离。           |
-| src            | 是   | [Src](#Src)                 |                                            | 函数代码路径。如果是对象,配置参数参考                                                                          |
-| handler        | 是   | string                      |                                            | 函数处理方法名称，执行方法表明了调用云函数时需要从哪个文件中的哪个函数开始执行                                 |
-| role           | 否   | string                      |                                            | 云函数绑定的运行角色。                                                                                         |
-| runtime        | 否   | string                      | `Nodejs10.15`                              | 函数运行环境                                                                                                   |
-| region         | 否   | string                      | `ap-guangzhou`                             | 云函数所在区域。详见产品支持的 [地域列表][函数地域列表]。                                                      |
-| description    | 否   | string                      | `This is a function in ${app} application` | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                |
-| memorySize     | 否   | number                      | `128`                                      | 函数运行时内存大小，默认为 128M，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                |
-| timeout        | 否   | number                      | `3`                                        | 函数最长执行时间，单位为秒，可选值范围 1-900 秒，默认为 3 秒                                                   |
-| initTimeout    | 否   | number                      | `3`                                        | 函数初始化超时时间，单位为秒，可选值范围 1-30 秒 秒                                                            |
-| eip            | 否   | boolean                     | `false`                                    | 是否[固定出口 IP][固定出口ip]                                                                                  |
-| publicAccess   | 否   | number                      | `true`                                     | 是否开启公网访问                                                                                               |
-| environment    | 否   | [Environment](#Environment) |                                            | 函数的环境变量，配置参考[环境变量](#环境变量)                                                                  |
-| vpcConfig      | 否   | [Vpc](#Vpc)                 |                                            | 函数的私有网络配置，配置参数参考[私有网络](#私有网络)                                                          |
-| layers         | 否   | [Layer](#Layer)[]           |                                            | 云函数绑定的 layer, 配置参数参考[层配置](#层配置)                                                              |
-| deadLetter     | 否   | [DeadLetter](#DeadLetter)   |                                            | 死信队列配置，配置参数参考[死信队列](#死信队列)                                                                |
-| cls            | 否   | [Cls](#Cls)                 |                                            | 函数日志配置，配置参数参考[函数日志](#函数日志)                                                                |
-| eip            | 否   |                             | `false`                                    | 固定出口 IP。默认为 false，即不启用。                                                                          |
-| asyncRunEnable | 否   |                             | `false`                                    | 是否开启长时间运行，默认最大支持 `12小时`，如果配置为 `true`，`cls`（函数日志配置） 必须，                     |
-| tags           | 否   |                             |                                            | 标签设置。可设置多对 key-value 的键值对                                                                        |
-| cfs            | 否   | [Cfs](#Cfs)                 |                                            | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                  |
-| events         | 否   | [Event](#Event)[]           |                                            | 触发器配置                                                                                                     |
+| 参数名称       | 必选 | 类型                        | 默认值                                     | 描述                                                                                                                               |
+| -------------- | ---- | --------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| name           | 是   | string                      | `${name}-${stage}-${app}`                  | 创建的函数名称。**云函数名称又是资源 ID，为了保证资源的唯一性，默认采用 `${name}-${stage}-${app}` 变量方式。**                     |
+| namespace      | 否   | string                      | `default`                                  | 函数命名空间。云函数旧版本会以命名空间作为环境隔离，SCF 组件保留此参数，但不推荐使用此方式进行隔离。                               |
+| src            | 是   | [Src](#Src)                 |                                            | 函数代码路径。如果是对象,配置参数参考                                                                                              |
+| handler        | 是   | string                      |                                            | 函数处理方法名称，执行方法表明了调用云函数时需要从哪个文件中的哪个函数开始执行                                                     |
+| role           | 否   | string                      |                                            | 云函数绑定的运行角色。                                                                                                             |
+| runtime        | 否   | string                      | `Nodejs10.15`                              | 函数运行环境                                                                                                                       |
+| region         | 否   | string                      | `ap-guangzhou`                             | 云函数所在区域。详见产品支持的 [地域列表][函数地域列表]。                                                                          |
+| description    | 否   | string                      | `This is a function in ${app} application` | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                                    |
+| memorySize     | 否   | number                      | `128`                                      | 函数运行时内存大小，默认为 128M，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                                    |
+| timeout        | 否   | number                      | `3`                                        | 函数最长执行时间，单位为秒，可选值范围 1-900 秒，默认为 3 秒                                                                       |
+| initTimeout    | 否   | number                      | `3`                                        | 函数初始化超时时间，单位为秒，可选值范围 1-30 秒 秒                                                                                |
+| eip            | 否   | boolean                     | `false`                                    | 是否[固定出口 IP][固定出口ip]                                                                                                      |
+| publicAccess   | 否   | number                      | `true`                                     | 是否开启公网访问                                                                                                                   |
+| environment    | 否   | [Environment](#Environment) |                                            | 函数的环境变量，配置参考[环境变量](#环境变量)                                                                                      |
+| vpcConfig      | 否   | [Vpc](#Vpc)                 |                                            | 函数的私有网络配置，配置参数参考[私有网络](#私有网络)                                                                              |
+| layers         | 否   | [Layer](#Layer)[]           |                                            | 云函数绑定的 layer, 配置参数参考[层配置](#层配置)                                                                                  |
+| deadLetter     | 否   | [DeadLetter](#DeadLetter)   |                                            | 死信队列配置，配置参数参考[死信队列](#死信队列)                                                                                    |
+| cls            | 否   | [Cls](#Cls)                 |                                            | 函数日志配置，配置参数参考[函数日志](#函数日志)                                                                                    |
+| eip            | 否   | boolean                     | `false`                                    | 固定出口 IP。默认为 false，即不启用。                                                                                              |
+| asyncRunEnable | 否   | boolean                     | `false`                                    | 是否启用异步执行（长时间运行），默认最大支持 `12小时`，如果配置为 `true`，`cls`（函数日志配置） 必须。此参数只有在函数创建时才有效 |
+| traceEnable    | 否   | boolean                     | `false`                                    | 是否启用状态追踪，如果要配置为 `true`，必须配置 `asyncRunEnable` 同时为 `true`                                                     |
+| tags           | 否   |                             |                                            | 标签设置。可设置多对 key-value 的键值对                                                                                            |
+| cfs            | 否   | [Cfs](#Cfs)                 |                                            | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                                      |
+| events         | 否   | [Event](#Event)[]           |                                            | 触发器配置                                                                                                                         |
 
 **重要字段说明**
 
