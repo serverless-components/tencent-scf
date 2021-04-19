@@ -1,3 +1,10 @@
+## [0.5.4](https://github.com/serverless-components/tencent-scf/compare/v0.5.3...v0.5.4) (2021-04-19)
+
+
+### Bug Fixes
+
+* cls config ([f38a8f2](https://github.com/serverless-components/tencent-scf/commit/f38a8f2d5ae478f881267047ec18611fb1cd4609))
+
 ## [0.5.3](https://github.com/serverless-components/tencent-scf/compare/v0.5.2...v0.5.3) (2021-04-01)
 
 
