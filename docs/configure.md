@@ -162,16 +162,17 @@ inputs:
     - ckafka: # ckafka触发器
         parameters:
           qualifier: $DEFAULT # 别名配置
-          name: ckafka-2o10hua5
+          name: ckafka-xxx
           topic: test
           maxMsgNum: 999
-          offset: latest
-          enable: true
           retry: 10000
+          offset: latest
+          timeout: 60
+          enable: true
     - cls: # cls 触发器
         parameters:
           qualifier: '$DEFAULT' # 别名配置
-          topicId: '31d3ce01-228b-42f5-aab5-7f740cc2fb11' # 日志主题 ID
+          topicId: 'xxx-228b-42f5-aab5-7f740cc2fb11' # 日志主题 ID
           maxWait: 60 # 最长等待时间，单位秒
           enable: true
     - mps: # mps 触发器
@@ -356,9 +357,10 @@ clb - CLB 触发器
 | qualifier | 否   | string  | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量`                 |
 | name      | 是   | string  |            | 配置连接的 CKafka 实例，仅支持选择同地域下的实例。         |
 | topic     | 是   | string  |            | 支持在 CKafka 实例中已经创建的 Topic。                     |
-| maxMsgNum | 是   | number  |            | 5 秒内每汇聚 maxMsgNum 条 Ckafka 消息，则触发一次函数调用  |
-| offset    | 是   | string  |            | offset 为开始消费 Ckafka 消息的位置，目前只能填写 `latest` |
-| retry     | 是   | number  |            | 重试次数，函数调用失败时的最大重试次数。                   |
+| maxMsgNum | 是   | number  | `100`      | 5 秒内每汇聚 maxMsgNum 条 Ckafka 消息，则触发一次函数调用  |
+| offset    | 是   | string  | `latest`   | offset 为开始消费 Ckafka 消息的位置，目前只能填写 `latest` |
+| retry     | 是   | number  | `10000`    | 重试次数，函数调用失败时的最大重试次数。                   |
+| timeout   | 是   | number  | `60`       | 单次触发的最长等待时间，最大 60 秒                         |
 | enable    | 否   | boolean | `false`    | 触发器是否启用                                             |
 
 > 注意：添加 CKafka 触发器，需要给 `SLS_QcsRole` 添加 `QcloudCKafkaFullAccess` 策略。

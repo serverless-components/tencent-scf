@@ -62,10 +62,6 @@ serverless remove
 > **说明**：配置详情请参考 [全量配置文档](https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md)。
 
 ```
-#scf组件配置样例
-#全量配置参考https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md
-
-#组件信息
 component: scf # (必填) 引用 component 的名称，当前用到的是 tencent-scf 组件
 name: scfdemo # (必填) 创建的实例名称，请修改成您的实例名称
 
@@ -124,6 +120,10 @@ inputs 下的参数为组件配置参数。一个最简单 SCF 组件参数配�
 Serverless 部署一个组件实例实质是部署了一个单组件实例的应用。
 
 在应用项目开发过程中，一个应用下可能会存在多个组件实例，如何管理组件实例进行应用项目开发，请参考 [应用管理](https://cloud.tencent.com/document/product/1154/48261)。
+
+## 其他命令
+
+[其他命令](./docs/command.md)
 
 ## License
 

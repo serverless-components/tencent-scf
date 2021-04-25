@@ -1,7 +1,13 @@
 const { Component } = require('@serverless/core')
-const { Scf } = require('tencent-component-toolkit')
+const { Scf, Monitor } = require('tencent-component-toolkit')
 const { ApiTypeError } = require('tencent-component-toolkit/lib/utils/error')
-const { prepareInputs, prepareAliasInputs, getType, getDefaultProtocol } = require('./utils')
+const {
+  prepareInputs,
+  prepareAliasInputs,
+  getType,
+  getDefaultProtocol,
+  formatMetricData
+} = require('./utils')
 const CONFIGS = require('./config')
 
 class ServerlessComponent extends Component {
@@ -311,16 +317,18 @@ class ServerlessComponent extends Component {
       const region = inputs.region || CONFIGS.region
 
       const invoke_params = {}
-      invoke_params.functionName = inputs.function
       invoke_params.namespace = inputs.namespace
       invoke_params.invocationType = 'RequestResponse'
-      invoke_params.clientContext = inputs.clientContext || {}
+      invoke_params.clientContext = inputs.event || inputs.clientContext || {}
 
-      console.log(`invoke for function ${inputs.function}...`)
+      const functionInfo = this.state.function
+      const functionName = inputs.function || (functionInfo && functionInfo.FunctionName)
+      invoke_params.functionName = functionName
+
       const scf = new Scf(credentials, region)
 
+      console.log(`Invoke for function ${inputs.function}`)
       const scfOutput = await scf.invoke(invoke_params)
-      console.log(`invoke for function ${inputs.function}...`)
       return scfOutput
     } catch (e) {
       return {
@@ -328,6 +336,61 @@ class ServerlessComponent extends Component {
         message: e.message
       }
     }
+  }
+
+  async log(inputs) {
+    const credentials = this.getCredentials()
+    const region = inputs.region || CONFIGS.region
+    const functionInfo = this.state.function
+    const functionName = inputs.function || (functionInfo && functionInfo.FunctionName)
+
+    if (!functionName) {
+      throw new ApiTypeError(`SCF_method_log`, `[SCF] 参数 function 必须`)
+    }
+
+    console.log(`Get logs for function ${functionName}`)
+    const scf = new Scf(credentials, region)
+
+    const scfOutput = await scf.logs({
+      functionName: functionName,
+      namespace: inputs.namespace,
+      qualifier: inputs.qualifier,
+      reqId: inputs.reqid
+    })
+
+    return scfOutput
+  }
+
+  async metric(inputs) {
+    const credentials = this.getCredentials()
+    const region = inputs.region || CONFIGS.region
+
+    const functionInfo = this.state.function
+    const functionName = inputs.function || (functionInfo && functionInfo.FunctionName)
+
+    if (!functionName) {
+      throw new ApiTypeError(`SCF_method_metric`, `[SCF] 参数 function 必须`)
+    }
+
+    if (!inputs.metric) {
+      throw new ApiTypeError(`SCF_method_metric`, `[SCF] 参数 metric 必须`)
+    }
+
+    console.log(`Get metric ${inputs.metric} for function ${functionName}`)
+    const monitor = new Monitor(credentials, region)
+
+    const res = await monitor.get({
+      functionName: functionName,
+      namespace: inputs.namespace,
+      alias: inputs.alias,
+      metric: inputs.metric,
+      interval: inputs.interval,
+      period: inputs.period,
+      startTime: inputs.startTime,
+      endTime: inputs.endTime
+    })
+
+    return formatMetricData(res)
   }
 }
 
