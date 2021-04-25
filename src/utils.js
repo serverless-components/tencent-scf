@@ -346,11 +346,48 @@ const prepareAliasInputs = (inputs) => {
   return outputs
 }
 
+function formatNumber(num) {
+  return num > 9 ? num : `0${num}`
+}
+
+function formatDate(timestamp) {
+  const dStr = `${timestamp}`.length === 10 ? timestamp * 1000 : timestamp
+  const d = new Date(dStr)
+  const year = d.getFullYear()
+  const month = d.getMonth() + 1
+  const day = d.getDate()
+  const hour = d.getHours()
+  const minute = d.getMinutes()
+  const second = d.getSeconds()
+
+  return `${year}-${formatNumber(month)}-${formatNumber(day)} ${formatNumber(hour)}:${formatNumber(
+    minute
+  )}:${formatNumber(second)}`
+}
+
+function formatMetricData(data) {
+  const { DataPoints = [] } = data
+  const list = []
+  DataPoints.forEach((point) => {
+    const { Timestamps = [], Values = [] } = point
+    Timestamps.forEach((time, i) => {
+      list.push({
+        time: formatDate(time),
+        value: Values[i],
+        timestamp: time
+      })
+    })
+  })
+
+  return list
+}
+
 module.exports = {
   getType,
   getDefaultProtocol,
   generateId,
   prepareInputs,
   prepareAliasInputs,
-  getDefaultZipPath
+  getDefaultZipPath,
+  formatMetricData
 }
