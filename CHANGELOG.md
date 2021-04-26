@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/serverless-components/tencent-scf/compare/v0.5.4...v0.6.0) (2021-04-26)
+
+
+### Features
+
+* support log and metric command ([8e5419d](https://github.com/serverless-components/tencent-scf/commit/8e5419d5b6b55a4f25ee37aea0260b3cb7c4d807))
+
 ## [0.5.4](https://github.com/serverless-components/tencent-scf/compare/v0.5.3...v0.5.4) (2021-04-19)
 
 
