@@ -1,3 +1,10 @@
+## [0.6.1](https://github.com/serverless-components/tencent-scf/compare/v0.6.0...v0.6.1) (2021-04-29)
+
+
+### Bug Fixes
+
+* support async run scf invoke ([f23c942](https://github.com/serverless-components/tencent-scf/commit/f23c9428fa2ade564ee996f503abcc414cb980eb))
+
 # [0.6.0](https://github.com/serverless-components/tencent-scf/compare/v0.5.4...v0.6.0) (2021-04-26)
 
 
