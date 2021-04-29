@@ -312,13 +312,29 @@ class ServerlessComponent extends Component {
   }
 
   async invoke(inputs) {
+    const invokeTypeMap = {
+      // 同步
+      request: 'RequestResponse',
+      // 异步
+      event: 'Event'
+    }
+    const logTypeMap = {
+      tail: 'Tail',
+      none: 'None'
+    }
     try {
       const credentials = this.getCredentials()
       const region = inputs.region || CONFIGS.region
-
+      const { asyncRun } = inputs
       const invoke_params = {}
-      invoke_params.namespace = inputs.namespace
-      invoke_params.invocationType = 'RequestResponse'
+      invoke_params.namespace = inputs.namespace || 'default'
+      if (asyncRun) {
+        invoke_params.invocationType = invokeTypeMap.request
+        invoke_params.logType = logTypeMap.tail
+      } else {
+        invoke_params.invocationType = invokeTypeMap.event
+        invoke_params.logType = logTypeMap.none
+      }
       invoke_params.clientContext = inputs.event || inputs.clientContext || {}
 
       const functionInfo = this.state.function
