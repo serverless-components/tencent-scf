@@ -10,7 +10,7 @@
 $ sls invoke --inputs function=scfdemo event='{"hello":{"msg":"world"}}'
 ```
 
-如果是尝试异步执行函数，调用是需要携带参数 `asyncRun` 为 `true`：
+如果是调用异步执行函数，调用是需要携带参数 `asyncRun` 为 `true`：
 
 ```bash
 $ sls invoke --inputs function=scfdemo event='{"hello":{"msg":"world"}}' asyncRun=true
