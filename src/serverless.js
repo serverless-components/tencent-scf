@@ -150,16 +150,18 @@ class ServerlessComponent extends Component {
       const credentials = this.getCredentials()
       const region = inputs.region || CONFIGS.region
 
+      const functionInfo = this.state.function
+      const functionName = inputs.function || (functionInfo && functionInfo.FunctionName)
+
       const alias_params = {}
-      alias_params.functionName = inputs.function
+      alias_params.functionName = functionName
       alias_params.functionVersion = inputs.version
       alias_params.namesapce = inputs.namespace
 
-      console.log(`list alias for function ${inputs.function}...`)
+      console.log(`List alias for function ${inputs.function}...`)
       const scf = new Scf(credentials, region)
 
       const scfOutput = await scf.alias.list(alias_params)
-      console.log(`list alias for function ${inputs.function}...`)
 
       const aliases = scfOutput.Aliases
       const listAlias = {
@@ -199,6 +201,9 @@ class ServerlessComponent extends Component {
       const credentials = this.getCredentials()
       const region = inputs.region || CONFIGS.region
 
+      const functionInfo = this.state.function
+      inputs.function = inputs.function || (functionInfo && functionInfo.FunctionName)
+
       const alias_params = prepareAliasInputs(inputs)
 
       if (alias_params.isPramasError) {
@@ -210,7 +215,6 @@ class ServerlessComponent extends Component {
       console.log(`Creating alias for function ${inputs.function}...`)
       const scf = new Scf(credentials, region)
       await scf.alias.create(alias_params)
-      console.log(`Creating alias for function ${inputs.function}...`)
 
       const aliasOutput = await scf.alias.get(alias_params)
 
@@ -227,6 +231,9 @@ class ServerlessComponent extends Component {
     try {
       const credentials = this.getCredentials()
       const region = inputs.region || CONFIGS.region
+
+      const functionInfo = this.state.function
+      inputs.function = inputs.function || (functionInfo && functionInfo.FunctionName)
 
       const alias_params = prepareAliasInputs(inputs)
 
