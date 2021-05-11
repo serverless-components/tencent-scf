@@ -1,3 +1,10 @@
+## [0.6.2](https://github.com/serverless-components/tencent-scf/compare/v0.6.1...v0.6.2) (2021-05-11)
+
+
+### Bug Fixes
+
+* support installDependency option ([#61](https://github.com/serverless-components/tencent-scf/issues/61)) ([48a21bf](https://github.com/serverless-components/tencent-scf/commit/48a21bf951c2aa8a09cda7262bef006195fc98b3))
+
 ## [0.6.1](https://github.com/serverless-components/tencent-scf/compare/v0.6.0...v0.6.1) (2021-04-29)
 
 
