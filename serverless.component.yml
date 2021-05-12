@@ -1,5 +1,5 @@
 name: scf
-version: 0.6.2
+version: 0.6.3
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploy a serverless cloud function on Tencent Cloud.
@@ -12,12 +12,12 @@ webDeployable: true
 
 actions:
   deploy:
-    definition: Deploy your Express.js application to Tencent SCF
+    definition: Deploy application to Tencent SCF
     inputs:
       src:
         type: src
         required: true
-        description: The folder containing the source code of your Express.js application.
+        description: The folder containing the source code of application.
       name:
         type: string
         description: The name of Tencent SCF function.
