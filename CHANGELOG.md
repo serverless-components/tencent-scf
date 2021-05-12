@@ -1,3 +1,10 @@
+## [0.6.3](https://github.com/serverless-components/tencent-scf/compare/v0.6.2...v0.6.3) (2021-05-12)
+
+
+### Bug Fixes
+
+* function name error message ([5edac97](https://github.com/serverless-components/tencent-scf/commit/5edac97fb0bacb447823031ba3e9f00bab886295))
+
 ## [0.6.2](https://github.com/serverless-components/tencent-scf/compare/v0.6.1...v0.6.2) (2021-05-11)
 
 
