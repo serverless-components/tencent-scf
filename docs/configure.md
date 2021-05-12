@@ -69,6 +69,7 @@ inputs:
   tags: #标签配置
     key1: value1
     key2: value2 # tags 的key value
+  ignoreTriggers: false # 是否忽略触发器部署
   events: # 触发器
     - timer: # 定时触发器
         parameters:
@@ -215,6 +216,7 @@ inputs:
 | installDependency | 否   | boolean                     | `false`                                    | 是否自动在线安装依赖                                                                                                               |
 | tags              | 否   |                             |                                            | 标签设置。可设置多对 key-value 的键值对                                                                                            |
 | cfs               | 否   | [Cfs](#Cfs)                 |                                            | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                                      |
+| ignoreTriggers    | 否   | boolean                     | `false`                                    | 是否忽略触发器，如果设置为 `true`，`events` 参数将不起作用，组件将至更新函数配置和代码                                             |
 | events            | 否   | [Event](#Event)[]           |                                            | 触发器配置                                                                                                                         |
 
 **重要字段说明**
