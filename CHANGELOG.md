@@ -1,3 +1,10 @@
+## [0.6.4](https://github.com/serverless-components/tencent-scf/compare/v0.6.3...v0.6.4) (2021-05-13)
+
+
+### Bug Fixes
+
+* support ignoreTriggers option ([50590cf](https://github.com/serverless-components/tencent-scf/commit/50590cf31a9302df138f924b4a3e65a71f5b1509))
+
 ## [0.6.3](https://github.com/serverless-components/tencent-scf/compare/v0.6.2...v0.6.3) (2021-05-12)
 
 
