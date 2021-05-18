@@ -158,7 +158,7 @@ class ServerlessComponent extends Component {
       alias_params.functionVersion = inputs.version
       alias_params.namesapce = inputs.namespace
 
-      console.log(`List alias for function ${inputs.function}...`)
+      console.log(`List alias for function ${functionName}...`)
       const scf = new Scf(credentials, region)
 
       const scfOutput = await scf.alias.list(alias_params)
@@ -346,11 +346,16 @@ class ServerlessComponent extends Component {
 
       const functionInfo = this.state.function
       const functionName = inputs.function || (functionInfo && functionInfo.FunctionName)
+
+      if (!functionName) {
+        throw new ApiTypeError(`SCF_method_invoke`, `[SCF] 参数 function 必须`)
+      }
+
       invoke_params.functionName = functionName
 
       const scf = new Scf(credentials, region)
 
-      console.log(`Invoke for function ${inputs.function}`)
+      console.log(`Invoke for function ${functionName}`)
       const scfOutput = await scf.invoke(invoke_params)
       return scfOutput
     } catch (e) {
