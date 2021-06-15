@@ -38,7 +38,7 @@ describe('Scf', () => {
     }
   ]
 
-  const codeSrc = path.join(__dirname, '../example/event-src')
+  const codeSrc = path.join(__dirname, '../example/event-scf/src')
   const inputs = {
     name: `scf-integration-tests-${generateId()}`,
     src: {
@@ -92,6 +92,7 @@ describe('Scf', () => {
       subDomain: expect.stringContaining('.gz.apigw.tencentcs.com'),
       protocols: 'http&https',
       environment: 'test',
+      url: expect.stringContaining('http'),
       apiList: [
         {
           created: expect.any(Boolean),
@@ -102,6 +103,7 @@ describe('Scf', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           internalDomain: expect.any(String),
+          url: expect.stringContaining('http'),
           isBase64Encoded: false
         }
       ],
@@ -150,6 +152,7 @@ describe('Scf', () => {
       protocols: 'http&https',
       environment: 'release',
       environment: 'test',
+      url: expect.stringContaining('http'),
       apiList: [
         {
           created: expect.any(Boolean),
@@ -160,6 +163,7 @@ describe('Scf', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           internalDomain: expect.any(String),
+          url: expect.stringContaining('http'),
           isBase64Encoded: false
         }
       ],
