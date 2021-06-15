@@ -1,21 +1,16 @@
-component: scf@dev
+component: scf
 name: imagedemo
 
 inputs:
-  # 指定 SCF 类型为 Web 类型
   name: web-function-image
   region: ap-chengdu
+  # 指定 SCF 类型为 Web 类型
   type: web
   image:
-    # 企业版
-    registryName: ${env:registry_name}
+    # registryName: ${env:registry_name} # 企业版必须
     namespace: ${env:namespace}
     repositoryName: ${env:image_name}
     tagName: ${env:tag_name}
-    # 个人版
-    # namespace: sls-scf
-    # repositoryName: nodejs_test
-    # tagName: latest
   events:
     - apigw:
         parameters:

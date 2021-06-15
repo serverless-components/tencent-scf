@@ -2,19 +2,13 @@ component: scf
 name: imageeventdemo
 
 inputs:
-  # 指定 SCF 类型为 Web 类型
   name: event-function-image
   region: ap-chengdu
   image:
-    # 企业版
-    # registryId: tcr-xxx
-    # namespace: serverless
-    # repositoryName: nodejs_test_event
-    # tagName: latest
-    # 个人版
-    namespace: sls-scf
-    repositoryName: nodejs_test_event
-    tagName: latest
+    registryName: ${env:registry_name}
+    namespace: ${env:namespace}
+    repositoryName: ${env:image_name}
+    tagName: ${env:tag_name}
   events:
     - apigw:
         parameters:

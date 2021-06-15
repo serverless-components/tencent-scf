@@ -1,4 +1,4 @@
-component: scf@dev
+component: scf
 name: http
 
 inputs:
