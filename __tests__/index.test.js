@@ -38,7 +38,7 @@ describe('Scf', () => {
     }
   ]
 
-  const codeSrc = path.join(__dirname, '../example/src')
+  const codeSrc = path.join(__dirname, '../example/event-src')
   const inputs = {
     name: `scf-integration-tests-${generateId()}`,
     src: {
