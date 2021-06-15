@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/serverless-components/tencent-scf/compare/v0.6.4...v0.7.0) (2021-06-15)
+
+
+### Features
+
+* support http and image type scf ([#65](https://github.com/serverless-components/tencent-scf/issues/65)) ([61864c6](https://github.com/serverless-components/tencent-scf/commit/61864c6e292bddf328e540b5bbd663319f21fc44))
+
 ## [0.6.4](https://github.com/serverless-components/tencent-scf/compare/v0.6.3...v0.6.4) (2021-05-13)
 
 
