@@ -1,15 +1,16 @@
 component: scf
-name: scfdemo
+name: event
 
 inputs:
   src:
     src: ./src
     exclude:
       - .env
-  # 此处注释部分将自动使用默认值
+  # type: event
   # region: ap-guangzhou
-  # runtime: Nodejs10.15
-  # handler: index.main_handler
+  # runtime: Nodejs12.16
+  name: event-function
+  handler: index.main_handler
   events:
     - apigw:
         parameters:
@@ -19,4 +20,4 @@ inputs:
           environment: release
           endpoints:
             - path: /
-              method: GET
+              method: ANY

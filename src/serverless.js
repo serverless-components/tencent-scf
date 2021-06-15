@@ -2,8 +2,8 @@ const { Component } = require('@serverless/core')
 const { Scf, Monitor } = require('tencent-component-toolkit')
 const { ApiTypeError } = require('tencent-component-toolkit/lib/utils/error')
 const {
-  prepareInputs,
-  prepareAliasInputs,
+  formatInputs,
+  formatAliasInputs,
   getType,
   getDefaultProtocol,
   formatMetricData
@@ -33,22 +33,21 @@ class ServerlessComponent extends Component {
   }
 
   async deploy(inputs) {
-    console.log(`Deploying ${CONFIGS.compFullname}`)
-
     const credentials = this.getCredentials()
     const appId = this.getAppId()
 
-    // 默认值
     const region = inputs.region || CONFIGS.region
 
-    // prepare scf inputs parameters
-    const { scfInputs, useDefault } = await prepareInputs(this, credentials, appId, inputs)
+    const faasType = inputs.type || 'event'
+    const { scfInputs, useDefault } = await formatInputs(this, credentials, appId, inputs)
 
     const scf = new Scf(credentials, region)
     const scfOutput = await scf.deploy(scfInputs)
 
     const outputs = {
+      type: faasType,
       functionName: scfOutput.FunctionName,
+      code: scfInputs.code,
       description: scfOutput.Description,
       region: scfOutput.Region,
       namespace: scfOutput.Namespace,
@@ -136,13 +135,11 @@ class ServerlessComponent extends Component {
     const { region } = this.state
     const functionInfo = this.state.function
 
-    console.log(`Removing ${CONFIGS.compFullname}`)
     const scf = new Scf(credentials, region)
     if (functionInfo && functionInfo.FunctionName) {
       await scf.remove(functionInfo)
     }
     this.state = {}
-    console.log(`Remove ${CONFIGS.compFullname} success`)
   }
 
   async list_alias(inputs) {
@@ -204,7 +201,7 @@ class ServerlessComponent extends Component {
       const functionInfo = this.state.function
       inputs.function = inputs.function || (functionInfo && functionInfo.FunctionName)
 
-      const alias_params = prepareAliasInputs(inputs)
+      const alias_params = formatAliasInputs(inputs)
 
       if (alias_params.isPramasError) {
         return {
@@ -235,7 +232,7 @@ class ServerlessComponent extends Component {
       const functionInfo = this.state.function
       inputs.function = inputs.function || (functionInfo && functionInfo.FunctionName)
 
-      const alias_params = prepareAliasInputs(inputs)
+      const alias_params = formatAliasInputs(inputs)
 
       if (alias_params.isPramasError) {
         return {
