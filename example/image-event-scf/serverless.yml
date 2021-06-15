@@ -1,0 +1,21 @@
+component: scf
+name: imageeventdemo
+
+inputs:
+  name: event-function-image
+  region: ap-chengdu
+  image:
+    registryName: ${env:registry_name}
+    namespace: ${env:namespace}
+    repositoryName: ${env:image_name}
+    tagName: ${env:tag_name}
+  events:
+    - apigw:
+        parameters:
+          protocols:
+            - http
+            - https
+          environment: release
+          endpoints:
+            - path: /
+              method: ANY

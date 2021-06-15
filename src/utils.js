@@ -1,5 +1,5 @@
 const download = require('download')
-const { Cos } = require('tencent-component-toolkit')
+const { Cos, Tcr } = require('tencent-component-toolkit')
 const { ApiTypeError } = require('tencent-component-toolkit/lib/utils/error')
 const CONFIGS = require('./config')
 
@@ -63,14 +63,12 @@ const getDefaultServiceDescription = (instance) => {
  * get default template zip file path
  */
 const getDefaultZipPath = async () => {
-  console.log(`Packaging ${CONFIGS.compFullname} application...`)
-
   // unzip source zip file
   // add default template
   const downloadPath = `/tmp/${generateId()}`
   const filename = 'template'
 
-  console.log(`Installing Default ${CONFIGS.compFullname} App...`)
+  console.log(`Installing Default ${CONFIGS.compFullname} code...`)
   try {
     await download(CONFIGS.templateUrl, downloadPath, {
       filename: `${filename}.zip`
@@ -86,17 +84,11 @@ const getDefaultZipPath = async () => {
   return zipPath
 }
 
-/**
- * prepare scf deploy input parameters
- * @param {Component} instance serverless component
- * @param {object} credentials component credentials
- * @param {string} appId app id
- * @param {object} inputs yml inputs
- */
-const prepareInputs = async (instance, credentials, appId, inputs) => {
-  // 默认值
+async function uploadCodeToCos(instance, credentials, appId, inputs) {
   const region = inputs.region || CONFIGS.region
+
   inputs.srcOriginal = inputs.srcOriginal || inputs.src
+
   const tempSrc =
     typeof inputs.srcOriginal === 'object'
       ? inputs.srcOriginal
@@ -106,11 +98,14 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
         }
       : {}
 
+  const bucketName = removeAppid(tempSrc.bucket, appId) || `sls-cloudfunction-${region}-code`
+  const objectName =
+    tempSrc.object ||
+    `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
+
   const code = {
-    bucket: removeAppid(tempSrc.bucket, appId) || `sls-cloudfunction-${region}-code`,
-    object:
-      tempSrc.object ||
-      `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
+    bucket: bucketName,
+    object: objectName
   }
   const cos = new Cos(credentials, region)
   const bucket = `${code.bucket}-${appId}`
@@ -118,7 +113,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   // create new bucket, and setup lifecycle for it
   if (!tempSrc.bucket) {
     await cos.deploy({
-      bucket: bucket,
+      bucket: `${bucketName}-${appId}`,
       force: true,
       lifecycle: [
         {
@@ -146,10 +141,68 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     }
     console.log(`Uploading code ${code.object} to bucket ${bucket}`)
     await cos.upload({
-      bucket: bucket,
+      bucket: `${bucketName}-${appId}`,
       file: zipPath,
-      key: code.object
+      key: objectName
     })
+  }
+
+  return {
+    code,
+    useDefault
+  }
+}
+
+/**
+ * prepare scf deploy input parameters
+ * @param {Component} instance serverless component
+ * @param {object} credentials component credentials
+ * @param {string} appId app id
+ * @param {object} inputs yml inputs
+ */
+const formatInputs = async (instance, credentials, appId, inputs) => {
+  // 基于镜像部署
+  let imageCode
+  if (inputs.image) {
+    const imageConfig = inputs.image
+    const region = inputs.region || CONFIGS.region
+    const tcr = new Tcr(credentials, region)
+    // 企业版需要配置 registryName (实例名称)
+    if (imageConfig.registryName) {
+      const imageInfo = await tcr.getImageInfoByName({
+        registryName: imageConfig.registryName,
+        namespace: imageConfig.namespace,
+        repositoryName: imageConfig.repositoryName,
+        tagName: imageConfig.tagName || 'latest'
+      })
+      imageCode = {
+        imageType: imageInfo.imageType,
+        imageUri: imageInfo.imageUri,
+        registryId: imageInfo.registryId
+      }
+    } else {
+      const imageInfo = await tcr.getPersonalImageInfoForScf({
+        namespace: imageConfig.namespace,
+        repositoryName: imageConfig.repositoryName,
+        tagName: imageConfig.tagName || 'latest'
+      })
+      imageCode = {
+        imageType: imageInfo.imageType,
+        imageUri: imageInfo.imageUri
+      }
+    }
+  }
+
+  let useDefault = false
+  if (imageCode) {
+    inputs.imageConfig = imageCode
+  } else {
+    const uploadResult = await uploadCodeToCos(instance, credentials, appId, inputs)
+    inputs.code = uploadResult.code
+    ;({ useDefault } = uploadResult)
+
+    inputs.runtime = inputs.runtime || CONFIGS.runtime
+    inputs.handler = inputs.handler || CONFIGS.handler(inputs.runtime)
   }
 
   const oldState = instance.state
@@ -157,10 +210,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     inputs.name ||
     (oldState.function && oldState.function.FunctionName) ||
     getDefaultFunctionName(instance)
-  inputs.runtime = inputs.runtime || CONFIGS.runtime
-  inputs.handler = inputs.handler || CONFIGS.handler(inputs.runtime)
   inputs.description = inputs.description || CONFIGS.description(instance.app)
-  inputs.code = code
   inputs.events = inputs.events || []
 
   const stateApigw = oldState.apigw
@@ -221,7 +271,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
     return event
   })
 
-  // if not config apig trigger, and make autoCreateApi true
+  // if not config apig trigger, and autoCreateApi is true
   if (inputs.autoCreateApi && !existApigwTrigger) {
     triggers.apigw = []
     const { defaultApigw } = CONFIGS
@@ -233,6 +283,11 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
       defaultApigw.parameters.serviceId =
         defaultApigw.parameters.serviceId || stateApigw[serviceName].serviceId
       defaultApigw.parameters.created = stateApigw[serviceName].created
+    }
+    if (inputs.type === 'web') {
+      defaultApigw.parameters.function = {
+        type: 'web'
+      }
     }
     inputs.events.push({
       apigw: defaultApigw
@@ -256,7 +311,7 @@ const prepareInputs = async (instance, credentials, appId, inputs) => {
   }
 }
 
-const prepareAliasInputs = (inputs) => {
+const formatAliasInputs = (inputs) => {
   const outputs = {}
 
   if (typeof inputs.name == 'undefined') {
@@ -386,8 +441,8 @@ module.exports = {
   getType,
   getDefaultProtocol,
   generateId,
-  prepareInputs,
-  prepareAliasInputs,
   getDefaultZipPath,
+  formatInputs,
+  formatAliasInputs,
   formatMetricData
 }

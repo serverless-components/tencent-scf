@@ -1,0 +1,25 @@
+component: scf
+name: imagedemo
+
+inputs:
+  name: web-function-image
+  region: ap-chengdu
+  # 指定 SCF 类型为 Web 类型
+  type: web
+  image:
+    # registryName: ${env:registry_name} # 企业版必须
+    namespace: ${env:namespace}
+    repositoryName: ${env:image_name}
+    tagName: ${env:tag_name}
+  events:
+    - apigw:
+        parameters:
+          protocols:
+            - http
+            - https
+          environment: release
+          endpoints:
+            - path: /
+              method: ANY
+              function:
+                type: web

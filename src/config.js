@@ -46,7 +46,7 @@ const CONFIGS = {
       endpoints: [
         {
           path: '/',
-          method: 'GET'
+          method: 'ANY'
         }
       ]
     }

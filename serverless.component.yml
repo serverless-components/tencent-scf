@@ -1,5 +1,5 @@
 name: scf
-version: 0.6.4
+version: 0.7.0
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: Deploy a serverless cloud function on Tencent Cloud.
@@ -18,6 +18,11 @@ actions:
         type: src
         required: true
         description: The folder containing the source code of application.
+      type:
+        type: string
+        allow:
+          - event
+          - web
       name:
         type: string
         description: The name of Tencent SCF function.
