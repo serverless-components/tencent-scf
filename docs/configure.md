@@ -76,6 +76,8 @@ inputs:
     namespace: scf_images # 命名空间
     repositoryName: nodejs_server # 镜像名称
     tagName: latest # 镜像版本
+    command: node index.js # 容器启动命名
+    args: test # 容器启动参数
   events: # 触发器
     - timer: # 定时触发器
         parameters:
@@ -498,12 +500,14 @@ value:
 
 镜像相关配置：
 
-| 参数名称       | 必选 | 类型   | 默认值   | 描述                                          |
-| -------------- | ---- | ------ | -------- | :-------------------------------------------- |
-| registryName   | 否   | string |          | [容器镜像服务][tcr]名称，使用企业版镜像时必须 |
-| namespace      | 是   | string |          | 命名空间                                      |
-| repositoryName | 是   | string |          | 镜像名称                                      |
-| tagName        | 否   | string | `latest` | 镜像版本                                      |
+| 参数名称       | 必选 | 类型   | 默认值   | 描述                                                   |
+| -------------- | ---- | ------ | -------- | :----------------------------------------------------- |
+| registryName   | 否   | string |          | [容器镜像服务][tcr]名称，使用企业版镜像时必须          |
+| namespace      | 是   | string |          | 命名空间                                               |
+| repositoryName | 是   | string |          | 镜像名称                                               |
+| tagName        | 否   | string | `latest` | 镜像版本                                               |
+| command        | 否   | string |          | 容器启动命令，默认使用镜像中的 `Entrypoint` 或者 `CMD` |
+| args           | 否   | string |          | 容器启动参数，默认使用惊醒中的 `CMD`                   |
 
 <!-- Refer links -->
 
