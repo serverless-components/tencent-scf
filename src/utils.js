@@ -178,17 +178,21 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
       imageCode = {
         imageType: imageInfo.imageType,
         imageUri: imageInfo.imageUri,
-        registryId: imageInfo.registryId
+        registryId: imageInfo.registryId,
+        command: imageConfig.command,
+        args: imageConfig.args
       }
     } else {
-      const imageInfo = await tcr.getPersonalImageInfoForScf({
+      const imageInfo = await tcr.getPersonalImageInfo({
         namespace: imageConfig.namespace,
         repositoryName: imageConfig.repositoryName,
         tagName: imageConfig.tagName || 'latest'
       })
       imageCode = {
         imageType: imageInfo.imageType,
-        imageUri: imageInfo.imageUri
+        imageUri: imageInfo.imageUri,
+        command: imageConfig.command,
+        args: imageConfig.args
       }
     }
   }
