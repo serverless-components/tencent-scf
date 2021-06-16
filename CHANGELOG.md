@@ -1,3 +1,10 @@
+## [0.7.1](https://github.com/serverless-components/tencent-scf/compare/v0.7.0...v0.7.1) (2021-06-16)
+
+
+### Bug Fixes
+
+* support image command and args ([d5216bd](https://github.com/serverless-components/tencent-scf/commit/d5216bde87f3a2f76331e126fbc75575536a7fdb))
+
 # [0.7.0](https://github.com/serverless-components/tencent-scf/compare/v0.6.4...v0.7.0) (2021-06-15)
 
 
