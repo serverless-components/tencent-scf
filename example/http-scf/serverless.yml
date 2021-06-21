@@ -12,6 +12,7 @@ inputs:
   region: ap-chengdu
   handler: scf_bootstrap
   runtime: Nodejs12.16
+  installDependency: true
   events:
     - apigw:
         parameters:
