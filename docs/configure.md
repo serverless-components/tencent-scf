@@ -72,10 +72,9 @@ inputs:
     key2: value2 # tags 的key value
   ignoreTriggers: false # 是否忽略触发器部署
   image: # 镜像配置
-    registryName: serverless # 容器镜像服务名称，企业版必须
-    namespace: scf_images # 命名空间
-    repositoryName: nodejs_server # 镜像名称
-    tagName: latest # 镜像版本
+    registryId: tcr-xxx # 容器镜像服务名称，企业版必须
+    imageType: personal # 镜像类型：personal - 个人，enterprise - 企业版，public - 镜像模板
+    imageUri: ccr.ccs.tencentyun.com/sls-scf/nodejs_test:latest@sha256:xxx
     command: node index.js # 容器启动命名
     args: test # 容器启动参数
   events: # 触发器
@@ -500,14 +499,21 @@ value:
 
 镜像相关配置：
 
-| 参数名称       | 必选 | 类型   | 默认值   | 描述                                                   |
-| -------------- | ---- | ------ | -------- | :----------------------------------------------------- |
-| registryName   | 否   | string |          | [容器镜像服务][tcr]名称，使用企业版镜像时必须          |
-| namespace      | 是   | string |          | 命名空间                                               |
-| repositoryName | 是   | string |          | 镜像名称                                               |
-| tagName        | 否   | string | `latest` | 镜像版本                                               |
-| command        | 否   | string |          | 容器启动命令，默认使用镜像中的 `Entrypoint` 或者 `CMD` |
-| args           | 否   | string |          | 容器启动参数，默认使用惊醒中的 `CMD`                   |
+| 参数名称   | 必选 | 类型   | 默认值     | 描述                                                   |
+| ---------- | ---- | ------ | ---------- | :----------------------------------------------------- |
+| imageUri   | 是   | string |            | 镜像版本 URL                                           |
+| registryId | 否   | string |            | [容器镜像服务][tcr] 实例 ID，使用企业版镜像时必须      |
+| imageType  | 否   | string | `personal` | 镜像类型，支持：personal、enterprise、public           |
+| command    | 否   | string |            | 容器启动命令，默认使用镜像中的 `Entrypoint` 或者 `CMD` |
+| args       | 否   | string |            | 容器启动参数，默认使用惊醒中的 `CMD`                   |
+
+注意：
+
+`imageUri` 拼接格式为 `<仓库地址>:<镜像版本>@<镜像ID(sha256)>`，如下：
+
+```text
+ccr.ccs.tencentyun.com/sls-scf/nodejs_test:latest@sha256:xxx
+```
 
 <!-- Refer links -->
 

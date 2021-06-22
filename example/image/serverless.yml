@@ -7,10 +7,8 @@ inputs:
   # 指定 SCF 类型为 Web 类型
   type: web
   image:
-    # registryName: ${env:registry_name} # 企业版必须
-    namespace: ${env:namespace}
-    repositoryName: ${env:image_name}
-    tagName: ${env:tag_name}
+    imageType: personal
+    imageUri: ${env:image_uri}
   events:
     - apigw:
         parameters:

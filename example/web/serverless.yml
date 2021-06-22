@@ -22,6 +22,3 @@ inputs:
           endpoints:
             - path: /
               method: ANY
-              function:
-                # 指定 API 类型为 Web 类型
-                type: web
