@@ -2,16 +2,25 @@
 
 在部署前，需要先构建镜像，并推送到云端镜像仓库。
 
-首先，复制 `account.example.conf` 为 `account.conf`，并修改其中配置为开发者账号：
+## 构建镜像
+
+首先，复制 `.env.example` 为 `.env`，并修改其中配置为开发者账号：
 
 ```bash
+# 主账号 UIN
+UIN=123455555
+
+# 实例 ID，企业版需要
+registry_id="tcr-xxx"
 # 实例名称，企业版需要
 registry_name="serverless"
 
 # 命名空间
 namespace="sls-scf"
 # 镜像名称
-image_name="nodejs_test"
+image_name="nodejs_test_event"
+# 镜像版本
+tag_name="latest"
 
 # 镜像登录密码
 password="xxx"
@@ -29,6 +38,10 @@ $ ./build.sh
 ```bash
 $ ./build.sh enterprise
 ```
+
+## 部署函数
+
+镜像发布后，将需要的 `image_uri` 添加到 `.env` 文件中
 
 然后执行 Serverless 部署：
 

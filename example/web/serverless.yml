@@ -1,0 +1,24 @@
+component: scf
+name: http
+
+inputs:
+  src:
+    src: ./src
+    exclude:
+      - .env
+  # 指定 SCF 类型为 Web 类型
+  type: web
+  name: web-function
+  region: ap-chengdu
+  handler: scf_bootstrap
+  runtime: Nodejs12.16
+  events:
+    - apigw:
+        parameters:
+          protocols:
+            - http
+            - https
+          environment: release
+          endpoints:
+            - path: /
+              method: ANY

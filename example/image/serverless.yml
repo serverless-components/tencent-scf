@@ -1,17 +1,14 @@
 component: scf
-name: http
+name: imagedemo
 
 inputs:
-  src:
-    src: ./src
-    exclude:
-      - .env
+  name: web-function-image
+  region: ap-chengdu
   # 指定 SCF 类型为 Web 类型
   type: web
-  name: web-function
-  region: ap-chengdu
-  handler: scf_bootstrap
-  runtime: Nodejs12.16
+  image:
+    imageType: personal
+    imageUrl: ${env:image_url} # 请修改为指定镜像版本 URL
   events:
     - apigw:
         parameters:
@@ -23,5 +20,4 @@ inputs:
             - path: /
               method: ANY
               function:
-                # 指定 API 类型为 Web 类型
                 type: web

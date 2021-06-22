@@ -1,5 +1,5 @@
 const download = require('download')
-const { Cos, Tcr } = require('tencent-component-toolkit')
+const { Cos } = require('tencent-component-toolkit')
 const { ApiTypeError } = require('tencent-component-toolkit/lib/utils/error')
 const CONFIGS = require('./config')
 
@@ -165,32 +165,20 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
   let imageCode
   if (inputs.image) {
     const imageConfig = inputs.image
-    const region = inputs.region || CONFIGS.region
-    const tcr = new Tcr(credentials, region)
     // 企业版需要配置 registryName (实例名称)
-    if (imageConfig.registryName) {
-      const imageInfo = await tcr.getImageInfoByName({
-        registryName: imageConfig.registryName,
-        namespace: imageConfig.namespace,
-        repositoryName: imageConfig.repositoryName,
-        tagName: imageConfig.tagName || 'latest'
-      })
+    if (imageConfig.registryId) {
       imageCode = {
-        imageType: imageInfo.imageType,
-        imageUri: imageInfo.imageUri,
-        registryId: imageInfo.registryId,
+        imageType: 'enterprise',
+        // yaml 配置使用 imageUrl 方便理解
+        imageUri: imageConfig.imageUrl,
+        registryId: imageConfig.registryId,
         command: imageConfig.command,
         args: imageConfig.args
       }
     } else {
-      const imageInfo = await tcr.getPersonalImageInfo({
-        namespace: imageConfig.namespace,
-        repositoryName: imageConfig.repositoryName,
-        tagName: imageConfig.tagName || 'latest'
-      })
       imageCode = {
-        imageType: imageInfo.imageType,
-        imageUri: imageInfo.imageUri,
+        imageType: imageConfig.imageType || 'personal',
+        imageUri: imageConfig.imageUrl,
         command: imageConfig.command,
         args: imageConfig.args
       }

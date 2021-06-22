@@ -5,10 +5,9 @@ inputs:
   name: event-function-image
   region: ap-chengdu
   image:
-    registryName: ${env:registry_name}
-    namespace: ${env:namespace}
-    repositoryName: ${env:image_name}
-    tagName: ${env:tag_name}
+    imageType: enterprise
+    registryId: ${env:registry_id} # 请修改为指定容器镜像服务实例 ID
+    imageUrl: ${env:image_url} # 请修改为指定镜像版本 URL
   events:
     - apigw:
         parameters:
