@@ -6,8 +6,8 @@ inputs:
   region: ap-chengdu
   image:
     imageType: enterprise
-    registryId: ${env:registry_id}
-    imageUri: ${env:image_uri}
+    registryId: ${env:registry_id} # 请修改为指定容器镜像服务实例 ID
+    imageUrl: ${env:image_url} # 请修改为指定镜像版本 URL
   events:
     - apigw:
         parameters:

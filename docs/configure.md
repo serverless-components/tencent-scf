@@ -501,7 +501,7 @@ value:
 
 | 参数名称   | 必选 | 类型   | 默认值     | 描述                                                   |
 | ---------- | ---- | ------ | ---------- | :----------------------------------------------------- |
-| imageUri   | 是   | string |            | 镜像版本 URL                                           |
+| imageUrl   | 是   | string |            | 镜像版本 URL                                           |
 | registryId | 否   | string |            | [容器镜像服务][tcr] 实例 ID，使用企业版镜像时必须      |
 | imageType  | 否   | string | `personal` | 镜像类型，支持：personal、enterprise、public           |
 | command    | 否   | string |            | 容器启动命令，默认使用镜像中的 `Entrypoint` 或者 `CMD` |
@@ -509,7 +509,7 @@ value:
 
 注意：
 
-`imageUri` 拼接格式为 `<仓库地址>:<镜像版本>@<镜像ID(sha256)>`，如下：
+`imageUrl` 拼接格式为 `<仓库地址>:<镜像版本>@<镜像ID(sha256)>`，如下：
 
 ```text
 ccr.ccs.tencentyun.com/sls-scf/nodejs_test:latest@sha256:xxx

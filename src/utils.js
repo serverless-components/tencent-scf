@@ -169,7 +169,8 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
     if (imageConfig.registryId) {
       imageCode = {
         imageType: 'enterprise',
-        imageUri: imageConfig.imageUri,
+        // yaml 配置使用 imageUrl 方便理解
+        imageUri: imageConfig.imageUrl,
         registryId: imageConfig.registryId,
         command: imageConfig.command,
         args: imageConfig.args
@@ -177,7 +178,7 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
     } else {
       imageCode = {
         imageType: imageConfig.imageType || 'personal',
-        imageUri: imageConfig.imageUri,
+        imageUri: imageConfig.imageUrl,
         command: imageConfig.command,
         args: imageConfig.args
       }
