@@ -10,7 +10,7 @@ inputs:
   type: web
   name: web-function
   region: ap-chengdu
-  handler: scf_bootstrap
+  handler: index.js # 如果需要自定义启动文件,修改为scf_bootstrap. 详情查看:https://cloud.tencent.com/document/product/583/56126#.E5.B8.B8.E8.A7.81-web-server-.E5.90.AF.E5.8A.A8.E5.91.BD.E4.BB.A4.E6.A8.A1.E7.89.88
   runtime: Nodejs12.16
   events:
     - apigw:
