@@ -1,3 +1,10 @@
+## [0.7.5](https://github.com/serverless-components/tencent-scf/compare/v0.7.4...v0.7.5) (2021-06-28)
+
+
+### Bug Fixes
+
+* apigw trigger update bug ([379270e](https://github.com/serverless-components/tencent-scf/commit/379270e4c498132092685e8b2a14563fd73e6ee8))
+
 ## [0.7.4](https://github.com/serverless-components/tencent-scf/compare/v0.7.3...v0.7.4) (2021-06-24)
 
 
