@@ -1,3 +1,10 @@
+## [0.7.6](https://github.com/serverless-components/tencent-scf/compare/v0.7.5...v0.7.6) (2021-06-30)
+
+
+### Bug Fixes
+
+* optimize deploy web type function ([#70](https://github.com/serverless-components/tencent-scf/issues/70)) ([809f16e](https://github.com/serverless-components/tencent-scf/commit/809f16eb958c7f044d3b0e1e97c1cc60085b7d80))
+
 ## [0.7.5](https://github.com/serverless-components/tencent-scf/compare/v0.7.4...v0.7.5) (2021-06-28)
 
 
