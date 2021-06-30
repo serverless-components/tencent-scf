@@ -2,6 +2,7 @@ const download = require('download')
 const { Cos } = require('tencent-component-toolkit')
 const { ApiTypeError } = require('tencent-component-toolkit/lib/utils/error')
 const CONFIGS = require('./config')
+const AdmZip = require('adm-zip')
 
 /**
  * Generate random id
@@ -62,26 +63,49 @@ const getDefaultServiceDescription = (instance) => {
 /**
  * get default template zip file path
  */
-const getDefaultZipPath = async () => {
+const getDefaultZipPath = async (inputs, isWebFunc) => {
   // unzip source zip file
   // add default template
   const downloadPath = `/tmp/${generateId()}`
   const filename = 'template'
 
-  console.log(`Installing Default ${CONFIGS.compFullname} code...`)
+  console.log(
+    `Installing Default ${isWebFunc ? `Web SCF ${inputs.runtime}` : CONFIGS.compFullname} code...`
+  )
   try {
-    await download(CONFIGS.templateUrl, downloadPath, {
-      filename: `${filename}.zip`
-    })
+    const templateUrl = isWebFunc
+      ? CONFIGS.defaultwebFunc[inputs.runtime].templateUrl
+      : CONFIGS.templateUrl
+    await download(templateUrl, downloadPath, { filename: `${filename}.zip` })
   } catch (e) {
     throw new ApiTypeError(
-      `DOWNLOAD_${CONFIGS.compName.toUpperCase()}_TEMPLATE`,
+      `DOWNLOAD_${isWebFunc ? `WEB_SCF_${inputs.runtime}` : CONFIGS.compFullname}_TEMPLATE`,
       'Download default template failed.'
     )
   }
   const zipPath = `${downloadPath}/${filename}.zip`
 
   return zipPath
+}
+
+/**
+ * check & inject scf_bootstrap file
+ */
+const handleWebFuncEntryFile = async (inputs) => {
+  const zip = new AdmZip(inputs.src)
+  const entries = zip.getEntries()
+  // check scf_bootstrap exist
+  const [entry] = entries.filter((e) => e.name === 'scf_bootstrap')
+  if (!entry) {
+    // inject scf_bootstrap file into code
+    const BASH_PREFIX = '#!/usr/bin/env bash \n'
+    const runner = `${CONFIGS.defaultwebFunc[inputs.runtime].bootstrapRunner}`
+    const entryFileName = inputs.entryFile || CONFIGS.defaultwebFunc[inputs.runtime].entryFile
+    const fileContent = `${BASH_PREFIX}${runner} ${entryFileName}`
+    zip.addFile('scf_bootstrap', Buffer.from(fileContent, 'utf8'), '', 777)
+    zip.writeZip()
+    console.log('Inject default scf_bootstrap file into code')
+  }
 }
 
 async function uploadCodeToCos(instance, credentials, appId, inputs) {
@@ -93,9 +117,7 @@ async function uploadCodeToCos(instance, credentials, appId, inputs) {
     typeof inputs.srcOriginal === 'object'
       ? inputs.srcOriginal
       : typeof inputs.srcOriginal === 'string'
-      ? {
-          src: inputs.srcOriginal
-        }
+      ? { src: inputs.srcOriginal }
       : {}
 
   const bucketName = removeAppid(tempSrc.bucket, appId) || `sls-cloudfunction-${region}-code`
@@ -103,10 +125,7 @@ async function uploadCodeToCos(instance, credentials, appId, inputs) {
     tempSrc.object ||
     `/${CONFIGS.compName}_component_${generateId()}-${Math.floor(Date.now() / 1000)}.zip`
 
-  const code = {
-    bucket: bucketName,
-    object: objectName
-  }
+  const code = { bucket: bucketName, object: objectName }
   const cos = new Cos(credentials, region)
   const bucket = `${code.bucket}-${appId}`
 
@@ -129,22 +148,26 @@ async function uploadCodeToCos(instance, credentials, appId, inputs) {
 
   let useDefault
   if (!tempSrc.object) {
+    const isWebFunc = inputs.type === 'web'
     // whether use default template, if so, download it
     // get default template code
     let zipPath
     if (!tempSrc.src) {
       useDefault = true
-      zipPath = await getDefaultZipPath()
+      zipPath = await getDefaultZipPath(inputs, isWebFunc)
       inputs.src = zipPath
     } else {
+      if (isWebFunc) {
+        handleWebFuncEntryFile(inputs)
+      }
       zipPath = inputs.src
     }
     console.log(`Uploading code ${code.object} to bucket ${bucket}`)
-    await cos.upload({
-      bucket: `${bucketName}-${appId}`,
-      file: zipPath,
-      key: objectName
-    })
+    try {
+      await cos.upload({ bucket: `${bucketName}-${appId}`, file: zipPath, key: objectName })
+    } catch (error) {
+      throw new ApiTypeError('UPLOAD_CODE', 'Upload code to user cos failed.')
+    }
   }
 
   return {
@@ -189,12 +212,11 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
   if (imageCode) {
     inputs.imageConfig = imageCode
   } else {
+    inputs.runtime = inputs.runtime || CONFIGS.runtime
+    inputs.handler = inputs.handler || CONFIGS.handler(inputs.runtime)
     const uploadResult = await uploadCodeToCos(instance, credentials, appId, inputs)
     inputs.code = uploadResult.code
     ;({ useDefault } = uploadResult)
-
-    inputs.runtime = inputs.runtime || CONFIGS.runtime
-    inputs.handler = inputs.handler || CONFIGS.handler(inputs.runtime)
   }
 
   const oldState = instance.state
@@ -253,6 +275,18 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
           currentEvent.parameters.created = curState.created
         }
         currentEvent.parameters.serviceId = serviceId
+        // 如果为 web 类型函数，添加 api 指定函数类型为 web
+        if (inputs.type === 'web') {
+          const { endpoints = [] } = currentEvent.parameters
+          currentEvent.parameters.endpoints = endpoints.map((item) => {
+            if (!item.function) {
+              item.function = {}
+            }
+            item.function.type = 'web'
+            return item
+          })
+        }
+
         apigwName.push(serviceName)
       }
       existApigwTrigger = true
@@ -277,9 +311,10 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
       defaultApigw.parameters.created = stateApigw[serviceName].created
     }
     if (inputs.type === 'web') {
-      defaultApigw.parameters.function = {
-        type: 'web'
-      }
+      defaultApigw.parameters.endpoints = defaultApigw.parameters.endpoints.map((ep) => ({
+        ...ep,
+        function: { type: 'web' }
+      }))
     }
     inputs.events.push({
       apigw: defaultApigw

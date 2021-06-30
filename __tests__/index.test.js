@@ -59,6 +59,41 @@ describe('Scf', () => {
     inputs
   }
 
+  const webFuncYaml = {
+    org: appId,
+    app: 'appDemo',
+    component: 'scf@dev',
+    name: `scf-web-integration-tests-${generateId()}`,
+    stage: 'dev',
+    inputs: {
+      name: `scf-web-integration-tests-${generateId()}`,
+      src: {
+        src: path.join(__dirname, '../example/web/src'),
+        exclude: ['.env']
+      },
+      type: 'web',
+      region: 'ap-chengdu',
+      runtime: 'Nodejs12.16',
+      events: [
+        {
+          apigw: {
+            parameters: {
+              protocols: ['http', 'https'],
+              description: 'The service of Serverless Framework',
+              environment: 'test',
+              endpoints: [
+                {
+                  path: '/',
+                  method: 'ANY'
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+
   const sdk = getServerlessSdk(instanceYaml.org, appId)
 
   let lastVersion = '$LATEST'
@@ -366,6 +401,62 @@ describe('Scf', () => {
       instanceYaml.stage,
       instanceYaml.app,
       instanceYaml.name
+    )
+
+    expect(result.instance.instanceStatus).toEqual('inactive')
+  })
+
+  it('deploy web function', async () => {
+    const instance = await sdk.deploy(webFuncYaml, credentials)
+
+    expect(instance).toBeDefined()
+    expect(instance.instanceName).toEqual(webFuncYaml.name)
+
+    const { outputs } = instance
+    // get src from template by default
+    expect(outputs.functionName).toEqual(webFuncYaml.inputs.name)
+    expect(outputs.runtime).toEqual(webFuncYaml.inputs.runtime)
+    expect(outputs.triggers).toBeDefined()
+    expect(outputs.triggers.length).toBe(1)
+
+    const { triggers } = outputs
+    const apiTrigger = triggers[0]
+
+    expect(apiTrigger).toEqual({
+      NeedCreate: expect.any(Boolean),
+      created: expect.any(Boolean),
+      serviceId: expect.stringContaining('service-'),
+      serviceName: 'serverless',
+      subDomain: expect.stringContaining('.cd.apigw.tencentcs.com'),
+      protocols: 'http&https',
+      environment: 'test',
+      url: expect.stringContaining('http'),
+      apiList: [
+        {
+          created: expect.any(Boolean),
+          path: '/',
+          method: 'ANY',
+          apiId: expect.stringContaining('api-'),
+          apiName: 'index',
+          authType: 'NONE',
+          businessType: 'NORMAL',
+          internalDomain: expect.any(String),
+          url: expect.stringContaining('http'),
+          isBase64Encoded: false
+        }
+      ],
+      urls: expect.any(Array)
+    })
+  })
+
+  it('remove web function', async () => {
+    await sleep(5000)
+    await sdk.remove(webFuncYaml, credentials)
+    const result = await sdk.getInstance(
+      webFuncYaml.org,
+      webFuncYaml.stage,
+      webFuncYaml.app,
+      webFuncYaml.name
     )
 
     expect(result.instance.instanceStatus).toEqual('inactive')

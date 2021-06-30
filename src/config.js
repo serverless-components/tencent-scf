@@ -8,6 +8,45 @@ const getLang = (runtime) => {
   return 'Nodejs'
 }
 
+const WEB_FUNC_CONFIGS = {
+  'Python2.7': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-python2-demo.zip',
+    entryFile: 'app.py',
+    bootstrapRunner: '/var/lang/python2/bin/python2'
+  },
+  'Python3.6': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-python3-demo.zip',
+    entryFile: 'app.py',
+    bootstrapRunner: '/var/lang/python3/bin/python3'
+  },
+  'Nodejs10.15': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-node10-demo.zip',
+    entryFile: 'app.js',
+    bootstrapRunner: '/var/lang/node10/bin/node'
+  },
+  'Nodejs12.16': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-node12-demo.zip',
+    entryFile: 'app.js',
+    bootstrapRunner: '/var/lang/node12/bin/node'
+  },
+  Php5: {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-php5-demo.zip',
+    entryFile: 'hello.php',
+    bootstrapRunner: '/var/lang/php5/bin/php -S 0.0.0.0:9000'
+  },
+  Php7: {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-php7-demo.zip',
+    entryFile: 'hello.php',
+    bootstrapRunner: '/var/lang/php7/bin/php -S 0.0.0.0:9000'
+  }
+}
+
 const CONFIGS = {
   templateUrl: 'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/scf-demo.zip',
   region: 'ap-guangzhou',
@@ -50,7 +89,8 @@ const CONFIGS = {
         }
       ]
     }
-  }
+  },
+  defaultwebFunc: WEB_FUNC_CONFIGS
 }
 
 module.exports = CONFIGS
