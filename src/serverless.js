@@ -37,96 +37,103 @@ class ServerlessComponent extends Component {
     const appId = this.getAppId()
 
     const region = inputs.region || CONFIGS.region
-
     const faasType = inputs.type || 'event'
+
     const { scfInputs, useDefault } = await formatInputs(this, credentials, appId, inputs)
 
-    const scf = new Scf(credentials, region)
-    const scfOutput = await scf.deploy(scfInputs)
+    try {
+      const scf = new Scf(credentials, region)
+      const scfOutput = await scf.deploy(scfInputs)
 
-    const outputs = {
-      type: faasType,
-      functionName: scfOutput.FunctionName,
-      code: scfInputs.code,
-      description: scfOutput.Description,
-      region: scfOutput.Region,
-      namespace: scfOutput.Namespace,
-      runtime: scfOutput.Runtime,
-      handler: scfOutput.Handler,
-      memorySize: scfOutput.MemorySize
-    }
+      const outputs = {
+        type: faasType,
+        functionName: scfOutput.FunctionName,
+        code: scfInputs.code,
+        description: scfOutput.Description,
+        region: scfOutput.Region,
+        namespace: scfOutput.Namespace,
+        runtime: scfOutput.Runtime,
+        handler: scfOutput.Handler,
+        memorySize: scfOutput.MemorySize,
+        entryFile: scfInputs.entryFile
+      }
 
-    if (scfOutput.Layers && scfOutput.Layers.length > 0) {
-      outputs.layers = scfOutput.Layers.map((item) => ({
-        name: item.LayerName,
-        version: item.LayerVersion
-      }))
-    }
+      if (scfOutput.Layers && scfOutput.Layers.length > 0) {
+        outputs.layers = scfOutput.Layers.map((item) => ({
+          name: item.LayerName,
+          version: item.LayerVersion
+        }))
+      }
 
-    // default version is $LATEST
-    outputs.lastVersion = scfOutput.LastVersion
-      ? scfOutput.LastVersion
-      : this.state.lastVersion || '$LATEST'
+      // default version is $LATEST
+      outputs.lastVersion = scfOutput.LastVersion
+        ? scfOutput.LastVersion
+        : this.state.lastVersion || '$LATEST'
 
-    // default traffic is 1.0, it can also be 0, so we should compare to undefined
-    outputs.traffic =
-      scfOutput.Traffic !== undefined
-        ? scfOutput.Traffic
-        : this.state.traffic !== undefined
-        ? this.state.traffic
-        : 1
+      // default traffic is 1.0, it can also be 0, so we should compare to undefined
+      outputs.traffic =
+        scfOutput.Traffic !== undefined
+          ? scfOutput.Traffic
+          : this.state.traffic !== undefined
+          ? this.state.traffic
+          : 1
 
-    if (outputs.traffic !== 1 && scfOutput.ConfigTrafficVersion) {
-      outputs.configTrafficVersion = scfOutput.ConfigTrafficVersion
-      this.state.configTrafficVersion = scfOutput.ConfigTrafficVersion
-    }
+      if (outputs.traffic !== 1 && scfOutput.ConfigTrafficVersion) {
+        outputs.configTrafficVersion = scfOutput.ConfigTrafficVersion
+        this.state.configTrafficVersion = scfOutput.ConfigTrafficVersion
+      }
 
-    this.state.lastVersion = outputs.lastVersion
-    this.state.traffic = outputs.traffic
+      this.state.lastVersion = outputs.lastVersion
+      this.state.traffic = outputs.traffic
+      this.state.entryFile = outputs.entryFile
 
-    const stateApigw = {}
-    outputs.triggers = scfOutput.Triggers.map((item) => {
-      if (item.serviceId) {
-        stateApigw[item.serviceName] = item
-        stateApigw[item.serviceId] = item
-        item.urls = []
-        item.apiList.forEach((apiItem) => {
-          if (getType(item.subDomain) === 'Array') {
-            item.subDomain.forEach((domain) => {
+      const stateApigw = {}
+      outputs.triggers = scfOutput.Triggers.map((item) => {
+        if (item.serviceId) {
+          stateApigw[item.serviceName] = item
+          stateApigw[item.serviceId] = item
+          item.urls = []
+          item.apiList.forEach((apiItem) => {
+            if (getType(item.subDomain) === 'Array') {
+              item.subDomain.forEach((domain) => {
+                item.urls.push(
+                  `${getDefaultProtocol(item.protocols)}://${domain}/${item.environment}${
+                    apiItem.path
+                  }`
+                )
+              })
+            } else {
               item.urls.push(
-                `${getDefaultProtocol(item.protocols)}://${domain}/${item.environment}${
+                `${getDefaultProtocol(item.protocols)}://${item.subDomain}/${item.environment}${
                   apiItem.path
                 }`
               )
-            })
-          } else {
-            item.urls.push(
-              `${getDefaultProtocol(item.protocols)}://${item.subDomain}/${item.environment}${
-                apiItem.path
-              }`
-            )
-          }
-        })
+            }
+          })
+        }
+        return item
+      })
+      this.state.apigw = stateApigw
+
+      if (useDefault) {
+        outputs.templateUrl = CONFIGS.templateUrl
       }
-      return item
-    })
-    this.state.apigw = stateApigw
 
-    if (useDefault) {
-      outputs.templateUrl = CONFIGS.templateUrl
+      this.state.region = region
+      this.state.function = scfOutput
+
+      // must add this property for debuging online
+      this.state.lambdaArn = scfOutput.FunctionName
+
+      await this.save()
+
+      console.log(`Deploy ${CONFIGS.compFullname} success`)
+
+      return outputs
+    } catch (e) {
+      console.log(`Deploy ${CONFIGS.compFullname} failed`)
+      return { requestId: e.reqId, message: e.message }
     }
-
-    this.state.region = region
-    this.state.function = scfOutput
-
-    // must add this property for debuging online
-    this.state.lambdaArn = scfOutput.FunctionName
-
-    await this.save()
-
-    console.log(`Deploy ${CONFIGS.compFullname} success`)
-
-    return outputs
   }
 
   // eslint-disable-next-line

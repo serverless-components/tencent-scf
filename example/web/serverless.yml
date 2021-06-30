@@ -10,8 +10,9 @@ inputs:
   type: web
   name: web-function
   region: ap-chengdu
-  handler: scf_bootstrap
   runtime: Nodejs12.16
+  # 无 scf_bootstrap 文件时指定入口文件名
+  entryFile: 'app.js'
   events:
     - apigw:
         parameters:
