@@ -75,7 +75,7 @@ inputs:
   image: # 镜像配置
     registryId: tcr-xxx # 容器镜像服务名称，企业版必须
     imageType: personal # 镜像类型：personal - 个人，enterprise - 企业版，public - 镜像模板
-    imageUri: ccr.ccs.tencentyun.com/sls-scf/nodejs_test:latest@sha256:xxx
+    imageUrl: ccr.ccs.tencentyun.com/sls-scf/nodejs_test:latest@sha256:xxx
     command: node index.js # 容器启动命名
     args: test # 容器启动参数
   events: # 触发器
