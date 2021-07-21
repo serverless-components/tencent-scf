@@ -68,6 +68,8 @@ inputs:
   eip: false # 是否开启固定IP
   asyncRunEnable: false # 是否启用异步执行（长时间运行）
   traceEnable: false # 是否状态追踪
+  msgTTL: 21600 # 消息保留时间，单位秒
+  retryNum: 2 # 重试次数
   tags: #标签配置
     key1: value1
     key2: value2 # tags 的key value
@@ -213,6 +215,8 @@ inputs:
 | eip               | 否   | boolean                     | `false`              | 固定出口 IP。默认为 false，即不启用。                                                                                                 |
 | asyncRunEnable    | 否   | boolean                     | `false`              | 是否启用异步执行（长时间运行），默认最大支持 `12小时`，如果配置为 `true`，`cls`（函数日志配置） 必须。`此参数只有在函数创建时才有效`  |
 | traceEnable       | 否   | boolean                     | `false`              | 是否启用状态追踪，如果要配置为 `true`，必须配置 `asyncRunEnable` 同时为 `true`                                                        |
+| msgTTL            | 否   | number                      | `21600`              | 异步执行消息保留时间，单位秒，仅 `asyncRunEnable` 为 `true` 时有效                                                                    |
+| retryNum          | 否   | number                      | `2`                  | 重试次数，仅 `asyncRunEnable` 为 `true` 时有效                                                                                        |
 | installDependency | 否   | boolean                     | `false`              | 是否自动在线安装依赖                                                                                                                  |
 | tags              | 否   |                             |                      | 标签设置。可设置多对 key-value 的键值对                                                                                               |
 | cfs               | 否   | [Cfs](#Cfs)                 |                      | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                                         |
