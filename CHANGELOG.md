@@ -1,3 +1,10 @@
+## [0.7.7](https://github.com/serverless-components/tencent-scf/compare/v0.7.6...v0.7.7) (2021-07-22)
+
+
+### Bug Fixes
+
+* update deps support async retry config ([d64404f](https://github.com/serverless-components/tencent-scf/commit/d64404f6e14b1adb8a43d91af0d7fe57b87b7df5))
+
 ## [0.7.6](https://github.com/serverless-components/tencent-scf/compare/v0.7.5...v0.7.6) (2021-06-30)
 
 
