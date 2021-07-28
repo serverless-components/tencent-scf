@@ -452,10 +452,10 @@ API 密钥配置
 
 参考: https://cloud.tencent.com/document/product/628/14916
 
-| 参数名称   | 类型   | 描述     |
-| ---------- | :----- | :------- |
-| secretName | string | 密钥名称 |
-| secretIds  | string | 密钥 ID  |
+| 参数名称   | 必选 | 类型   | 描述     |
+| ---------- | :--: | :----- | :------- |
+| secretName |  否  | string | 密钥名称 |
+| secretIds  |  否  | string | 密钥 ID  |
 
 ###### APP
 
@@ -463,11 +463,11 @@ API 绑定 APP 配置
 
 参考：https://cloud.tencent.com/document/product/628/55087
 
-| 参数名称    | 类型   | 描述                |
-| ----------- | :----- | :------------------ |
-| name        | string | 用户自定义 APP 名称 |
-| id          | string | APP ID              |
-| description | string | 用户自定义 APP 描述 |
+| 参数名称    | 必选 | 类型   | 描述                |
+| ----------- | :--: | :----- | :------------------ |
+| name        |  否  | string | 用户自定义 APP 名称 |
+| id          |  否  | string | APP ID              |
+| description |  否  | string | 用户自定义 APP 描述 |
 
 ###### Base64Rule
 
