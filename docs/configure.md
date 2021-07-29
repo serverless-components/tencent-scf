@@ -406,6 +406,7 @@ mps - MPS 触发器
 | function                  | 否   |    [Function](#Function)    |         | SCF 配置                                                                                                  |
 | usagePlan                 | 否   |   [UsagePlan](#UsagePlan)   |         | 使用计划                                                                                                  |
 | auth                      | 否   |        [Auth](#Auth)        |         | API 密钥配置                                                                                              |
+| authType                  | 否   |           string            | `NONE`  | `NONE` 或 `APP`                                                                                           |
 | app                       | 否   |         [App](#App)         |         | API 绑定 APP 配置                                                                                         |
 | isBase64Encoded           | 否   |           boolean           | `false` | 是否开启 Base64 编码，只有后端为 scf 时才会生效                                                           |
 | isBase64Trigger           | 否   |           boolean           | `false` | 是否开启 Base64 编码的 header 触发，只有后端为 scf 时才会生效                                             |
