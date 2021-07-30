@@ -375,15 +375,16 @@ mps - MPS 触发器
 
 #### API 网关触发器
 
-| 参数名称    | 必选 |   类型   | 默认值      | 描述                                                                           |
-| ----------- | ---- | :------: | :---------- | :----------------------------------------------------------------------------- |
-| environment | 否   |  string  | `release`   | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release`          |
-| serviceId   | 否   |  string  |             | 网关 Service ID（不传入则新建一个 Service）                                    |
-| protocols   | 否   | string[] | `['http']`  | 前端请求的类型，如 http，https，http 与 https                                  |
-| netTypes    | 否   | string[] | `['OUTER']` | 网络类型，如 `['OUTER']`, `['INNER']` 与`['OUTER', 'INNER']`                   |
-| serviceName | 否   |  string  |             | 网关 API 名称。如果不传递则默认新建一个名称与触发器名称相同的 Apigw API 名称。 |
-| description | 否   |  string  |             | 网关 API 描述                                                                  |
-| endpoints   | 是   | object[] |             | 参考 [endpoint](#endpoints-参数) 参数。                                        |
+| 参数名称    | 必选 |   类型   | 默认值      | 描述                                                                                                       |
+| ----------- | ---- | :------: | :---------- | :--------------------------------------------------------------------------------------------------------- |
+| environment | 否   |  string  | `release`   | 发布的环境，填写 `release`、`test` 或 `prepub`，不填写默认为`release`                                      |
+| serviceId   | 否   |  string  |             | 网关 Service ID（不传入则新建一个 Service）                                                                |
+| instanceId  | 否   |  string  |             | 网关实例 ID，填写则使用独享型实例创建 API 网关，否则创建共享型实例（该项只能在创建时指定，创建后无法修改） |
+| protocols   | 否   | string[] | `['http']`  | 前端请求的类型，如 http，https，http 与 https                                                              |
+| netTypes    | 否   | string[] | `['OUTER']` | 网络类型，如 `['OUTER']`, `['INNER']` 与`['OUTER', 'INNER']`                                               |
+| serviceName | 否   |  string  |             | 网关 API 名称。如果不传递则默认新建一个名称与触发器名称相同的 Apigw API 名称。                             |
+| description | 否   |  string  |             | 网关 API 描述                                                                                              |
+| endpoints   | 是   | object[] |             | 参考 [endpoint](#endpoints-参数) 参数。                                                                    |
 
 > 注意：如果配置多个 API 网关触发器，需要配置不同的 `serviceName`
 
@@ -405,6 +406,8 @@ mps - MPS 触发器
 | function                  | 否   |    [Function](#Function)    |         | SCF 配置                                                                                                  |
 | usagePlan                 | 否   |   [UsagePlan](#UsagePlan)   |         | 使用计划                                                                                                  |
 | auth                      | 否   |        [Auth](#Auth)        |         | API 密钥配置                                                                                              |
+| authType                  | 否   |           string            | `NONE`  | `NONE` 或 `APP`                                                                                           |
+| app                       | 否   |         [App](#App)         |         | API 绑定 APP 配置                                                                                         |
 | isBase64Encoded           | 否   |           boolean           | `false` | 是否开启 Base64 编码，只有后端为 scf 时才会生效                                                           |
 | isBase64Trigger           | 否   |           boolean           | `false` | 是否开启 Base64 编码的 header 触发，只有后端为 scf 时才会生效                                             |
 | base64EncodedTriggerRules | 否   | [Base64Rule](#Base64Rule)[] | []      | Header 触发 Base64 编码规则，总规则数不能超过 10，只有 `isBase64Trigger` 设置为 `true` 才有效             |
@@ -450,10 +453,22 @@ API 密钥配置
 
 参考: https://cloud.tencent.com/document/product/628/14916
 
-| 参数名称   | 类型   | 描述     |
-| ---------- | :----- | :------- |
-| secretName | string | 密钥名称 |
-| secretIds  | string | 密钥 ID  |
+| 参数名称   | 必选 | 类型   | 描述     |
+| ---------- | :--: | :----- | :------- |
+| secretName |  否  | string | 密钥名称 |
+| secretIds  |  否  | string | 密钥 ID  |
+
+###### APP
+
+API 绑定 APP 配置
+
+参考：https://cloud.tencent.com/document/product/628/55087
+
+| 参数名称    | 必选 | 类型   | 描述                |
+| ----------- | :--: | :----- | :------------------ |
+| name        |  否  | string | 用户自定义 APP 名称 |
+| id          |  否  | string | APP ID              |
+| description |  否  | string | 用户自定义 APP 描述 |
 
 ###### Base64Rule
 
