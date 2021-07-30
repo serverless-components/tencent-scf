@@ -1,3 +1,10 @@
+# [0.8.0](https://github.com/serverless-components/tencent-scf/compare/v0.7.7...v0.8.0) (2021-07-30)
+
+
+### Features
+
+* update toolkit and doc, support apigw app and instance ([#72](https://github.com/serverless-components/tencent-scf/issues/72)) ([14f280b](https://github.com/serverless-components/tencent-scf/commit/14f280ba441427bad9412bc8a495d56fd8ddf0fc))
+
 ## [0.7.7](https://github.com/serverless-components/tencent-scf/compare/v0.7.6...v0.7.7) (2021-07-22)
 
 
