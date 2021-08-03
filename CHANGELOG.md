@@ -1,3 +1,10 @@
+## [0.8.1](https://github.com/serverless-components/tencent-scf/compare/v0.8.0...v0.8.1) (2021-08-03)
+
+
+### Bug Fixes
+
+* deploy not throw error ([ba2bf7e](https://github.com/serverless-components/tencent-scf/commit/ba2bf7edc15841a6e3159899ab393f159e340145))
+
 # [0.8.0](https://github.com/serverless-components/tencent-scf/compare/v0.7.7...v0.8.0) (2021-07-30)
 
 
