@@ -2,7 +2,7 @@
   "dependencies": {
     "adm-zip": "^0.5.5",
     "download": "^8.0.0",
-    "tencent-component-toolkit": "^2.13.3",
+    "tencent-component-toolkit": "^2.13.4",
     "type": "^2.0.0"
   }
 }
