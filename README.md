@@ -35,6 +35,12 @@ $ cd example
 serverless deploy
 ```
 
+可以通过添加 inputs 参数设置预置并发，例如：为版本 1 设置 4 个预置并发(如果不指定版本会新发布一个版本，并为新版本设置并发)
+
+```
+serverless deploy --inputs provisionedNum=4 qualifier=1
+```
+
 > **说明**：如果鉴权失败，请参考 [权限配置](https://cloud.tencent.com/document/product/1154/43006) 进行授权。
 
 #### 查看

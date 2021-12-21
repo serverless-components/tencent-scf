@@ -190,39 +190,39 @@ inputs:
 
 参考： https://cloud.tencent.com/document/product/583/18586
 
-| 参数名称          | 必选 | 类型                        | 默认值               | 描述                                                         |
-| ----------------- | ---- | --------------------------- | -------------------- | ------------------------------------------------------------ |
-| src               | 是   | [Src](#Src)                 |                      | 函数代码路径。                                               |
-| type              | 否   | string                      | `event`              | 函数类型，支持：event、web                                   |
-| name              | 否   | string                      |                      | 创建的函数名称                                               |
-| namespace         | 否   | string                      | `default`            | 函数命名空间                                                 |
-| handler           | 否   | string                      | `index.main_handler` | 函数处理方法名称，执行方法表明了调用云函数时需要从哪个文件中的哪个函数开始执行（函数类型为 web 时生效） |
+| 参数名称          | 必选 | 类型                        | 默认值               | 描述                                                                                                                                  |
+| ----------------- | ---- | --------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| src               | 是   | [Src](#Src)                 |                      | 函数代码路径。                                                                                                                        |
+| type              | 否   | string                      | `event`              | 函数类型，支持：event、web                                                                                                            |
+| name              | 否   | string                      |                      | 创建的函数名称                                                                                                                        |
+| namespace         | 否   | string                      | `default`            | 函数命名空间                                                                                                                          |
+| handler           | 否   | string                      | `index.main_handler` | 函数处理方法名称，执行方法表明了调用云函数时需要从哪个文件中的哪个函数开始执行（函数类型为 web 时生效）                               |
 | entryFile         | 否   | string                      |                      | 函数入口文件名，默认根据运行环境指定默认文件名。Nodejs 为 app.js，Python 环境为 app.py，php 环境为 hello.php（函数类型为 web 时生效） |
-| role              | 否   | string                      |                      | 云函数绑定的运行角色。                                       |
-| runtime           | 否   | string                      | `Nodejs10.15`        | 函数运行环境 （web 函数目前仅支持 Nodejs、Python、Php 三类环境） |
-| region            | 否   | string                      | `ap-guangzhou`       | 云函数所在区域。详见产品支持的 [地域列表][函数地域列表]。    |
-| description       | 否   | string                      |                      | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文 |
-| memorySize        | 否   | number                      | `128`                | 函数运行时内存大小，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯 |
-| timeout           | 否   | number                      | `3`                  | 函数最长执行时间，单位为秒，可选值范围 1-900 秒              |
-| initTimeout       | 否   | number                      | `3`                  | 函数初始化超时时间，单位为秒，可选值范围 1-30 秒 秒          |
-| eip               | 否   | boolean                     | `false`              | 是否[固定出口 IP][固定出口ip]                                |
-| publicAccess      | 否   | number                      | `true`               | 是否开启公网访问                                             |
-| environment       | 否   | [Environment](#Environment) |                      | 函数的环境变量，配置参考[环境变量](#环境变量)                |
-| vpcConfig         | 否   | [Vpc](#Vpc)                 |                      | 函数的私有网络配置，配置参数参考[私有网络](#私有网络)        |
-| layers            | 否   | [Layer](#Layer)[]           |                      | 云函数绑定的 layer, 配置参数参考[层配置](#层配置)            |
-| deadLetter        | 否   | [DeadLetter](#DeadLetter)   |                      | 死信队列配置，配置参数参考[死信队列](#死信队列)              |
-| cls               | 否   | [Cls](#Cls)                 |                      | 函数日志配置，配置参数参考[函数日志](#函数日志)              |
-| eip               | 否   | boolean                     | `false`              | 固定出口 IP。默认为 false，即不启用。                        |
-| asyncRunEnable    | 否   | boolean                     | `false`              | 是否启用异步执行（长时间运行），默认最大支持 `12小时`，如果配置为 `true`，`cls`（函数日志配置） 必须。`此参数只有在函数创建时才有效` |
-| traceEnable       | 否   | boolean                     | `false`              | 是否启用状态追踪，如果要配置为 `true`，必须配置 `asyncRunEnable` 同时为 `true` |
-| msgTTL            | 否   | number                      | `21600`              | 异步执行消息保留时间，单位秒，仅 `asyncRunEnable` 为 `true` 时有效 |
-| retryNum          | 否   | number                      | `2`                  | 重试次数，仅 `asyncRunEnable` 为 `true` 时有效               |
-| installDependency | 否   | boolean                     | `false`              | 是否自动在线安装依赖                                         |
-| tags              | 否   |                             |                      | 标签设置。可设置多对 key-value 的键值对                      |
-| cfs               | 否   | [Cfs](#Cfs)[]               |                      | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。 |
-| ignoreTriggers    | 否   | boolean                     | `false`              | 是否忽略触发器，如果设置为 `true`，`events` 参数将不起作用，组件将至更新函数配置和代码 |
-| events            | 否   | [Event](#Event)[]           |                      | 触发器配置                                                   |
-| image             | 否   | [Image](#Image)             |                      | 镜像配置                                                     |
+| role              | 否   | string                      |                      | 云函数绑定的运行角色。                                                                                                                |
+| runtime           | 否   | string                      | `Nodejs10.15`        | 函数运行环境 （web 函数目前仅支持 Nodejs、Python、Php 三类环境）                                                                      |
+| region            | 否   | string                      | `ap-guangzhou`       | 云函数所在区域。详见产品支持的 [地域列表][函数地域列表]。                                                                             |
+| description       | 否   | string                      |                      | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                                       |
+| memorySize        | 否   | number                      | `128`                | 函数运行时内存大小，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                                                    |
+| timeout           | 否   | number                      | `3`                  | 函数最长执行时间，单位为秒，可选值范围 1-900 秒                                                                                       |
+| initTimeout       | 否   | number                      | `3`                  | 函数初始化超时时间，单位为秒，可选值范围 1-30 秒 秒                                                                                   |
+| eip               | 否   | boolean                     | `false`              | 是否[固定出口 IP][固定出口ip]                                                                                                         |
+| publicAccess      | 否   | number                      | `true`               | 是否开启公网访问                                                                                                                      |
+| environment       | 否   | [Environment](#Environment) |                      | 函数的环境变量，配置参考[环境变量](#环境变量)                                                                                         |
+| vpcConfig         | 否   | [Vpc](#Vpc)                 |                      | 函数的私有网络配置，配置参数参考[私有网络](#私有网络)                                                                                 |
+| layers            | 否   | [Layer](#Layer)[]           |                      | 云函数绑定的 layer, 配置参数参考[层配置](#层配置)                                                                                     |
+| deadLetter        | 否   | [DeadLetter](#DeadLetter)   |                      | 死信队列配置，配置参数参考[死信队列](#死信队列)                                                                                       |
+| cls               | 否   | [Cls](#Cls)                 |                      | 函数日志配置，配置参数参考[函数日志](#函数日志)                                                                                       |
+| eip               | 否   | boolean                     | `false`              | 固定出口 IP。默认为 false，即不启用。                                                                                                 |
+| asyncRunEnable    | 否   | boolean                     | `false`              | 是否启用异步执行（长时间运行），默认最大支持 `12小时`，如果配置为 `true`，`cls`（函数日志配置） 必须。`此参数只有在函数创建时才有效`  |
+| traceEnable       | 否   | boolean                     | `false`              | 是否启用状态追踪，如果要配置为 `true`，必须配置 `asyncRunEnable` 同时为 `true`                                                        |
+| msgTTL            | 否   | number                      | `21600`              | 异步执行消息保留时间，单位秒，仅 `asyncRunEnable` 为 `true` 时有效                                                                    |
+| retryNum          | 否   | number                      | `2`                  | 重试次数，仅 `asyncRunEnable` 为 `true` 时有效                                                                                        |
+| installDependency | 否   | boolean                     | `false`              | 是否自动在线安装依赖                                                                                                                  |
+| tags              | 否   |                             |                      | 标签设置。可设置多对 key-value 的键值对                                                                                               |
+| cfs               | 否   | [Cfs](#Cfs)[]               |                      | 文件系统挂载配置，用于云函数挂载文件系统。配置参数参考[文件系统](#文件系统)。                                                         |
+| ignoreTriggers    | 否   | boolean                     | `false`              | 是否忽略触发器，如果设置为 `true`，`events` 参数将不起作用，组件将至更新函数配置和代码                                                |
+| events            | 否   | [Event](#Event)[]           |                      | 触发器配置                                                                                                                            |
+| image             | 否   | [Image](#Image)             |                      | 镜像配置                                                                                                                              |
 
 **重要字段说明**
 
@@ -392,25 +392,25 @@ mps - MPS 触发器
 
 参考： https://cloud.tencent.com/document/product/628/14886
 
-| 参数名称                  | 必选 |            类型             | 默认值  | 描述                                                         |
-| ------------------------- | ---- | :-------------------------: | :------ | :----------------------------------------------------------- |
-| path                      | 是   |           string            |         | API 的前端路径，如/path。                                    |
-| method                    | 否   |           string            |         | API 的前端请求方法，如 GET，支持的参数有：["ANY","GET","HEAD","POST","PUT","DELETE"]。 |
-| apiId                     | 否   |           string            |         | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。 |
-| apiName                   | 否   |           string            |         | API 名称                                                     |
-| description               | 否   |           string            |         | API 描述                                                     |
-| enableCORS                | 否   |           boolean           | `false` | 是否需要开启跨域                                             |
+| 参数名称                  | 必选 |            类型             | 默认值  | 描述                                                                                                      |
+| ------------------------- | ---- | :-------------------------: | :------ | :-------------------------------------------------------------------------------------------------------- |
+| path                      | 是   |           string            |         | API 的前端路径，如/path。                                                                                 |
+| method                    | 否   |           string            |         | API 的前端请求方法，如 GET，支持的参数有：["ANY","GET","HEAD","POST","PUT","DELETE"]。                    |
+| apiId                     | 否   |           string            |         | API ID。如果不传递则根据 path 和 method 创建一个，传递了直接忽略 path 和 method 参数。                    |
+| apiName                   | 否   |           string            |         | API 名称                                                                                                  |
+| description               | 否   |           string            |         | API 描述                                                                                                  |
+| enableCORS                | 否   |           boolean           | `false` | 是否需要开启跨域                                                                                          |
 | responseType              | 否   |           string            |         | 自定义响应配置返回类型，现在只支持 HTML、JSON、TEST、BINARY、XML（此配置仅用于生成 API 文档提示调用者）。 |
-| serviceTimeout            | 否   |           number            | `15`    | API 的后端服务超时时间，单位是秒，取值范围：1～1800秒。      |
-| param                     | 否   |   [Parameter](#Parameter)   |         | 前端参数                                                     |
-| function                  | 否   |    [Function](#Function)    |         | SCF 配置                                                     |
-| usagePlan                 | 否   |   [UsagePlan](#UsagePlan)   |         | 使用计划                                                     |
-| auth                      | 否   |        [Auth](#Auth)        |         | API 密钥配置                                                 |
-| authType                  | 否   |           string            | `NONE`  | `NONE` 或 `APP`                                              |
-| app                       | 否   |         [App](#App)         |         | API 绑定 APP 配置                                            |
-| isBase64Encoded           | 否   |           boolean           | `false` | 是否开启 Base64 编码，只有后端为 scf 时才会生效              |
-| isBase64Trigger           | 否   |           boolean           | `false` | 是否开启 Base64 编码的 header 触发，只有后端为 scf 时才会生效 |
-| base64EncodedTriggerRules | 否   | [Base64Rule](#Base64Rule)[] | []      | Header 触发 Base64 编码规则，总规则数不能超过 10，只有 `isBase64Trigger` 设置为 `true` 才有效 |
+| serviceTimeout            | 否   |           number            | `15`    | API 的后端服务超时时间，单位是秒，取值范围：1 ～ 1800 秒。                                                |
+| param                     | 否   |   [Parameter](#Parameter)   |         | 前端参数                                                                                                  |
+| function                  | 否   |    [Function](#Function)    |         | SCF 配置                                                                                                  |
+| usagePlan                 | 否   |   [UsagePlan](#UsagePlan)   |         | 使用计划                                                                                                  |
+| auth                      | 否   |        [Auth](#Auth)        |         | API 密钥配置                                                                                              |
+| authType                  | 否   |           string            | `NONE`  | `NONE` 或 `APP`                                                                                           |
+| app                       | 否   |         [App](#App)         |         | API 绑定 APP 配置                                                                                         |
+| isBase64Encoded           | 否   |           boolean           | `false` | 是否开启 Base64 编码，只有后端为 scf 时才会生效                                                           |
+| isBase64Trigger           | 否   |           boolean           | `false` | 是否开启 Base64 编码的 header 触发，只有后端为 scf 时才会生效                                             |
+| base64EncodedTriggerRules | 否   | [Base64Rule](#Base64Rule)[] | []      | Header 触发 Base64 编码规则，总规则数不能超过 10，只有 `isBase64Trigger` 设置为 `true` 才有效             |
 
 ###### Parameter
 
