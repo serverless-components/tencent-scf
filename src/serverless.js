@@ -56,14 +56,14 @@ class ServerlessComponent extends Component {
           description: scfOutput.Description || null,
           namesapce: scfOutput.Namesapce || 'default'
         }
-        const verionRes = await scf.version.publish(publishVersionInputs)
+        const versionRes = await scf.version.publish(publishVersionInputs)
         /* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
-        qualifier = verionRes.FunctionVersion
+        qualifier = versionRes.FunctionVersion
       } else {
         qualifier = inputs.qualifier
       }
 
-      await this.wait(1500)
+      await this.wait(5000)
       // 预置并发
       const concurrencyRes = await scf.concurrency.setProvisioned({
         functionName: scfOutput.FunctionName,
