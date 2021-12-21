@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/serverless-components/tencent-scf/compare/v0.8.2...v0.9.0) (2021-12-21)
+
+
+### Features
+
+* 增加预置并发功能 ([#78](https://github.com/serverless-components/tencent-scf/issues/78)) ([d959b5c](https://github.com/serverless-components/tencent-scf/commit/d959b5c5c0301b13c1fe5a21493cd880b8f46246))
+
 ## [0.8.2](https://github.com/serverless-components/tencent-scf/compare/v0.8.1...v0.8.2) (2021-08-05)
 
 
