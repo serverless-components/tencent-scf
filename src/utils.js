@@ -184,6 +184,9 @@ async function uploadCodeToCos(instance, credentials, appId, inputs) {
  * @param {object} inputs yml inputs
  */
 const formatInputs = async (instance, credentials, appId, inputs) => {
+  if (inputs.provisionedNum) {
+    inputs.publish = false
+  }
   // 基于镜像部署
   let imageCode
   if (inputs.image) {
@@ -464,6 +467,10 @@ function formatMetricData(data) {
   return list
 }
 
+function strip(num, precision = 12) {
+  return +parseFloat(num.toPrecision(precision))
+}
+
 module.exports = {
   getType,
   getDefaultProtocol,
@@ -471,5 +478,6 @@ module.exports = {
   getDefaultZipPath,
   formatInputs,
   formatAliasInputs,
-  formatMetricData
+  formatMetricData,
+  strip
 }

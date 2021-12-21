@@ -6,7 +6,8 @@ const {
   formatAliasInputs,
   getType,
   getDefaultProtocol,
-  formatMetricData
+  formatMetricData,
+  strip
 } = require('./utils')
 const CONFIGS = require('./config')
 
@@ -32,10 +33,13 @@ class ServerlessComponent extends Component {
     return this.credentials.tencent.tmpSecrets.appId
   }
 
+  async wait(ms) {
+    return new Promise((resolve) => setTimeout(() => resolve(), ms))
+  }
+
   async deploy(inputs) {
     const credentials = this.getCredentials()
     const appId = this.getAppId()
-
     const region = inputs.region || CONFIGS.region
     const faasType = inputs.type || 'event'
 
@@ -44,6 +48,43 @@ class ServerlessComponent extends Component {
     const scf = new Scf(credentials, region)
     const scfOutput = await scf.deploy(scfInputs)
 
+    if (inputs.provisionedNum) {
+      let qualifier
+      if (!inputs.qualifier) {
+        const publishVersionInputs = {
+          functionName: scfOutput.FunctionName,
+          description: scfOutput.Description || null,
+          namesapce: scfOutput.Namesapce || 'default'
+        }
+        const versionRes = await scf.version.publish(publishVersionInputs)
+        /* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
+        qualifier = versionRes.FunctionVersion
+      } else {
+        qualifier = inputs.qualifier
+      }
+
+      await this.wait(3000)
+      // 预置并发
+      const concurrencyRes = await scf.concurrency.setProvisioned({
+        functionName: scfOutput.FunctionName,
+        namespace: scfOutput.Namespace,
+        provisionedNum: inputs.provisionedNum,
+        qualifier
+      })
+      console.log('Preset concurrency succeeded', concurrencyRes)
+      // 设置流量控制
+      if (inputs.traffic) {
+        const flowRes = await scf.alias.update({
+          functionName: scfOutput.FunctionName,
+          namespace: scfOutput.Namespace,
+          region: this.region,
+          additionalVersions: [{ weight: strip(1 - inputs.traffic), version: qualifier }],
+          aliasName: inputs.aliasName,
+          description: inputs.aliasDescription
+        })
+        console.log('Flow setting successed', flowRes)
+      }
+    }
     const outputs = {
       type: faasType,
       functionName: scfOutput.FunctionName,
@@ -127,7 +168,6 @@ class ServerlessComponent extends Component {
     await this.save()
 
     console.log(`Deploy ${CONFIGS.compFullname} success`)
-
     return outputs
   }
 
