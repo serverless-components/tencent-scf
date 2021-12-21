@@ -63,7 +63,7 @@ class ServerlessComponent extends Component {
         qualifier = inputs.qualifier
       }
 
-      await this.wait(5000)
+      await this.wait(3000)
       // 预置并发
       const concurrencyRes = await scf.concurrency.setProvisioned({
         functionName: scfOutput.FunctionName,
