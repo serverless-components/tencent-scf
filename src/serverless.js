@@ -44,7 +44,6 @@ class ServerlessComponent extends Component {
     const faasType = inputs.type || 'event'
 
     const { scfInputs, useDefault } = await formatInputs(this, credentials, appId, inputs)
-
     const scf = new Scf(credentials, region)
     const scfOutput = await scf.deploy(scfInputs)
 
