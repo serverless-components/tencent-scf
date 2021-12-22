@@ -187,6 +187,17 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
   if (inputs.provisionedNum) {
     inputs.publish = false
   }
+  // 如果是ws函数，protocolType置为WEBSOCKET
+  if (inputs.protocolType === 'WS' || inputs.type === 'web') {
+    inputs.events &&
+      inputs.events.forEach((v) => {
+        v.apigw.parameters.endpoints &&
+          v.apigw.parameters.endpoints.forEach((item) => {
+            item.protocolType = 'WEBSOCKET'
+          })
+      })
+  }
+  
   // 基于镜像部署
   let imageCode
   if (inputs.image) {
