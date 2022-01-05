@@ -40,7 +40,10 @@ const validateTraffic = (num) => {
   return true
 }
 
-const getDefaultProtocol = (protocols) => {
+const getDefaultProtocol = (protocols, inputs) => {
+  if (inputs && inputs.protocolType === 'WS' && inputs.type === 'web') {
+    return 'ws'
+  }
   return String(protocols).includes('https') ? 'https' : 'http'
 }
 
@@ -188,7 +191,7 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
     inputs.publish = false
   }
   // 如果是ws函数，protocolType置为WEBSOCKET
-  if (inputs.protocolType === 'WS' || inputs.type === 'web') {
+  if (inputs.protocolType === 'WS' && inputs.type === 'web') {
     inputs.events &&
       inputs.events.forEach((v) => {
         v.apigw.parameters.endpoints &&
@@ -197,7 +200,7 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
           })
       })
   }
-  
+
   // 基于镜像部署
   let imageCode
   if (inputs.image) {
@@ -272,8 +275,8 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
           getDefaultServiceName(instance)
 
         let { serviceId } = currentEvent.parameters
-        currentEvent.parameters.isInputServiceId = !!serviceId
-        currentEvent.parameters.serviceName = serviceName
+        // currentEvent.parameters.isInputServiceId = !!serviceId
+        // currentEvent.parameters.serviceName = serviceName
         currentEvent.parameters.description =
           currentEvent.parameters.description || getDefaultServiceDescription(instance)
         currentEvent.name = currentEvent.name || getDefaultTriggerName(eventType, instance)

@@ -136,16 +136,16 @@ class ServerlessComponent extends Component {
           if (getType(item.subDomain) === 'Array') {
             item.subDomain.forEach((domain) => {
               item.urls.push(
-                `${getDefaultProtocol(item.protocols)}://${domain}/${item.environment}${
+                `${getDefaultProtocol(item.protocols, inputs)}://${domain}/${item.environment}${
                   apiItem.path
                 }`
               )
             })
           } else {
             item.urls.push(
-              `${getDefaultProtocol(item.protocols)}://${item.subDomain}/${item.environment}${
-                apiItem.path
-              }`
+              `${getDefaultProtocol(item.protocols, inputs)}://${item.subDomain}/${
+                item.environment
+              }${apiItem.path}`
             )
           }
         })
