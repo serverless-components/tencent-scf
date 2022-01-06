@@ -38,12 +38,17 @@ actions:
         allow: # The values that are allowed for this
           - Python2.7
           - Python3.6
+          - Python3.7
           - Nodejs6.10
           - Nodejs8.9
           - Nodejs10.15
           - Nodejs12.16
+          - Nodejs14.18
+          - Nodejs16.13
           - Php5
           - Php7
+          - Php7.4
+          - Php8.0
           - Go1
           - Java8
           - CustomRuntime
