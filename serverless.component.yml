@@ -51,6 +51,7 @@ actions:
           - Php8.0
           - Go1
           - Java8
+          - Java11
           - CustomRuntime
       region:
         type: string
