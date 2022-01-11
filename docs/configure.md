@@ -225,6 +225,8 @@ inputs:
 | image             | 否   | [Image](#Image)                   |                      | 镜像配置                                                                                                                              |
 | protocolType      | 否   | string                            |                      | HTTP 函数支持的访问协议。当前支持 WebSockets 协议，值为 WS,只有 type:web 时此配置生效                                                 |
 | protocolParams    | 否   | [ProtocolParams](#ProtocolParams) |                      | HTTP 函数配置 ProtocolType 访问协议，当前协议可配置的参数，主要是配置空闲超时时间                                                     |
+| provisionedNum    | 否   | number                            |                      | 预置并发数量，注：所有版本的预置并发数总和存在上限限制，当前的上限是：函数最大并发配额 - 100                                          |
+| qualifier         | 否   | number                            |                      | 函数的版本号，注：\$LATEST 版本不支持预置并发                                                                                         |
 
 **重要字段说明**
 
