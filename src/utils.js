@@ -275,7 +275,7 @@ const formatInputs = async (instance, credentials, appId, inputs) => {
           getDefaultServiceName(instance)
 
         let { serviceId } = currentEvent.parameters
-        // currentEvent.parameters.isInputServiceId = !!serviceId
+        currentEvent.parameters.isInputServiceId = !!serviceId
         // currentEvent.parameters.serviceName = serviceName
         currentEvent.parameters.description =
           currentEvent.parameters.description || getDefaultServiceDescription(instance)

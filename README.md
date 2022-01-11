@@ -36,6 +36,10 @@ serverless deploy
 ```
 
 可以通过添加 inputs 参数设置预置并发，例如：为版本 1 设置 4 个预置并发(如果不指定版本会新发布一个版本，并为新版本设置并发)
+| 参数名 | 是否必选 | 说明 |类型 |
+| --------- | -------- | --------- |-------------------------------------------------------- |
+| provisionedNum | 否 |int| 预置并发的数量 |
+| qualifier | 否 |int| 设置预置并发的版本。 |
 
 ```
 serverless deploy --inputs provisionedNum=4 qualifier=1
