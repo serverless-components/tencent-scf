@@ -1,3 +1,10 @@
+## [0.9.5](https://github.com/serverless-components/tencent-scf/compare/v0.9.4...v0.9.5) (2022-02-16)
+
+
+### Bug Fixes
+
+* 删除php7.4 ([13c9697](https://github.com/serverless-components/tencent-scf/commit/13c969729ae62983005c2cb21c19e4a20541e327))
+
 ## [0.9.4](https://github.com/serverless-components/tencent-scf/compare/v0.9.3...v0.9.4) (2022-01-11)
 
 
