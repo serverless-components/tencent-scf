@@ -231,7 +231,7 @@ inputs:
 **重要字段说明**
 
 - name - 云函数名称，字段字符需满足 `只能包含字母、数字、下划线、连字符，以字母开头，以数字或字母结尾，2~60个字符`
-- runtime - 目前仅支持: `Nodejs6.10，Nodejs8.9，Nodejs10.15，Nodejs12.16，Nodejs14.18，Nodejs16.13，Python2.7，Python3.6，Python3.7，PHP5，PHP7，PHP7.4，PHP8.0，Go1，Java8,Java11 和 CustomRuntime`，使用 `CustomRuntime` 部署参考 [CustomRuntime][customruntime]
+- runtime - 目前仅支持: `Nodejs6.10，Nodejs8.9，Nodejs10.15，Nodejs12.16，Nodejs14.18，Nodejs16.13，Python2.7，Python3.6，Python3.7，PHP5，PHP7，Go1，Java8,Java11 和 CustomRuntime`，使用 `CustomRuntime` 部署参考 [CustomRuntime][customruntime]
 
 ### Src
 
