@@ -1,3 +1,10 @@
+## [0.9.6](https://github.com/serverless-components/tencent-scf/compare/v0.9.5...v0.9.6) (2022-02-18)
+
+
+### Bug Fixes
+
+* 修复bug ([#90](https://github.com/serverless-components/tencent-scf/issues/90)) ([cd7a48e](https://github.com/serverless-components/tencent-scf/commit/cd7a48e807a2bcd0b4711806094ef24e6a0dad79))
+
 ## [0.9.5](https://github.com/serverless-components/tencent-scf/compare/v0.9.4...v0.9.5) (2022-02-16)
 
 
