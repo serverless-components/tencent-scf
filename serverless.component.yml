@@ -1,5 +1,5 @@
 name: scf
-version: 0.9.6
+version: dev
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: 单函数组件，允许用户开发部署单个腾讯 SCF 函数实例。适合进行单一函数开发的场景。如：定时触发任务。
@@ -89,12 +89,6 @@ actions:
           - 2816
           - 2944
           - 3072
-      environment:
-        type: object
-        description: SCF environment
-        keys:
-          variables:
-            type: object
       timeout:
         type: number
         min: 1
@@ -127,8 +121,6 @@ actions:
         type: boolean
       l5Enable:
         type: boolean
-      tags:
-        type: object
       layers:
         type: array
         items:
