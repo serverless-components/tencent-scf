@@ -13,13 +13,19 @@ const WEB_FUNC_CONFIGS = {
     templateUrl:
       'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-python2-demo.zip',
     entryFile: 'app.py',
-    bootstrapRunner: '/var/lang/python2/bin/python2'
+    bootstrapRunner: '/var/lang/python2/bin/python2 -u'
   },
   'Python3.6': {
     templateUrl:
       'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-python3-demo.zip',
     entryFile: 'app.py',
-    bootstrapRunner: '/var/lang/python3/bin/python3'
+    bootstrapRunner: '/var/lang/python3/bin/python3 -u'
+  },
+  'Python3.7': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-python37-demo.zip',
+    entryFile: 'app.py',
+    bootstrapRunner: '/var/lang/python37/bin/python3 -u'
   },
   'Nodejs10.15': {
     templateUrl:
@@ -33,6 +39,18 @@ const WEB_FUNC_CONFIGS = {
     entryFile: 'app.js',
     bootstrapRunner: '/var/lang/node12/bin/node'
   },
+  'Nodejs14.18': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-node14-demo.zip',
+    entryFile: 'app.js',
+    bootstrapRunner: '/var/lang/node14/bin/node'
+  },
+  'Nodejs16.13': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-node16-demo.zip',
+    entryFile: 'app.js',
+    bootstrapRunner: '/var/lang/node16/bin/node'
+  },
   Php5: {
     templateUrl:
       'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-php5-demo.zip',
@@ -44,6 +62,18 @@ const WEB_FUNC_CONFIGS = {
       'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-php7-demo.zip',
     entryFile: 'hello.php',
     bootstrapRunner: '/var/lang/php7/bin/php -S 0.0.0.0:9000'
+  },
+  'Php7.4': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-php74-demo.zip',
+    entryFile: 'hello.php',
+    bootstrapRunner: '/var/lang/php74/bin/php -S 0.0.0.0:9000'
+  },
+  'Php8.0': {
+    templateUrl:
+      'https://serverless-templates-1300862921.cos.ap-beijing.myqcloud.com/webfunc-php80-demo.zip',
+    entryFile: 'hello.php',
+    bootstrapRunner: '/var/lang/php80/bin/php -S 0.0.0.0:9000'
   }
 }
 
