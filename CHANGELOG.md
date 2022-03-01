@@ -1,3 +1,10 @@
+## [0.9.8](https://github.com/serverless-components/tencent-scf/compare/v0.9.7...v0.9.8) (2022-03-01)
+
+
+### Bug Fixes
+
+* 修改yml ([#94](https://github.com/serverless-components/tencent-scf/issues/94)) ([1a3b968](https://github.com/serverless-components/tencent-scf/commit/1a3b968beb0e1b5af0cfbcb0f59ba31a55b146b7))
+
 ## [0.9.7](https://github.com/serverless-components/tencent-scf/compare/v0.9.6...v0.9.7) (2022-03-01)
 
 
