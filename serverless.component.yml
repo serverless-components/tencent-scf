@@ -89,12 +89,6 @@ actions:
           - 2816
           - 2944
           - 3072
-      environment:
-        type: object
-        description: SCF environment
-        keys:
-          variables:
-            type: object
       timeout:
         type: number
         min: 1
@@ -127,8 +121,6 @@ actions:
         type: boolean
       l5Enable:
         type: boolean
-      tags:
-        type: object
       layers:
         type: array
         items:
