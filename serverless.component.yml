@@ -14,28 +14,27 @@ actions:
   deploy:
     definition: Deploy application to Tencent SCF
     inputs:
-      src:
-        type: src
-        required: true
-        description: The folder containing the source code of application.
       type:
         type: string
+        message: '不支持当前类型，支持类型有：[event , web]'
         allow:
           - event
           - web
       name:
         type: string
-        description: The name of Tencent SCF function.
-        regex: '^[A-Za-z][\w-_]{0,58}[A-Za-z0-9]$'
+        rules:
+          - regex: '^[A-Za-z][\w-_]*[A-Za-z0-9]$'
+            message: '只能包含字母、数字、下划线、连字符，以字母开头，以数字或字母结尾'
+          - min: 2
+            message: '长度不能小于2'
+          - max: 60
+            message: '长度不能大于60'
       handler:
         type: string
-        default: 'index.main_handler'
-        description: The handler of Tencent SCF function.
       runtime:
         type: string
-        description: SCF runtime
-        default: Nodejs10.15
-        allow: # The values that are allowed for this
+        message: '运行时选择错误，请参考https://cloud.tencent.com/document/product/583/54977'
+        allow:
           - Python2.7
           - Python3.6
           - Python3.7
@@ -55,15 +54,27 @@ actions:
           - CustomRuntime
       region:
         type: string
-        default: ap-guangzhou
-        description: Region for SCF deployed to
+        message: '地区选择错误，https://cloud.tencent.com/document/api/583/17238#.E5.9C.B0.E5.9F.9F.E5.88.97.E8.A1.A8'
+        allow:
+          - ap-beijing
+          - ap-chengdu
+          - ap-chongqing
+          - ap-guangzhou
+          - ap-hongkong
+          - ap-mumbai
+          - ap-seoul
+          - ap-shanghai
+          - ap-shanghai-fsi
+          - ap-shenzhen-fsi
+          - ap-singapore
+          - ap-tokyo
+          - eu-frankfurt
+          - na-siliconvalley
+          - na-toronto
       memorySize:
         type: number
-        description: SCF memory size
-        default: 128 # The default value
-        min: 64 # Minimum number allowed
-        max: 3072 # Maximum number allowed
-        allow: # The values that are allowed for this
+        message: '可选范围 64、128MB-3072MB，并且以 128MB 为阶梯'
+        allow:
           - 64
           - 128
           - 256
@@ -89,12 +100,35 @@ actions:
           - 2816
           - 2944
           - 3072
+        level: 'warning'
+      vpcConfig:
+        type: object
+        keys:
+          vpcId:
+            type: string
+          subnetId:
+            type: string
+      deadLetter:
+        type: object
+        keys:
+          Type:
+            type: string
+            required: true
+          Name:
+            type: string
+            required: true
       timeout:
         type: number
         min: 1
+        max: 900
+        message: 'timeout 取值范围为 [1, 900]'
+        level: 'warning'
       initTimeout:
         type: number
         min: 1
+        max: 30
+        message: '函数初始化超时时间，单位为秒，可选值范围 1-30 秒'
+        level: 'warning'
       cfs:
         type: array
         items:
@@ -115,8 +149,37 @@ actions:
         type: boolean
       eip:
         type: boolean
+      image:
+        type: object
+        keys:
+          imageUrl:
+            type: string
+            required: true
+            regex: '([a-z0-9-]{5,50}).(tencentcloudcr|tencentyun).com\/([a-z-_.0-9]{2,30})\/([a-z0-9-_.\/]{2,200}):([\w-]+)@sha256:(\w+)'
+            message: '镜像地址 imageUrl 格式需要遵守: {domain}/{namespace}/{imageName}:{tag}@{digest}'
       installDependency:
         type: boolean
+      protocolType:
+        type: string
+        allow:
+          - WS # inputs.type = web 时才会生效
+      protocolParams:
+        type: object
+        keys:
+          wsParams:
+            type: object
+            keys:
+              idleTimeOut:
+                message: 'idleTimeOut 空闲超时时间的取值范围为 【 1（秒）- 1800（秒）】'
+                type: number
+                min: 1
+                max: 1800
+      provisionedNum:
+        type: number
+        max: 100
+        message: "provisionedNum 预置并发数量的上限为 100"
+      qualifier:
+        type: number
       asyncRunEnable:
         type: boolean
       l5Enable:
@@ -142,14 +205,15 @@ actions:
                 keys:
                   parameters:
                     type: object
+                    required: true
                     keys:
                       name:
                         type: string
                       enable:
                         type: boolean
-                        default: true
                       cronExpression:
                         type: string
+                        required: true
                       argument:
                         type: string
               apigw:
@@ -162,15 +226,15 @@ actions:
                         type: array
                         items:
                           - type: string
+                            message: 'protocols 无法识别，当前只支持 http, https'
                             allow:
                               - http
                               - https
                       netTypes:
                         type: array
-                        default:
-                          - OUTER
                         items:
                           - type: string
+                            message: 'netTypes 无法识别，当前只支持 OUTER, INNER'
                             allow:
                               - OUTER
                               - INNER
@@ -178,19 +242,34 @@ actions:
                         type: string
                       environment:
                         type: string
+                        message: 'environment 无法识别，当前只支持 release, test, prepub'
                         allow:
                           - release
                           - test
                           - prepub
                       endpoints:
                         type: array
+                        required: true
                         items:
                           - type: object
                             keys:
                               path:
                                 type: string
+                                required: true
+                              serviceTimeout:
+                                type: number
+                                min: 1
+                                max: 1800
+                                message: 'serviceTimeout 取值范围为 [1, 1800]'
                               method:
                                 type: string
+                                allow:
+                                  - 'ANY'
+                                  - 'GET'
+                                  - 'HEAD'
+                                  - 'POST'
+                                  - 'PUT'
+                                  - 'DELETE'
                               enableCORS:
                                 type: boolean
                       serviceId:
@@ -198,6 +277,7 @@ actions:
                       serviceName:
                         type: string
                         regex: '^[a-zA-Z][a-zA-Z0-9(_)]{0,48}[a-zA-Z0-9]?$'
+                        message: '最长 50 个字符，支持 a-z,A-Z,0-9,_, 必须字母开头，字母或者数字结尾'
               cos:
                 type: object
                 keys:
@@ -206,18 +286,21 @@ actions:
                     keys:
                       enable:
                         type: boolean
-                        default: true
                       bucket:
                         type: string
+                        required: true
                       filter:
                         type: object
+                        required: true
                         keys:
                           prefix:
                             type: string
                           suffix:
                             type: string
                       events:
+                        required: true
                         type: string
+                        message: 'cos.events 无法识别，请参考 https://cloud.tencent.com/document/product/583/9707#cos-.E8.A7.A6.E5.8F.91.E5.99.A8.E5.B1.9E.E6.80.A7'
                         allow:
                           - 'cos:ObjectCreated:*'
                           - 'cos:ObjectCreated:Put'
@@ -231,7 +314,6 @@ actions:
                           - 'cos:ObjectRemove:DeleteMarkerCreated'
                           - 'cos:ObjectRestore:Post'
                           - 'cos:ObjectRestore:Completed'
-
               ckafka:
                 type: object
                 keys:
@@ -240,7 +322,6 @@ actions:
                     keys:
                       enable:
                         type: boolean
-                        default: true
                       name:
                         type: string
                       topic:
@@ -251,8 +332,10 @@ actions:
                         type: number
                         min: 1
                         max: 10000
+                        message: 'ckafka.maxMsgNum 的取值范围是[1, 100000]'
                       offset:
                         type: string
+                        message: 'ckafka.offset 配置无法识别，当前只支持 latest, earliest, timestamp'
                         allow:
                           - latest
                           - earliest
@@ -265,9 +348,9 @@ actions:
                     keys:
                       enable:
                         type: boolean
-                        default: true
                       name:
                         type: string
+                        required: true
               cls:
                 type: object
                 keys:
@@ -276,10 +359,11 @@ actions:
                     keys:
                       enable:
                         type: boolean
-                        default: true
                       topicId:
                         type: string
+                        required: true
                       maxWait:
+                        message: 'cls.maxWait 的取值范围是 [3, 300]'
                         type: number
                         min: 3
                         max: 300
@@ -291,9 +375,10 @@ actions:
                     keys:
                       enable:
                         type: boolean
-                        default: true
                       type:
                         type: string
+                        required: true
+                        message: 'mps.type 无法识别，当前只支持 WorkflowTask, EditMediaTask'
                         allow:
                           - WorkflowTask
                           - EditMediaTask
@@ -309,6 +394,7 @@ actions:
                       protocol:
                         type: string
                         required: true
+                        message: 'clb.protocal 是必填字段，并且当前只支持 HTTP, HTTPS'
                         allow:
                           - HTTP
                           - HTTPS
@@ -322,6 +408,7 @@ actions:
                         type: string
                         required: true
                       weight:
+                        message: 'clb.weight 取值范围是 [1, 100]'
                         type: number
                         min: 0
                         max: 100
