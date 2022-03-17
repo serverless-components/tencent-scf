@@ -1,5 +1,5 @@
 name: scf
-version: 0.9.7
+version: dev
 author: Tencent Cloud, Inc.
 org: Tencent Cloud, Inc.
 description: 单函数组件，允许用户开发部署单个腾讯 SCF 函数实例。适合进行单一函数开发的场景。如：定时触发任务。
@@ -22,13 +22,7 @@ actions:
           - web
       name:
         type: string
-        rules:
-          - regex: '^[A-Za-z][\w-_]*[A-Za-z0-9]$'
-            message: '只能包含字母、数字、下划线、连字符，以字母开头，以数字或字母结尾'
-          - min: 2
-            message: '长度不能小于2'
-          - max: 60
-            message: '长度不能大于60'
+        regex: '^[A-Za-z][\w-_]*[A-Za-z0-9]$'
       handler:
         type: string
       runtime:
