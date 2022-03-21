@@ -1,3 +1,10 @@
+## [0.9.10](https://github.com/serverless-components/tencent-scf/compare/v0.9.9...v0.9.10) (2022-03-21)
+
+
+### Bug Fixes
+
+* 修改cos关键字 ([69985f3](https://github.com/serverless-components/tencent-scf/commit/69985f3cdcf612c93c65c95cdda1360ddc2f4bc9))
+
 ## [0.9.9](https://github.com/serverless-components/tencent-scf/compare/v0.9.8...v0.9.9) (2022-03-10)
 
 
