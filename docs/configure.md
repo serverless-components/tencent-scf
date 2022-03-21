@@ -28,7 +28,7 @@ inputs:
   # 3. 指定 bucket name 和文件的方式，直接上传 cos 中的文件部署云函数
   # src:
   #    bucket: tinatest   # bucket name 存储桶名称
-  #    key: 'code.zip'      # bucket key 指定存储桶内的文件
+  #    object: 'code.zip'      # bucket key 指定存储桶内的文件
   # 4. 指定本地文件到 bucket
   # src:
   #   bucket: tinatest   # bucket name
