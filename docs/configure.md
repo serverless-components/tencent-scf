@@ -204,7 +204,7 @@ inputs:
 | description       | 否   | string                            |                      | 函数描述,最大支持 1000 个英文字母、数字、空格、逗号、换行符和英文句号，支持中文                                                       |
 | memorySize        | 否   | number                            | `128`                | 函数运行时内存大小，可选范围 64、128MB-3072MB，并且以 128MB 为阶梯                                                                    |
 | timeout           | 否   | number                            | `3`                  | 函数最长执行时间，单位为秒，可选值范围 1-900 秒                                                                                       |
-| initTimeout       | 否   | number                            | `3`                  | 函数初始化超时时间，单位为秒，可选值范围 1-30 秒 秒                                                                                   |
+| initTimeout       | 否   | number                            | `3`                  | 函数初始化超时时间，单位为秒，可选值范围 3-300 秒                                                                                   |
 | eip               | 否   | boolean                           | `false`              | 是否[固定出口 IP][固定出口ip]                                                                                                         |
 | publicAccess      | 否   | number                            | `true`               | 是否开启公网访问                                                                                                                      |
 | environment       | 否   | [Environment](#Environment)       |                      | 函数的环境变量，配置参考[环境变量](#环境变量)                                                                                         |
@@ -241,7 +241,7 @@ inputs:
 | -------- | :--: | :------: | :----: | :------------------------------------------------- |
 | src      |  是  |  string  |        | 代码路径。与 object 不能同时存在。                 |
 | exclude  |  否  | string[] |        | 不包含的文件或路径, 遵守 [glob 语法][glob语法参考] |
-| bucket   |  否  |  string  |        | 存储桶名称                                         |
+| bucket   |  否  |  string  |        | 存储桶名称，配置前需确认桶是否存在                  |
 | object   |  否  |  string  |        | 部署的代码在存储桶中的路径。                       |
 
 > 注意：如果配置了 `src`，表示部署 `src` 参数指定目录的代码并压缩成 `zip` 后上传到对应的存储桶中；如果配置了 `object`，表示获取对应存储桶中 `object` 对应的代码进行部署
@@ -335,7 +335,7 @@ mps - MPS 触发器
 | -------------- | :--: | :-----: | :--------: | :----------------------------------------------- |
 | qualifier      |  否  | string  | `$DEFAULT` | 触发版本，默认为 `$DEFAULT`，即 `默认流量`       |
 | cronExpression |  是  | string  |            | 触发时间，为 [Cron][定时触发器-cron表达式]表达式 |
-| argument       |  否  | object  |            | 入参参数。                                       |
+| argument       |  否  | object  |            | 附加信息参数。                                     |
 | enable         |  否  | boolean |  `false`   | 触发器是否启用                                   |
 
 #### COS 触发器

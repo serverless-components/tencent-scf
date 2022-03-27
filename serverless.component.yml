@@ -94,7 +94,7 @@ actions:
         min: 1
       initTimeout:
         type: number
-        min: 1
+        min: 3
       cfs:
         type: array
         items:
@@ -149,8 +149,6 @@ actions:
                         type: boolean
                         default: true
                       cronExpression:
-                        type: string
-                      argument:
                         type: string
               apigw:
                 type: object
