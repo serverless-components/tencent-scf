@@ -169,7 +169,7 @@ async function uploadCodeToCos(instance, credentials, appId, inputs) {
     try {
       await cos.upload({ bucket: `${bucketName}-${appId}`, file: zipPath, key: objectName })
     } catch (error) {
-      throw new ApiTypeError('UPLOAD_CODE', 'Upload code to user cos failed.')
+      throw new ApiTypeError('UPLOAD_CODE', 'Upload cos failed, please check bucket exist or not.')
     }
   }
 
